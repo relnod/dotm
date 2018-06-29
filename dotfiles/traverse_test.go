@@ -16,6 +16,7 @@ func TestTraverse(t *testing.T) {
 	var tests = []struct {
 		desc          string
 		fileStructure testutil.FileStructure
+		excluded      []string
 		actionCalls   [][]string
 	}{
 		{
@@ -25,12 +26,14 @@ func TestTraverse(t *testing.T) {
 				"b/",
 			},
 			nil,
+			nil,
 		},
 		{
 			"Simple action call",
 			testutil.FileStructure{
 				"a/a",
 			},
+			nil,
 			[][]string{
 				{"a", "", "a"},
 			},
@@ -42,9 +45,22 @@ func TestTraverse(t *testing.T) {
 				"a/b/c",
 				"b/d",
 			},
+			nil,
 			[][]string{
 				{"a", "", "a"},
 				{"a/b", "b", "c"},
+				{"b", "", "d"},
+			},
+		},
+		{
+			"Can exclude top level directories",
+			testutil.FileStructure{
+				"a/a",
+				"a/b/c",
+				"b/d",
+			},
+			[]string{"a"},
+			[][]string{
 				{"b", "", "d"},
 			},
 		},
@@ -60,7 +76,8 @@ func TestTraverse(t *testing.T) {
 			source.CreateFromFileStructure(test.fileStructure)
 
 			action := mock.NewMockAction()
-			dotfiles.Traverse(source.BasePath(), dest.BasePath(), action)
+			traverser := dotfiles.NewTraverser(test.excluded)
+			traverser.Traverse(source.BasePath(), dest.BasePath(), action)
 
 			action.VerifyWasCalled(Times(len(test.actionCalls))).Run(AnyString(), AnyString(), AnyString())
 

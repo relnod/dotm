@@ -1,10 +1,15 @@
 package file
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+)
+
+var (
+	ErrorCreatingSymlink = errors.New("Failed to create Symlink")
 )
 
 // Visitor defines a visitor.
@@ -52,30 +57,35 @@ func RecTraverseDir(dir string, relDir string, visitor Visitor) error {
 // perfomers a dry run.
 // TODO: add tests
 // TODO: return error
-func Link(from string, to string, dry bool) {
+func Link(from string, to string, dry bool) error {
 	if dry {
 		log.Printf("Creating Symlink from %s to %s", from, to)
-		return
+		return nil
 	}
 
 	err := os.Symlink(from, to)
 	if err != nil {
-		log.Fatal("Error creating symlink!", err)
+		return ErrorCreatingSymlink
 	}
+
+	return nil
 }
 
 // Unlink removes a symbolik link from dest to source. When dry is true only
 // perfomers a dry run.
 // TODO: add tests
 // TODO: return error
-func Unlink(file string, dry bool) {
+func Unlink(file string, dry bool) error {
 	if dry {
 		log.Printf("Removing %s", file)
-		return
+		return nil
 	}
 
 	err := os.Remove(file)
 	if err != nil {
-		log.Fatal("Error while removing symlink!")
+		return err
+		// log.Fatal("Error while removing symlink!")
 	}
+
+	return nil
 }

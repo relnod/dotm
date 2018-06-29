@@ -7,11 +7,19 @@ import (
 	"github.com/relnod/dotm/internal/util/file"
 )
 
+type Traverser struct {
+	excluded []string
+}
+
+func NewTraverser(excluded []string) *Traverser {
+	return &Traverser{excluded: excluded}
+}
+
 // Traverse traverses the dotfiles directory. Calling action.Run()
 // for every file passed
 // TODO: rethink arguments, maybe add Traverser struct
 // TODO: finish implementation
-func Traverse(source string, dest string, action Action) error {
+func (t *Traverser) Traverse(source string, dest string, action Action) error {
 	files, err := ioutil.ReadDir(source)
 	if err != nil {
 		//TODO: wrap error
@@ -23,7 +31,7 @@ func Traverse(source string, dest string, action Action) error {
 			continue
 		}
 
-		if isExcluded(f.Name()) {
+		if t.isExcluded(f.Name()) {
 			continue
 		}
 
@@ -42,4 +50,14 @@ func Traverse(source string, dest string, action Action) error {
 	}
 
 	return nil
+}
+
+func (t *Traverser) isExcluded(dir string) bool {
+	for _, exclude := range t.excluded {
+		if dir == exclude {
+			return true
+		}
+	}
+
+	return false
 }

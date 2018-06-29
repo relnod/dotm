@@ -1,7 +1,8 @@
 package dotfiles
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -13,28 +14,44 @@ var excludes = []string{".git"}
 var dry = true
 var verbose = true
 
+// Errors, that can occur during an action.
+var (
+	ErrorCreatingDestination = errors.New("Could not create destination directory")
+	ErrorReadingFileStats    = errors.New("Could not read file stats")
+)
+
 // Action defines an action.
 // TODO: improve doc
 type Action interface {
 	// TODO: add doc
-	Run(source, dest, name string)
+	Run(source, dest, name string) error
 }
 
 // TODO: add doc
-type Link struct{}
+type Link struct {
+	dry bool
+}
+
+func NewLinkAction(dry bool) *Link {
+	return &Link{dry: dry}
+}
 
 // TODO: add doc
 // TODO: add test
-func (l *Link) Run(source, dest, name string) {
+func (l *Link) Run(source, dest, name string) error {
+	fmt.Println(source, dest, name)
 	err := os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
-		log.Fatal("Error creating destination directory!")
+		return ErrorCreatingDestination
 	}
 
-	f, err := os.Stat(filepath.Join(dest, name))
+	sourceFile := filepath.Join(source, name)
+	destFile := filepath.Join(dest, name)
+
+	f, err := os.Stat(destFile)
 	if err == nil {
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			return
+			return nil
 		}
 
 		// todo: override option (force)
@@ -42,26 +59,32 @@ func (l *Link) Run(source, dest, name string) {
 	}
 
 	if !os.IsNotExist(err) {
-		log.Fatal("Error reading file stats", err)
+		return ErrorReadingFileStats
 	}
 
-	file.Link(filepath.Join(source, name), filepath.Join(dest, name), dry)
+	return file.Link(sourceFile, destFile, l.dry)
 }
 
 // TODO: add doc
-type Unlink struct{}
+type Unlink struct {
+	dry bool
+}
+
+func NewUnlinkAction(dry bool) *Unlink {
+	return &Unlink{dry: dry}
+}
 
 // TODO: add doc
 // TODO: add test
-func (u *Unlink) Run(source, dest, name string) {
+func (u *Unlink) Run(source, dest, name string) error {
 	f, err := os.Stat(filepath.Join(dest, name))
 	if err != nil {
-		return
+		return nil
 	}
 
 	if f.Mode()&os.ModeSymlink != os.ModeSymlink {
-		return
+		return nil
 	}
 
-	file.Unlink(filepath.Join(dest, name), dry)
+	return file.Unlink(filepath.Join(dest, name), u.dry)
 }

@@ -16,12 +16,19 @@ func NewMockAction() *MockAction {
 	return &MockAction{fail: pegomock.GlobalFailHandler}
 }
 
-func (mock *MockAction) Run(_param0 string, _param1 string, _param2 string) {
+func (mock *MockAction) Run(_param0 string, _param1 string, _param2 string) error {
 	if mock == nil {
 		panic("mock must not be nil. Use myMock := NewMockMockAction().")
 	}
 	params := []pegomock.Param{_param0, _param1, _param2}
-	pegomock.GetGenericMockFrom(mock).Invoke("Run", params, []reflect.Type{})
+	result := pegomock.GetGenericMockFrom(mock).Invoke("Run", params, []reflect.Type{reflect.TypeOf((*error)(nil)).Elem()})
+	var ret0 error
+	if len(result) != 0 {
+		if result[0] != nil {
+			ret0 = result[0].(error)
+		}
+	}
+	return ret0
 }
 
 func (mock *MockAction) VerifyWasCalledOnce() *VerifierAction {

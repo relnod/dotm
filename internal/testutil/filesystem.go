@@ -60,6 +60,12 @@ func (f *FileSystem) Path(path string) string {
 	return filepath.Join(f.basePath, path)
 }
 
+// Join joins two paths and reutrns the absolute path in relation to the file
+// system.
+func (f *FileSystem) Join(path1, path2 string) string {
+	return filepath.Join(f.basePath, filepath.Join(path1, path2))
+}
+
 // CreateFromFileStructure creates the files and directories from the given
 // fileStructure.
 func (f *FileSystem) CreateFromFileStructure(fileStructure FileStructure) error {

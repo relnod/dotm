@@ -38,6 +38,18 @@ func TestFileSystemPath(t *testing.T) {
 	}
 }
 
+func TestFileSystemJoin(t *testing.T) {
+	fs := testutil.NewFileSystem()
+	basePath := fs.BasePath()
+
+	absolutePath := fs.Join("test", "test2")
+	expectedPath := filepath.Join(basePath, "test/test2")
+
+	if absolutePath != expectedPath {
+		t.Errorf("Expected path to be '%s', but got '%s'", expectedPath, absolutePath)
+	}
+}
+
 func TestFileSystemCleanup(t *testing.T) {
 	fs := testutil.NewFileSystem()
 	basePath := fs.BasePath()
