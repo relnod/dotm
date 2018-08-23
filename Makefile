@@ -17,10 +17,25 @@ export BASE_PACKAGE ?= github.com/relnod/dotm
 all: test
 
 # === test ===
+# Runs all unit and e2e tests
+.PHONY: test
+test: test-unit test-e2e
+
+# === test ===
 # Runs all unit tests
 .PHONY: test
-test:
-	go test -v ./...
+test-unit:
+	@echo "Running unit tests"
+	@echo ""
+	go test -v `go list ./... | grep -v test/`
+
+# === test ===
+# Runs all e2e tests
+.PHONY: test-e2e
+test-e2e:
+	@echo "Running e2e tests"
+	@echo ""
+	go test -v ./test/e2e/...
 
 # === update ===
 # Updates all generated files

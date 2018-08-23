@@ -60,3 +60,13 @@ func ErrorEquals(t *testing.T, err error, expectedErr error) {
 		t.Errorf("Expected error to equal '%s'. Got '%s'", expectedErr.Error(), err.Error())
 	}
 }
+
+// IsEmpty asserts, that the given string is empty.
+func IsEmpty(t *testing.T, str string) bool {
+	if str != "" {
+		t.Errorf("Expected string to be empty. Got '%s'", str)
+		return false
+	}
+
+	return true
+}
