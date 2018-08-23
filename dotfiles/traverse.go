@@ -7,12 +7,37 @@ import (
 	"github.com/relnod/dotm/internal/util/file"
 )
 
+// Action defines an action, that can be run during the dotfile traversal.
+type Action interface {
+	// Run will get called for each file that gets traversed.
+	Run(source, dest, name string) error
+}
+
+// Traverser is used to traverse the dotfiles structure.
 type Traverser struct {
 	excluded []string
 }
 
+// NewTraverser returns a new traverser.
 func NewTraverser(excluded []string) *Traverser {
 	return &Traverser{excluded: excluded}
+}
+
+// traverseVisitor implements the visitor.Interface.
+type traverseVisitor struct {
+	action Action
+	source string
+	dest   string
+	name   string
+}
+
+// Visit calls the traversal action.
+func (t traverseVisitor) Visit(dir, file string) {
+	t.action.Run(
+		filepath.Join(t.source, t.name, dir),
+		filepath.Join(t.dest, dir),
+		file,
+	)
 }
 
 // Traverse traverses the dotfiles directory. Calling action.Run()
@@ -22,7 +47,7 @@ func NewTraverser(excluded []string) *Traverser {
 func (t *Traverser) Traverse(source string, dest string, action Action) error {
 	files, err := ioutil.ReadDir(source)
 	if err != nil {
-		//TODO: wrap error
+		// TODO: wrap error
 		return err
 	}
 
@@ -35,15 +60,14 @@ func (t *Traverser) Traverse(source string, dest string, action Action) error {
 			continue
 		}
 
-		v := file.NewDefaultVisitor(func(dir, file string) {
-			action.Run(
-				filepath.Join(source, f.Name(), dir),
-				filepath.Join(dest, dir),
-				file,
-			)
-		})
+		t := traverseVisitor{
+			action: action,
+			source: source,
+			dest:   dest,
+			name:   f.Name(),
+		}
 
-		err := file.RecTraverseDir(filepath.Join(source, f.Name()), "", v)
+		err := file.RecTraverseDir(filepath.Join(source, f.Name()), "", t)
 		if err != nil {
 			return err
 		}

@@ -20,24 +20,18 @@ var (
 	ErrorReadingFileStats    = errors.New("Could not read file stats")
 )
 
-// Action defines an action.
-// TODO: improve doc
-type Action interface {
-	// TODO: add doc
-	Run(source, dest, name string) error
-}
-
-// TODO: add doc
+// Link implements the action.Interface for a link action.
 type Link struct {
 	dry bool
 }
 
+// NewLinkAction returns a new link action. If dry is set to true a dry run
+// will be performed.
 func NewLinkAction(dry bool) *Link {
 	return &Link{dry: dry}
 }
 
-// TODO: add doc
-// TODO: add test
+// Run links a file from source to dest.
 func (l *Link) Run(source, dest, name string) error {
 	fmt.Println(source, dest, name)
 	err := os.MkdirAll(dest, os.ModePerm)
@@ -54,8 +48,8 @@ func (l *Link) Run(source, dest, name string) error {
 			return nil
 		}
 
-		// todo: override option (force)
-		// todo: backup option
+		// TODO: override option (force)
+		// TODO: backup option
 	}
 
 	if !os.IsNotExist(err) {
@@ -65,17 +59,18 @@ func (l *Link) Run(source, dest, name string) error {
 	return file.Link(sourceFile, destFile, l.dry)
 }
 
-// TODO: add doc
+// Unlink implements the action.Interface for an unlink action.
 type Unlink struct {
 	dry bool
 }
 
+// NewUnlinkAction returns a new unlink action. If dry is set to true a dry run
+// will be performed.
 func NewUnlinkAction(dry bool) *Unlink {
 	return &Unlink{dry: dry}
 }
 
-// TODO: add doc
-// TODO: add test
+// Run unlinks the file a dest.
 func (u *Unlink) Run(source, dest, name string) error {
 	f, err := os.Stat(filepath.Join(dest, name))
 	if err != nil {

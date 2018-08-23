@@ -11,8 +11,7 @@ var updateCmd = &cobra.Command{
 	Short: "Update the dotfiles",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("updating")
-		// TODO: implement
+		fmt.Println("updating - not implemented")
 	},
 }
 

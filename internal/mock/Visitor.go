@@ -18,7 +18,7 @@ func NewMockVisitor() *MockVisitor {
 
 func (mock *MockVisitor) Visit(_param0 string, _param1 string) {
 	if mock == nil {
-		panic("mock must not be nil. Use myMock := NewMockMockVisitor().")
+		panic("mock must not be nil. Use myMock := NewMockVisitor().")
 	}
 	params := []pegomock.Param{_param0, _param1}
 	pegomock.GetGenericMockFrom(mock).Invoke("Visit", params, []reflect.Type{})

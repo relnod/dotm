@@ -23,6 +23,7 @@ var Source string
 var Destination string
 
 func init() {
+	installCmd.Flags().StringVarP(&Source, "source", "s", "", "Source directory to read from")
+	installCmd.Flags().StringVarP(&Destination, "destination", "d", "~", "Destination directory to write to (used for debugging)")
 	rootCmd.AddCommand(installCmd)
-	rootCmd.Flags().StringVarP(&Source, "source", "s", "", "Source directory to read from")
 }

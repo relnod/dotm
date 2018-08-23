@@ -8,26 +8,15 @@ import (
 	"path/filepath"
 )
 
+// Errors
 var (
 	ErrorCreatingSymlink = errors.New("Failed to create Symlink")
 )
 
 // Visitor defines a visitor.
 type Visitor interface {
-	// TODO: add doc
-	Visit(string, string)
-}
-
-type DefaultVisitor struct {
-	fn func(string, string)
-}
-
-func NewDefaultVisitor(fn func(string, string)) *DefaultVisitor {
-	return &DefaultVisitor{fn: fn}
-}
-
-func (d *DefaultVisitor) Visit(dir string, file string) {
-	d.fn(dir, file)
+	// Visit gets called for each file being traversed.
+	Visit(dir string, file string)
 }
 
 // RecTraverseDir recursively traverses all directories starting at dir.
@@ -55,8 +44,6 @@ func RecTraverseDir(dir string, relDir string, visitor Visitor) error {
 
 // Link creates a symbolik link from dest to source. When dry is true only
 // perfomers a dry run.
-// TODO: add tests
-// TODO: return error
 func Link(from string, to string, dry bool) error {
 	if dry {
 		log.Printf("Creating Symlink from %s to %s", from, to)
@@ -74,7 +61,6 @@ func Link(from string, to string, dry bool) error {
 // Unlink removes a symbolik link from dest to source. When dry is true only
 // perfomers a dry run.
 // TODO: add tests
-// TODO: return error
 func Unlink(file string, dry bool) error {
 	if dry {
 		log.Printf("Removing %s", file)
@@ -84,7 +70,6 @@ func Unlink(file string, dry bool) error {
 	err := os.Remove(file)
 	if err != nil {
 		return err
-		// log.Fatal("Error while removing symlink!")
 	}
 
 	return nil
