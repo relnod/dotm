@@ -9,6 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Errors
+var (
+	ErrorEmptyRemote = errors.New("empty remote url")
+	ErrorEmptyPath   = errors.New("empty path")
+)
+
 // Error wrappers
 const (
 	ErrorCreateConfigFile = "failed to create config file"
@@ -18,9 +24,20 @@ const (
 // Config represents the configuration file for dotm.
 type Config struct {
 	Remote   string
-	Repo     string
+	Path     string
 	Includes []string
 	Excludea []string
+}
+
+// Validate returns an error if the configuration is invalid.
+func (c *Config) Validate() error {
+	if c.Remote == "" {
+		return ErrorEmptyRemote
+	}
+	if c.Path == "" {
+		return ErrorEmptyPath
+	}
+	return nil
 }
 
 // WriteTomlFile writes a new config file in the toml format to a given path.

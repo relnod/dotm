@@ -20,19 +20,41 @@ var (
 	ErrorReadingFileStats    = errors.New("Could not read file stats")
 )
 
-// Link implements the action.Interface for a link action.
-type Link struct {
+func Link(from, to string, opts *LinkOptions) error {
+	if opts == nil {
+		opts = defaultLinkOptions
+	}
+
+	t := NewTraverser(nil)
+	err := t.Traverse(from, to, NewLinkAction(opts.Dry))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type LinkOptions struct {
+	Dry bool
+}
+
+var defaultLinkOptions = &LinkOptions{
+	Dry: false,
+}
+
+// LinkAction implements the action.Interface for a link action.
+type LinkAction struct {
 	dry bool
 }
 
 // NewLinkAction returns a new link action. If dry is set to true a dry run
 // will be performed.
-func NewLinkAction(dry bool) *Link {
-	return &Link{dry: dry}
+func NewLinkAction(dry bool) *LinkAction {
+	return &LinkAction{dry: dry}
 }
 
 // Run links a file from source to dest.
-func (l *Link) Run(source, dest, name string) error {
+func (l *LinkAction) Run(source, dest, name string) error {
 	fmt.Println(source, dest, name)
 	err := os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
@@ -59,19 +81,19 @@ func (l *Link) Run(source, dest, name string) error {
 	return file.Link(sourceFile, destFile, l.dry)
 }
 
-// Unlink implements the action.Interface for an unlink action.
-type Unlink struct {
+// UnlinkAction implements the action.Interface for an unlink action.
+type UnlinkAction struct {
 	dry bool
 }
 
 // NewUnlinkAction returns a new unlink action. If dry is set to true a dry run
 // will be performed.
-func NewUnlinkAction(dry bool) *Unlink {
-	return &Unlink{dry: dry}
+func NewUnlinkAction(dry bool) *UnlinkAction {
+	return &UnlinkAction{dry: dry}
 }
 
 // Run unlinks the file a dest.
-func (u *Unlink) Run(source, dest, name string) error {
+func (u *UnlinkAction) Run(source, dest, name string) error {
 	f, err := os.Stat(filepath.Join(dest, name))
 	if err != nil {
 		return nil

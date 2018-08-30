@@ -1,8 +1,8 @@
 # Upstream git repository
 remote = "github.com/relnod/dotm"
 
-# Local git repository
-repo = ".dotfiles/"
+# Path to local git repository
+path = ".dotfiles/"
 
 # Configs to be included
 include = [

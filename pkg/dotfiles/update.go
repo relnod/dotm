@@ -7,16 +7,19 @@ import (
 
 // Update updates the dotfiles for a given configuration.
 func Update(c *config.Config) error {
-	err := remote.Pull(c.Remote, c.Repo)
+	var err error
+
+	err = c.Validate()
 	if err != nil {
 		return err
 	}
 
-	t := NewTraverser(nil)
-	err = t.Traverse(c.Repo, "/tmp/bla2", NewLinkAction(false))
+	err = remote.Pull(c.Remote, c.Path)
 	if err != nil {
 		return err
 	}
+
+	err = Link(c.Path, "tmp/bla2", nil)
 
 	return nil
 }
