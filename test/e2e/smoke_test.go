@@ -8,7 +8,7 @@ import (
 	"github.com/relnod/dotm/test/runner"
 )
 
-func TestSmoke(t *testing.T) {
+func PTestSmoke(t *testing.T) {
 	subCmds := []runner.DotmCmd{
 		runner.DotmCmd{
 			SubCommand: "install",

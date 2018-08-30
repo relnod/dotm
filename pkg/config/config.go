@@ -43,7 +43,7 @@ func WriteTomlFile(path string, c *Config) error {
 // NewFromTomlFile reads the file at the given path and decodes it into a new
 // config struct.
 func NewFromTomlFile(path string) (*Config, error) {
-	var config *Config
+	config := &Config{}
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
