@@ -18,7 +18,9 @@ var (
 // Error wrappers
 const (
 	ErrorCreateConfigFile = "failed to create config file"
+	ErrorOpenConfigFile   = "failed to open config file"
 	ErrorEncodeConfig     = "failed to encode config"
+	ErrorDecodeConfig     = "failed to decode config"
 )
 
 // Config represents the configuration file for dotm.
@@ -64,14 +66,12 @@ func NewFromTomlFile(path string) (*Config, error) {
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		// TODO: wrap error
-		return nil, err
+		return nil, errors.Wrap(err, ErrorOpenConfigFile)
 	}
 
 	_, err = toml.Decode(string(data), config)
 	if err != nil {
-		// TODO: wrap error
-		return nil, err
+		return nil, errors.Wrap(err, ErrorEncodeConfig)
 	}
 
 	return config, nil

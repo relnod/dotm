@@ -10,11 +10,10 @@ import (
 	"time"
 )
 
-var seededRand *rand.Rand = rand.New(
-	rand.NewSource(time.Now().UnixNano()))
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-// FileStructure is a representation of a file structure. Each entry represent
-// the full path of a file or directory.
+// FileStructure is a simplified representation of a file structure. Each entry
+// represent the full path of a file or directory.
 type FileStructure []Path
 
 // Path represents a file path.
@@ -31,16 +30,14 @@ func (p Path) IsDir() bool {
 
 // FileSystem provides an easy way to create a temporary file and directory
 // structure.
-// TODO: maybe there is a better word, than "FileSystem"
 type FileSystem struct {
 	basePath string
 }
 
 // NewFileSystem returns a new temporary filesystem.
 // Creates the basePath if it not exists already.
-// TODO: what if basePath already exists?
 func NewFileSystem() *FileSystem {
-	var basePath = fmt.Sprintf("/tmp/%s", StringWithCharset(8, "abcdefgh"))
+	var basePath = newTmpPath()
 
 	err := os.MkdirAll(basePath, os.ModePerm)
 	if err != nil {
@@ -111,8 +108,17 @@ func (f *FileSystem) Create(path string) error {
 	return ioutil.WriteFile(f.Path(path), []byte(""), os.ModePerm)
 }
 
+func newTmpPath() string {
+	path := fmt.Sprintf("/tmp/%s", stringWithCharset(8, "abcdefgh"))
+	if _, err := os.Stat(path); err == nil {
+		return newTmpPath()
+	}
+
+	return path
+}
+
 // TODO: look at this again
-func StringWithCharset(length int, charset string) string {
+func stringWithCharset(length int, charset string) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = charset[seededRand.Intn(len(charset))]

@@ -11,6 +11,8 @@ import (
 const (
 	ErrorMkdirDestination = "failed to create destination directory"
 	ErrorCloneRemote      = "failed to clone remote repository"
+	ErrorPullRemote       = "failed to pull pull repository"
+	ErrorOpenLocal        = "failed to open local repository"
 )
 
 // Clone clones a remote repository to a given path.
@@ -35,20 +37,18 @@ func Clone(remoteURL, path string) error {
 func Pull(remoteURL, path string) error {
 	r, err := git.PlainOpen(path)
 	if err != nil {
-		// @TODO: wrap error
-		return err
+		return errors.Wrap(err, ErrorOpenLocal)
 	}
 
 	w, err := r.Worktree()
 	if err != nil {
-		// @TODO: wrap error
-		return err
+		return errors.Wrap(err, ErrorOpenLocal)
 	}
 
 	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
 	if err != nil {
-		// @TODO: wrap error
-		return err
+		return errors.Wrap(err, ErrorPullRemote)
 	}
+
 	return nil
 }

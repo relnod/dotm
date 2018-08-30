@@ -8,11 +8,6 @@ import (
 	"github.com/relnod/dotm/internal/util/file"
 )
 
-// TODO: use viper for configs
-var excludes = []string{".git"}
-var dry = true
-var verbose = true
-
 // Errors, that can occur during an action.
 var (
 	ErrorCreatingDestination = errors.New("Could not create destination directory")
@@ -51,11 +46,15 @@ func UnLink(from, to string, opts *ActionOptions) error {
 
 // ActionOptions defines a set options for an action
 type ActionOptions struct {
-	Dry bool
+	Dry      bool
+	Verbose  bool
+	Excludes []string
 }
 
 var defaultActionOptions = &ActionOptions{
-	Dry: false,
+	Dry:      false,
+	Verbose:  false,
+	Excludes: defaultExcluded,
 }
 
 // LinkAction implements the action.Interface for a link action.
@@ -110,6 +109,10 @@ func NewUnlinkAction(dry bool) *UnlinkAction {
 // Run unlinks the file at dest.
 func (u *UnlinkAction) Run(source, dest, name string) error {
 	fi, err := os.Lstat(filepath.Join(dest, name))
+	if os.IsNotExist(err) {
+		return nil
+	}
+
 	if err != nil {
 		return err
 	}
