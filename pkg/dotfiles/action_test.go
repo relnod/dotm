@@ -3,9 +3,9 @@ package dotfiles_test
 import (
 	"testing"
 
-	"github.com/relnod/dotm/dotfiles"
 	"github.com/relnod/dotm/internal/testutil"
 	"github.com/relnod/dotm/internal/testutil/assert"
+	"github.com/relnod/dotm/pkg/dotfiles"
 )
 
 func TestActionLink(t *testing.T) {

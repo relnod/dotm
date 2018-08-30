@@ -1,0 +1,19 @@
+# Upstream git repository
+remote = "github.com/relnod/dotm"
+
+# Local git repository
+repo = ".dotfiles/"
+
+# Configs to be included
+include = [
+    "bash",
+    "nvim",
+    "tmux"
+]
+
+# Configs to be excluded
+exclude = [
+    "bash",
+    "nvim",
+    "tmux"
+]

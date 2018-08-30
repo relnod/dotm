@@ -5,7 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/dotfiles"
+	"github.com/relnod/dotm/pkg/dotfiles"
+)
+
+var (
+	remote      string
+	destination string
 )
 
 var installCmd = &cobra.Command{
@@ -13,17 +18,19 @@ var installCmd = &cobra.Command{
 	Short: "Install the dotfiles",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("installing")
-		traverser := dotfiles.NewTraverser(nil)
-		traverser.Traverse(Source, Destination, dotfiles.NewLinkAction(true))
+		err := dotfiles.Install(remote, destination)
+		if err != nil {
+			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
+			fmt.Printf("Error: '%s'\n", err.Error())
+			return
+		}
+
+		fmt.Println("Dotfiles where install successfully")
 	},
 }
 
-var Source string
-var Destination string
-
 func init() {
-	installCmd.Flags().StringVarP(&Source, "source", "s", "", "Source directory to read from")
-	installCmd.Flags().StringVarP(&Destination, "destination", "d", "~", "Destination directory to write to (used for debugging)")
+	installCmd.Flags().StringVarP(&remote, "remote", "r", "", "Remote git repository")
+	installCmd.Flags().StringVarP(&destination, "destination", "d", "~/.dotfiles2/", "Local git destination")
 	rootCmd.AddCommand(installCmd)
 }

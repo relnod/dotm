@@ -3,8 +3,9 @@ package commands
 import (
 	"fmt"
 
-	"github.com/relnod/dotm/dotfiles"
 	"github.com/spf13/cobra"
+
+	"github.com/relnod/dotm/pkg/dotfiles"
 )
 
 var uninstallCmd = &cobra.Command{
@@ -17,6 +18,9 @@ var uninstallCmd = &cobra.Command{
 		traverser.Traverse(Source, Destination, dotfiles.NewUnlinkAction(true))
 	},
 }
+
+var Source string
+var Destination string
 
 func init() {
 	uninstallCmd.Flags().StringVarP(&Source, "source", "s", "", "Source directory to read from")

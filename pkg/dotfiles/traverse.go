@@ -7,6 +7,10 @@ import (
 	"github.com/relnod/dotm/internal/util/file"
 )
 
+var defaultExcluded = []string{
+	".git",
+}
+
 // Action defines an action, that can be run during the dotfile traversal.
 type Action interface {
 	// Run will get called for each file that gets traversed.
@@ -20,7 +24,7 @@ type Traverser struct {
 
 // NewTraverser returns a new traverser.
 func NewTraverser(excluded []string) *Traverser {
-	return &Traverser{excluded: excluded}
+	return &Traverser{excluded: append(defaultExcluded, excluded...)}
 }
 
 // traverseVisitor implements the visitor.Interface.
