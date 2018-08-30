@@ -19,7 +19,10 @@ func Update(c *config.Config) error {
 		return err
 	}
 
-	err = Link(c.Path, "tmp/bla2", nil)
+	err = Link(c.Path, "/tmp/bla2", nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

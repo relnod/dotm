@@ -22,14 +22,16 @@ var updateCmd = &cobra.Command{
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
 			fmt.Printf("Error: %s\n", err)
+			return
 		}
 		err = dotfiles.Update(c)
 		if err != nil {
 			fmt.Printf("Failed to upate dotfiles\n")
 			fmt.Printf("Error: %s\n", err.Error())
+			return
 		}
 
-		fmt.Println("Dotfiles where install successfully")
+		fmt.Println("Dotfiles where updated successfully")
 	},
 }
 

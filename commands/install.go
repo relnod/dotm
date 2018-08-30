@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
 )
 
@@ -18,14 +19,19 @@ var installCmd = &cobra.Command{
 	Short: "Install the dotfiles",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := dotfiles.Install(remote, destination)
+		c := &config.Config{
+			Remote: remote,
+			Path:   destination,
+		}
+
+		err := dotfiles.Install(c)
 		if err != nil {
 			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
 			fmt.Printf("Error: '%s'\n", err.Error())
 			return
 		}
 
-		fmt.Println("Dotfiles where install successfully")
+		fmt.Println("Dotfiles where installed successfully")
 	},
 }
 

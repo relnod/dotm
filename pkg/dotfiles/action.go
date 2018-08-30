@@ -2,7 +2,6 @@ package dotfiles
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -20,9 +19,10 @@ var (
 	ErrorReadingFileStats    = errors.New("Could not read file stats")
 )
 
-func Link(from, to string, opts *LinkOptions) error {
+// Link recursively links files from one path to another.
+func Link(from, to string, opts *ActionOptions) error {
 	if opts == nil {
-		opts = defaultLinkOptions
+		opts = defaultActionOptions
 	}
 
 	t := NewTraverser(nil)
@@ -34,11 +34,27 @@ func Link(from, to string, opts *LinkOptions) error {
 	return nil
 }
 
-type LinkOptions struct {
+// UnLink recursively removes the symlinks.
+func UnLink(from, to string, opts *ActionOptions) error {
+	if opts == nil {
+		opts = defaultActionOptions
+	}
+
+	t := NewTraverser(nil)
+	err := t.Traverse(from, to, NewUnlinkAction(opts.Dry))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ActionOptions defines a set options for an action
+type ActionOptions struct {
 	Dry bool
 }
 
-var defaultLinkOptions = &LinkOptions{
+var defaultActionOptions = &ActionOptions{
 	Dry: false,
 }
 
@@ -55,7 +71,6 @@ func NewLinkAction(dry bool) *LinkAction {
 
 // Run links a file from source to dest.
 func (l *LinkAction) Run(source, dest, name string) error {
-	fmt.Println(source, dest, name)
 	err := os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
 		return ErrorCreatingDestination
@@ -92,14 +107,14 @@ func NewUnlinkAction(dry bool) *UnlinkAction {
 	return &UnlinkAction{dry: dry}
 }
 
-// Run unlinks the file a dest.
+// Run unlinks the file at dest.
 func (u *UnlinkAction) Run(source, dest, name string) error {
-	f, err := os.Stat(filepath.Join(dest, name))
+	fi, err := os.Lstat(filepath.Join(dest, name))
 	if err != nil {
-		return nil
+		return err
 	}
 
-	if f.Mode()&os.ModeSymlink != os.ModeSymlink {
+	if fi.Mode()&os.ModeSymlink != os.ModeSymlink {
 		return nil
 	}
 
