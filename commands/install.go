@@ -19,12 +19,21 @@ var installCmd = &cobra.Command{
 	Short: "Install the dotfiles",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		c := &config.Config{
-			Remote: remote,
-			Path:   destination,
+		c, err := loadConfig()
+		if err != nil {
+			fmt.Printf("Failed to read config\n")
+			fmt.Printf("Error: %s\n", err)
+			return
 		}
 
-		err := dotfiles.Install(c)
+		if c == nil {
+			c = &config.Config{
+				Remote: remote,
+				Path:   destination,
+			}
+		}
+
+		err = dotfiles.Install(c)
 		if err != nil {
 			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
 			fmt.Printf("Error: '%s'\n", err.Error())
