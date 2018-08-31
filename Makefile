@@ -11,6 +11,9 @@ export ROOT ?= $(shell pwd)
 export TMP_ROOT ?= /tmp/dotm_tmp
 export BASE_PACKAGE ?= github.com/relnod/dotm
 
+GOARCH ?= amd64
+TARGET ?= linux
+
 # === all ===
 # Runs all tests and verify scripts
 .PHONY: all
@@ -56,6 +59,9 @@ dev:
 	modd -f hack/dev/modd.conf
 
 export RULE ?= help
+
+build:
+	CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build
 
 # === help ===
 # Prints this help message
