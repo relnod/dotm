@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 
 mocks=(
-    "dotfiles Action"
+    "pkg/dotfiles Action"
     "internal/util/file Visitor"
 )
 
