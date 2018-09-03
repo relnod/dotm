@@ -4,8 +4,25 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/spf13/cobra"
 )
+
+func loadConfig() (*config.Config, error) {
+	var err error
+	if configPath == "" {
+		configPath, err = config.Find()
+		if err != nil {
+			return nil, err
+		}
+	}
+	c, err := config.NewFromTomlFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "dotm",
@@ -19,7 +36,7 @@ var rootCmd = &cobra.Command{
 // This is the entrypoint for the application.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 }

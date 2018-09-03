@@ -18,12 +18,11 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install the dotfiles",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := loadConfig()
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 
 		if c == nil {
@@ -36,11 +35,11 @@ var installCmd = &cobra.Command{
 		err = dotfiles.Install(c)
 		if err != nil {
 			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
-			fmt.Printf("Error: '%s'\n", err.Error())
-			return
+			return err
 		}
 
 		fmt.Println("Dotfiles where installed successfully")
+		return nil
 	},
 }
 

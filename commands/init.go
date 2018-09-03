@@ -3,16 +3,17 @@ package commands
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
-	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "initialize dotfiles",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
 		c := &config.Config{
@@ -23,11 +24,11 @@ var initCmd = &cobra.Command{
 		err = dotfiles.Init(c)
 		if err != nil {
 			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
-			fmt.Printf("Error: '%s'\n", err.Error())
-			return
+			return err
 		}
 
 		fmt.Println("Dotfiles where installed successfully")
+		return nil
 	},
 }
 

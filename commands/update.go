@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
 )
 
@@ -14,43 +13,26 @@ var (
 	updateFromRemote bool
 )
 
-func loadConfig() (*config.Config, error) {
-	var err error
-	if configPath == "" {
-		configPath, err = config.Find()
-		if err != nil {
-			return nil, err
-		}
-	}
-	c, err := config.NewFromTomlFile(configPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
-
 var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update the dotfiles",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := loadConfig()
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 		err = dotfiles.Update(c, &dotfiles.UpdateOptions{
 			UpdateFromRemote: updateFromRemote,
 		})
 		if err != nil {
 			fmt.Printf("Failed to upate dotfiles\n")
-			fmt.Printf("Error: %s\n", err.Error())
-			return
+			return err
 		}
 
 		fmt.Println("Dotfiles where updated successfully")
+		return err
 	},
 }
 
