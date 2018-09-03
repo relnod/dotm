@@ -5,3 +5,4 @@ set -o nounset
 set -o pipefail
 
 ${ROOT}/hack/update-generated-mocks.sh
+${ROOT}/hack/update-fmt.sh

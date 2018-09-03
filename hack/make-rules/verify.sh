@@ -10,4 +10,7 @@ rsync -avr "${ROOT}" "${TMP_ROOT}" --exclude .git
 # TMP_ROOT is used to generate files in a seperate directory
 export TMP_ROOT=${TMP_ROOT}/dotm
 
-$ROOT/hack/verify-generated-mocks.sh
+# currently not working
+# $ROOT/hack/verify-generated-mocks.sh
+$ROOT/hack/verify-fmt.sh
+$ROOT/hack/verify-lint.sh

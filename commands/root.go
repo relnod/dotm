@@ -12,10 +12,11 @@ var rootCmd = &cobra.Command{
 	Short: "Dotm is a dotfile manager",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rooting")
 	},
 }
 
+// Execute executes the root command.
+// This is the entrypoint for the application.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
