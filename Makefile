@@ -44,10 +44,10 @@ update:
 verify:
 	./hack/make-rules/verify.sh
 
-# === dev ===
+# === watch ===
 # Starts modd (runs tests on file change)
-.PHONY: dev
-dev:
+.PHONY: watch
+watch:
 	modd -f hack/dev/modd.conf
 
 export RULE ?= help
