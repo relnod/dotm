@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/relnod/dotm/pkg/config"
@@ -10,41 +8,36 @@ import (
 )
 
 var (
-	remote      string
-	destination string
+	path              string
+	msgInstallSuccess = "Dotfiles where installed successfully"
+	msgInstallFail    = "Failed to install dotfiles from '%s'"
 )
 
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install the dotfiles",
 	Long:  ``,
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := loadConfig()
+		var err error
+
+		c := &config.Config{
+			Remote: args[0],
+			Path:   path,
+		}
+
+		err = dotfiles.Install(c, configPath)
 		if err != nil {
-			fmt.Printf("Failed to read config\n")
+			printl(msgInstallFail, args[0])
 			return err
 		}
 
-		if c == nil {
-			c = &config.Config{
-				Remote: remote,
-				Path:   destination,
-			}
-		}
-
-		err = dotfiles.Install(c)
-		if err != nil {
-			fmt.Printf("Failed to install dotfiles from '%s'\n", remote)
-			return err
-		}
-
-		fmt.Println("Dotfiles where installed successfully")
+		printl(msgInstallSuccess)
 		return nil
 	},
 }
 
 func init() {
-	installCmd.Flags().StringVarP(&remote, "remote", "r", "", "Remote git repository")
-	installCmd.Flags().StringVarP(&destination, "destination", "d", "~/.dotfiles2/", "Local git destination")
+	installCmd.Flags().StringVarP(&path, "path", "p", "~/.dotfiles/", "Local git path")
 	rootCmd.AddCommand(installCmd)
 }

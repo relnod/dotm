@@ -11,16 +11,16 @@ import (
 
 // Errors
 var (
-	ErrorEmptyRemote = errors.New("empty remote url")
-	ErrorEmptyPath   = errors.New("empty path")
+	ErrEmptyRemote = errors.New("empty remote url")
+	ErrEmptyPath   = errors.New("empty path")
 )
 
 // Error wrappers
 const (
-	ErrorCreateConfigFile = "failed to create config file"
-	ErrorOpenConfigFile   = "failed to open config file"
-	ErrorEncodeConfig     = "failed to encode config"
-	ErrorDecodeConfig     = "failed to decode config"
+	ErrCreateConfigFile = "failed to create config file"
+	ErrOpenConfigFile   = "failed to open config file"
+	ErrEncodeConfig     = "failed to encode config"
+	ErrDecodeConfig     = "failed to decode config"
 )
 
 // Config represents the configuration file for dotm.
@@ -34,10 +34,10 @@ type Config struct {
 // Validate returns an error if the configuration is invalid.
 func (c *Config) Validate() error {
 	if c.Remote == "" {
-		return ErrorEmptyRemote
+		return ErrEmptyRemote
 	}
 	if c.Path == "" {
-		return ErrorEmptyPath
+		return ErrEmptyPath
 	}
 	return nil
 }
@@ -46,14 +46,14 @@ func (c *Config) Validate() error {
 func WriteTomlFile(path string, c *Config) error {
 	f, err := os.Create(path)
 	if err != nil {
-		return errors.Wrap(err, ErrorCreateConfigFile)
+		return errors.Wrap(err, ErrCreateConfigFile)
 	}
 
 	w := bufio.NewWriter(f)
 	e := toml.NewEncoder(w)
 	err = e.Encode(c)
 	if err != nil {
-		return errors.Wrap(err, ErrorEncodeConfig)
+		return errors.Wrap(err, ErrEncodeConfig)
 	}
 
 	return nil
@@ -66,12 +66,12 @@ func NewFromTomlFile(path string) (*Config, error) {
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrorOpenConfigFile)
+		return nil, errors.Wrap(err, ErrOpenConfigFile)
 	}
 
 	_, err = toml.Decode(string(data), config)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrorEncodeConfig)
+		return nil, errors.Wrap(err, ErrEncodeConfig)
 	}
 
 	return config, nil

@@ -1,6 +1,8 @@
 package dotfiles
 
 import (
+	"os/user"
+
 	"github.com/relnod/dotm/pkg/config"
 )
 
@@ -13,7 +15,12 @@ func Uninstall(c *config.Config) error {
 		return err
 	}
 
-	err = UnLink(c.Path, "/tmp/bla2", nil)
+	usr, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	err = UnLink(c.Path, usr.HomeDir, nil)
 	if err != nil {
 		return err
 	}

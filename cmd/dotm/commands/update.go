@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	configPath       string
 	updateFromRemote bool
+	msgUpdateSuccess = "Dotfiles where updated successfully"
+	msgUpdateFail    = "Failed to update dotfiles"
 )
 
 var updateCmd = &cobra.Command{
@@ -27,17 +28,16 @@ var updateCmd = &cobra.Command{
 			UpdateFromRemote: updateFromRemote,
 		})
 		if err != nil {
-			fmt.Printf("Failed to upate dotfiles\n")
+			printl(msgUpdateFail)
 			return err
 		}
 
-		fmt.Println("Dotfiles where updated successfully")
+		printl(msgUpdateSuccess)
 		return err
 	},
 }
 
 func init() {
-	updateCmd.Flags().StringVarP(&configPath, "config", "c", "", "config location")
 	updateCmd.Flags().BoolVar(&updateFromRemote, "remote", false, "update from remote")
 	rootCmd.AddCommand(updateCmd)
 }

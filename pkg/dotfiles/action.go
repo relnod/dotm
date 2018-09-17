@@ -10,8 +10,8 @@ import (
 
 // Errors, that can occur during an action.
 var (
-	ErrorCreatingDestination = errors.New("Could not create destination directory")
-	ErrorReadingFileStats    = errors.New("Could not read file stats")
+	ErrCreatingDestination = errors.New("Could not create destination directory")
+	ErrReadingFileStats    = errors.New("Could not read file stats")
 )
 
 // Link recursively links files from one path to another.
@@ -72,7 +72,7 @@ func NewLinkAction(dry bool) *LinkAction {
 func (l *LinkAction) Run(source, dest, name string) error {
 	err := os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
-		return ErrorCreatingDestination
+		return ErrCreatingDestination
 	}
 
 	sourceFile := filepath.Join(source, name)
@@ -89,7 +89,7 @@ func (l *LinkAction) Run(source, dest, name string) error {
 	}
 
 	if !os.IsNotExist(err) {
-		return ErrorReadingFileStats
+		return ErrReadingFileStats
 	}
 
 	return file.Link(sourceFile, destFile, l.dry)

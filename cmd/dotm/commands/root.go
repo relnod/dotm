@@ -1,11 +1,15 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/spf13/cobra"
+
+	"github.com/relnod/dotm/pkg/config"
+)
+
+var (
+	configPath string
 )
 
 func loadConfig() (*config.Config, error) {
@@ -15,6 +19,8 @@ func loadConfig() (*config.Config, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		configPath = os.ExpandEnv(configPath)
 	}
 	c, err := config.NewFromTomlFile(configPath)
 	if err != nil {
@@ -32,11 +38,14 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+}
+
 // Execute executes the root command.
 // This is the entrypoint for the application.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 }

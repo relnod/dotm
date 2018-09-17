@@ -8,6 +8,11 @@ import (
 	"github.com/relnod/dotm/pkg/dotfiles"
 )
 
+var (
+	msgUnistallSuccess = "Dotfiles where uninstalled successfully"
+	msgUnistallFail    = "Failed to uninstall dotfiles"
+)
+
 var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall the dotfiles",
@@ -20,16 +25,15 @@ var uninstallCmd = &cobra.Command{
 		}
 		err = dotfiles.Uninstall(c)
 		if err != nil {
-			fmt.Printf("Failed to uninstall dotfiles\n")
+			printl(msgUnistallFail)
 			return err
 		}
 
-		fmt.Println("Dotfiles where unistalled successfully")
+		printl(msgUnistallSuccess)
 		return nil
 	},
 }
 
 func init() {
-	uninstallCmd.Flags().StringVarP(&configPath, "config", "c", "", "config location")
 	rootCmd.AddCommand(uninstallCmd)
 }

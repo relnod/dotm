@@ -1,6 +1,8 @@
 package dotfiles
 
 import (
+	"os/user"
+
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/remote"
 )
@@ -25,7 +27,12 @@ func Update(c *config.Config, opts *UpdateOptions) error {
 		}
 	}
 
-	err = Link(c.Path, "/tmp/bla2", nil)
+	usr, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	err = Link(c.Path, usr.HomeDir, nil)
 	if err != nil {
 		return err
 	}

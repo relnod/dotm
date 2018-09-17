@@ -10,7 +10,7 @@ import (
 
 // Errors
 var (
-	ErrorCreatingSymlink = errors.New("Failed to create Symlink")
+	ErrCreatingSymlink = errors.New("Failed to create Symlink")
 )
 
 // Visitor defines a visitor.
@@ -52,7 +52,7 @@ func Link(from string, to string, dry bool) error {
 
 	err := os.Symlink(from, to)
 	if err != nil {
-		return ErrorCreatingSymlink
+		return ErrCreatingSymlink
 	}
 
 	return nil
@@ -73,4 +73,16 @@ func Unlink(file string, dry bool) error {
 	}
 
 	return nil
+}
+
+// Exists checks if a file at the given path exists.
+func Exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }

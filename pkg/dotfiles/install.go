@@ -1,13 +1,22 @@
 package dotfiles
 
 import (
+	"errors"
+	"os/user"
+
+	"github.com/relnod/dotm/internal/util/file"
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/remote"
 )
 
+// Errors
+var (
+	ErrPathExists = errors.New("path already exists")
+)
+
 // Install clones the dotfiles from a remote git repository to a local
 // path and then installs them.
-func Install(c *config.Config) error {
+func Install(c *config.Config, configPath string) error {
 	var err error
 
 	err = c.Validate()
@@ -15,16 +24,27 @@ func Install(c *config.Config) error {
 		return err
 	}
 
-	// @TODO: check if dotfiles are already installed
+	exists, err := file.Exists(c.Path)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return ErrPathExists
+	}
 
 	err = remote.Clone(c.Remote, c.Path)
 	if err != nil {
 		return err
 	}
 
-	err = Link(c.Path, "/tmp/bla2", nil)
+	usr, err := user.Current()
+	if err != nil {
+		return err
+	}
 
-	err = config.WriteTomlFile("/tmp/bla3/.dotfiles.toml", c)
+	err = Link(c.Path, usr.HomeDir, nil)
+
+	err = config.WriteTomlFile(configPath, c)
 	if err != nil {
 		return err
 	}
