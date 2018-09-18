@@ -1,10 +1,25 @@
 version: 2
 jobs:
-  build:
+  verify:
     docker:
       - image: circleci/golang:1.11
-
     steps:
       - checkout
-
+      - run:
+          command: |
+            sudo apt install rsync
+            GO111MODULE=off go get golang.org/x/tools/cmd/goimports
+            GO111MODULE=off go get golang.org/x/lint/golint
+            make verify
+  test:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - checkout
       - run: make test
+workflows:
+  version: 2
+  verify_and_test:
+    jobs:
+      - verify
+      - test

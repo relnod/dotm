@@ -7,7 +7,7 @@
 #    make help RULE=verify
 ####
 
-export ROOT ?= $(shell pwd)
+export ROOT ?= $(shell pwd)/
 export TMP_ROOT ?= /tmp/dotm_tmp
 export BASE_PACKAGE ?= github.com/relnod/dotm
 
@@ -17,7 +17,7 @@ TARGET ?= linux
 # === all ===
 # Runs all tests and verify scripts
 .PHONY: all
-all: test
+all: verify test
 
 # === test ===
 # Runs all unit tests
