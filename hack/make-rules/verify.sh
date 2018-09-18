@@ -5,10 +5,7 @@ set -o nounset
 set -o pipefail
 
 mkdir -p "${TMP_ROOT}"
-rsync -avr "${ROOT}" "${TMP_ROOT}" --exclude .git
-
-# TMP_ROOT is used to generate files in a seperate directory
-export TMP_ROOT=${TMP_ROOT}/dotm
+rsync -vr "${ROOT}" "${TMP_ROOT}" --exclude .git --exclude vendor
 
 # currently not working
 # $ROOT/hack/verify-generated-mocks.sh
