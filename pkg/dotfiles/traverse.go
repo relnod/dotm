@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/relnod/dotm/internal/util/file"
+	"github.com/relnod/dotm/pkg/fileutil"
 )
 
 var defaultExcluded = []string{
@@ -71,7 +71,7 @@ func (t *Traverser) Traverse(source string, dest string, action Action) error {
 			name:   f.Name(),
 		}
 
-		err := file.RecTraverseDir(filepath.Join(source, f.Name()), "", t)
+		err := fileutil.RecTraverseDir(filepath.Join(source, f.Name()), "", t)
 		if err != nil {
 			return err
 		}

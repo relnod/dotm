@@ -6,10 +6,10 @@ set -o pipefail
 
 mocks=(
     "pkg/dotfiles Action"
-    "internal/util/file Visitor"
+    "pkg/fileutil Visitor"
 )
 
-mock_package="internal/mock"
+mock_package="pkg/mock"
 
 function dotm::mock::generate() {
     cd "$1/$mock_package"
