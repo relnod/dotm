@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/relnod/dotm/internal/util/file"
+	"github.com/relnod/dotm/pkg/fileutil"
 )
 
 // Errors, that can occur during an action.
@@ -92,7 +92,7 @@ func (l *LinkAction) Run(source, dest, name string) error {
 		return ErrReadingFileStats
 	}
 
-	return file.Link(sourceFile, destFile, l.dry)
+	return fileutil.Link(sourceFile, destFile, l.dry)
 }
 
 // UnlinkAction implements the action.Interface for an unlink action.
@@ -121,5 +121,5 @@ func (u *UnlinkAction) Run(source, dest, name string) error {
 		return nil
 	}
 
-	return file.Unlink(filepath.Join(dest, name), u.dry)
+	return fileutil.Unlink(filepath.Join(dest, name), u.dry)
 }

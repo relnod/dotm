@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os/user"
 
-	"github.com/relnod/dotm/internal/util/file"
 	"github.com/relnod/dotm/pkg/config"
+	"github.com/relnod/dotm/pkg/fileutil"
 	"github.com/relnod/dotm/pkg/remote"
 )
 
@@ -24,7 +24,7 @@ func Install(c *config.Config, configPath string) error {
 		return err
 	}
 
-	exists, err := file.Exists(c.Path)
+	exists, err := fileutil.FileExists(c.Path)
 	if err != nil {
 		return err
 	}

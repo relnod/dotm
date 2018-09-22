@@ -5,10 +5,12 @@ set -o nounset
 set -o pipefail
 
 source "${ROOT}/hack/lib/mock.sh"
+source "${ROOT}/hack/lib/gotools.sh"
 
 echo "Verifying mocks"
 
 dotm::mock::generate "${TMP_ROOT}"
+dotm::fmt::run "${TMP_ROOT}"
 dotm::mock::diff "${ROOT}" "${TMP_ROOT}"
 
 echo "Done verifying mocks"

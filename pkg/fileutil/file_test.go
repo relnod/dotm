@@ -1,14 +1,14 @@
-package file_test
+package fileutil_test
 
 import (
 	"testing"
 
 	. "github.com/petergtz/pegomock"
 
-	"github.com/relnod/dotm/internal/mock"
 	"github.com/relnod/dotm/internal/testutil"
 	"github.com/relnod/dotm/internal/testutil/assert"
-	"github.com/relnod/dotm/internal/util/file"
+	"github.com/relnod/dotm/pkg/fileutil"
+	"github.com/relnod/dotm/pkg/mock"
 )
 
 func TestRecTraverseDir(t *testing.T) {
@@ -60,7 +60,7 @@ func TestRecTraverseDir(t *testing.T) {
 
 			visitor := mock.NewMockVisitor()
 
-			err := file.RecTraverseDir(fs.BasePath(), "", visitor)
+			err := fileutil.RecTraverseDir(fs.BasePath(), "", visitor)
 			assert.ErrorIsNil(tt, err)
 
 			visitor.VerifyWasCalled(Times(len(test.visitorCalls))).Visit(AnyString(), AnyString())
@@ -116,7 +116,7 @@ func TestLink(t *testing.T) {
 			destFS := testutil.NewFileSystem()
 			defer destFS.Cleanup()
 
-			err := file.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
+			err := fileutil.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
 
 			assert.ErrorEquals(tt, err, test.err)
 
@@ -164,7 +164,7 @@ func TestUnlink(t *testing.T) {
 			destFS := testutil.NewFileSystem()
 			defer destFS.Cleanup()
 
-			err := file.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
+			err := fileutil.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
 
 			assert.ErrorEquals(tt, err, test.err)
 

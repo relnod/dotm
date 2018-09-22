@@ -5,9 +5,9 @@ import (
 
 	. "github.com/petergtz/pegomock"
 
-	"github.com/relnod/dotm/internal/mock"
 	"github.com/relnod/dotm/internal/testutil"
 	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm/pkg/mock"
 )
 
 func TestTraverse(t *testing.T) {

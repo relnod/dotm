@@ -1,4 +1,4 @@
-package file
+package fileutil
 
 import (
 	"errors"
@@ -75,8 +75,8 @@ func Unlink(file string, dry bool) error {
 	return nil
 }
 
-// Exists checks if a file at the given path exists.
-func Exists(path string) (bool, error) {
+// FileExists checks if a file at the given path exists.
+func FileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
