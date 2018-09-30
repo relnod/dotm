@@ -2,10 +2,11 @@ package fileutil
 
 import (
 	"errors"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/relnod/fsa"
 )
 
 // Errors
@@ -22,15 +23,15 @@ type Visitor interface {
 // RecTraverseDir recursively traverses all directories starting at dir.
 // Calls the visitor for each file it passes.
 // TODO: what is relDir for?
-func RecTraverseDir(dir string, relDir string, visitor Visitor) error {
-	files, err := ioutil.ReadDir(dir)
+func RecTraverseDir(fs fsa.FileSystem, dir string, relDir string, visitor Visitor) error {
+	files, err := fsa.ReadDir(fs, dir)
 	if err != nil {
 		return err
 	}
 
 	for _, f := range files {
 		if f.IsDir() {
-			err := RecTraverseDir(filepath.Join(dir, f.Name()), filepath.Join(relDir, f.Name()), visitor)
+			err := RecTraverseDir(fs, filepath.Join(dir, f.Name()), filepath.Join(relDir, f.Name()), visitor)
 			if err != nil {
 				return err
 			}
@@ -44,13 +45,13 @@ func RecTraverseDir(dir string, relDir string, visitor Visitor) error {
 
 // Link creates a symbolik link from dest to source. When dry is true only
 // perfomers a dry run.
-func Link(from string, to string, dry bool) error {
+func Link(fs fsa.FileSystem, from string, to string, dry bool) error {
 	if dry {
 		log.Printf("Creating Symlink from %s to %s", from, to)
 		return nil
 	}
 
-	err := os.Symlink(from, to)
+	err := fs.Symlink(from, to)
 	if err != nil {
 		return ErrCreatingSymlink
 	}
@@ -60,14 +61,13 @@ func Link(from string, to string, dry bool) error {
 
 // Unlink removes a symbolik link from dest to source. When dry is true only
 // perfomers a dry run.
-// TODO: add tests
-func Unlink(file string, dry bool) error {
+func Unlink(fs fsa.FileSystem, file string, dry bool) error {
 	if dry {
 		log.Printf("Removing %s", file)
 		return nil
 	}
 
-	err := os.Remove(file)
+	err := fs.Remove(file)
 	if err != nil {
 		return err
 	}

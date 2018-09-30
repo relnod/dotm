@@ -1,8 +1,9 @@
 package dotfiles
 
 import (
-	"io/ioutil"
 	"path/filepath"
+
+	"github.com/relnod/fsa"
 
 	"github.com/relnod/dotm/pkg/fileutil"
 )
@@ -19,12 +20,16 @@ type Action interface {
 
 // Traverser is used to traverse the dotfiles structure.
 type Traverser struct {
+	fs       fsa.FileSystem
 	excluded []string
 }
 
 // NewTraverser returns a new traverser.
-func NewTraverser(excluded []string) *Traverser {
-	return &Traverser{excluded: append(defaultExcluded, excluded...)}
+func NewTraverser(fs fsa.FileSystem, excluded []string) *Traverser {
+	return &Traverser{
+		fs:       fs,
+		excluded: append(defaultExcluded, excluded...),
+	}
 }
 
 // traverseVisitor implements the visitor.Interface.
@@ -49,7 +54,7 @@ func (t traverseVisitor) Visit(dir, file string) {
 // TODO: rethink arguments, maybe add Traverser struct
 // TODO: finish implementation
 func (t *Traverser) Traverse(source string, dest string, action Action) error {
-	files, err := ioutil.ReadDir(source)
+	files, err := fsa.ReadDir(t.fs, source)
 	if err != nil {
 		// TODO: wrap error
 		return err
@@ -64,14 +69,14 @@ func (t *Traverser) Traverse(source string, dest string, action Action) error {
 			continue
 		}
 
-		t := traverseVisitor{
+		tv := traverseVisitor{
 			action: action,
 			source: source,
 			dest:   dest,
 			name:   f.Name(),
 		}
 
-		err := fileutil.RecTraverseDir(filepath.Join(source, f.Name()), "", t)
+		err := fileutil.RecTraverseDir(t.fs, filepath.Join(source, f.Name()), "", tv)
 		if err != nil {
 			return err
 		}

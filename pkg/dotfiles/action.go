@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/osfs"
+
 	"github.com/relnod/dotm/pkg/fileutil"
 )
 
@@ -20,8 +23,9 @@ func Link(from, to string, opts *ActionOptions) error {
 		opts = defaultActionOptions
 	}
 
-	t := NewTraverser(nil)
-	err := t.Traverse(from, to, NewLinkAction(opts.Dry))
+	fs := osfs.New()
+	t := NewTraverser(fs, nil)
+	err := t.Traverse(from, to, NewLinkAction(fs, opts.Dry))
 	if err != nil {
 		return err
 	}
@@ -35,8 +39,9 @@ func UnLink(from, to string, opts *ActionOptions) error {
 		opts = defaultActionOptions
 	}
 
-	t := NewTraverser(nil)
-	err := t.Traverse(from, to, NewUnlinkAction(opts.Dry))
+	fs := osfs.New()
+	t := NewTraverser(fs, nil)
+	err := t.Traverse(from, to, NewUnlinkAction(fs, opts.Dry))
 	if err != nil {
 		return err
 	}
@@ -59,18 +64,19 @@ var defaultActionOptions = &ActionOptions{
 
 // LinkAction implements the action.Interface for a link action.
 type LinkAction struct {
+	fs  fsa.FileSystem
 	dry bool
 }
 
 // NewLinkAction returns a new link action. If dry is set to true a dry run
 // will be performed.
-func NewLinkAction(dry bool) *LinkAction {
-	return &LinkAction{dry: dry}
+func NewLinkAction(fs fsa.FileSystem, dry bool) *LinkAction {
+	return &LinkAction{fs: fs, dry: dry}
 }
 
 // Run links a file from source to dest.
 func (l *LinkAction) Run(source, dest, name string) error {
-	err := os.MkdirAll(dest, os.ModePerm)
+	err := l.fs.MkdirAll(dest, os.ModePerm)
 	if err != nil {
 		return ErrCreatingDestination
 	}
@@ -78,7 +84,7 @@ func (l *LinkAction) Run(source, dest, name string) error {
 	sourceFile := filepath.Join(source, name)
 	destFile := filepath.Join(dest, name)
 
-	f, err := os.Stat(destFile)
+	f, err := l.fs.Stat(destFile)
 	if err == nil {
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
 			return nil
@@ -87,28 +93,28 @@ func (l *LinkAction) Run(source, dest, name string) error {
 		// TODO: override option (force)
 		// TODO: backup option
 	}
-
 	if !os.IsNotExist(err) {
 		return ErrReadingFileStats
 	}
 
-	return fileutil.Link(sourceFile, destFile, l.dry)
+	return fileutil.Link(l.fs, sourceFile, destFile, l.dry)
 }
 
 // UnlinkAction implements the action.Interface for an unlink action.
 type UnlinkAction struct {
+	fs  fsa.FileSystem
 	dry bool
 }
 
 // NewUnlinkAction returns a new unlink action. If dry is set to true a dry run
 // will be performed.
-func NewUnlinkAction(dry bool) *UnlinkAction {
-	return &UnlinkAction{dry: dry}
+func NewUnlinkAction(fs fsa.FileSystem, dry bool) *UnlinkAction {
+	return &UnlinkAction{fs: fs, dry: dry}
 }
 
 // Run unlinks the file at dest.
 func (u *UnlinkAction) Run(source, dest, name string) error {
-	fi, err := os.Lstat(filepath.Join(dest, name))
+	fi, err := u.fs.Lstat(filepath.Join(dest, name))
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -121,5 +127,5 @@ func (u *UnlinkAction) Run(source, dest, name string) error {
 		return nil
 	}
 
-	return fileutil.Unlink(filepath.Join(dest, name), u.dry)
+	return fileutil.Unlink(u.fs, filepath.Join(dest, name), u.dry)
 }
