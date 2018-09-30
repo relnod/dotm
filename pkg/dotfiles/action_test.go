@@ -1,27 +1,29 @@
 package dotfiles_test
 
 import (
+	"path/filepath"
 	"testing"
 
-	"github.com/relnod/dotm/internal/testutil"
-	"github.com/relnod/dotm/internal/testutil/assert"
 	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/osfs"
+	"github.com/relnod/fsa/tempfs"
+	"github.com/relnod/fsa/testutil"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestActionLink(t *testing.T) {
 	var tests = []struct {
-		desc          string
-		fileStructure testutil.FileStructure
-		source        string
-		dest          string
-		name          string
-		err           error
+		desc   string
+		files  string
+		source string
+		dest   string
+		name   string
+		err    error
 	}{
 		{
 			"Can create simple symlink",
-			testutil.FileStructure{
-				"a/b",
-			},
+			"a/b",
 			"a",
 			"",
 			"b",
@@ -29,11 +31,9 @@ func TestActionLink(t *testing.T) {
 		},
 		{
 			"Can create nested symlink",
-			testutil.FileStructure{
-				"foo/bar/blub",
-			},
+			"foo/bar/blub",
 			"foo/bar/",
-			"foo/bar/",
+			"foo/barnew/",
 			"blub",
 			nil,
 		},
@@ -41,43 +41,38 @@ func TestActionLink(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			source := testutil.NewFileSystem()
-			dest := testutil.NewFileSystem()
-			defer source.Cleanup()
-			defer dest.Cleanup()
+			fs := tempfs.New(osfs.New())
+			defer fs.Cleanup()
 
-			source.CreateFromFileStructure(test.fileStructure)
+			err := fsa.CreateFiles(fs, test.files)
+			assert.NoError(tt, err)
 
-			action := dotfiles.NewLinkAction(false)
-			err := action.Run(
-				source.Path(test.source),
-				dest.Path(test.dest),
+			action := dotfiles.NewLinkAction(fs, false)
+			err = action.Run(
+				test.source,
+				test.dest,
 				test.name,
 			)
 
-			assert.ErrorEquals(tt, err, test.err)
+			assert.Equal(tt, test.err, err)
 
-			if test.err == nil {
-				assert.IsSymlink(tt, dest.Join(test.dest, test.name))
-			}
+			testutil.IsSymlink(tt, fs, err == nil, filepath.Join(test.dest, test.name))
 		})
 	}
 }
 
 func TestActionUnlink(t *testing.T) {
 	var tests = []struct {
-		desc          string
-		fileStructure testutil.FileStructure
-		source        string
-		dest          string
-		name          string
-		err           error
+		desc   string
+		files  string
+		source string
+		dest   string
+		name   string
+		err    error
 	}{
 		{
 			"Can delete simple symlink",
-			testutil.FileStructure{
-				"a/b",
-			},
+			"a/b",
 			"a",
 			"",
 			"b",
@@ -85,9 +80,7 @@ func TestActionUnlink(t *testing.T) {
 		},
 		{
 			"Can delete nested symlink",
-			testutil.FileStructure{
-				"foo/bar/blub",
-			},
+			"foo/bar/blub:ln",
 			"foo/bar/",
 			"foo/bar/",
 			"blub",
@@ -97,25 +90,22 @@ func TestActionUnlink(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			source := testutil.NewFileSystem()
-			dest := testutil.NewFileSystem()
-			defer source.Cleanup()
-			defer dest.Cleanup()
+			fs := tempfs.New(osfs.New())
+			defer fs.Cleanup()
 
-			source.CreateFromFileStructure(test.fileStructure)
+			err := fsa.CreateFiles(fs, test.files)
+			assert.NoError(tt, err)
 
-			action := dotfiles.NewUnlinkAction(false)
-			err := action.Run(
-				source.Path(test.source),
-				dest.Path(test.dest),
+			action := dotfiles.NewUnlinkAction(fs, false)
+			err = action.Run(
+				test.source,
+				test.dest,
 				test.name,
 			)
 
-			assert.ErrorEquals(tt, err, test.err)
+			assert.Equal(tt, test.err, err)
 
-			if test.err == nil {
-				assert.PathNotExists(tt, dest.Join(test.dest, test.name))
-			}
+			testutil.FileExists(tt, fs, err != nil, filepath.Join(test.dest, test.name))
 		})
 	}
 

@@ -4,9 +4,12 @@ import (
 	"testing"
 
 	. "github.com/petergtz/pegomock"
+	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/osfs"
+	"github.com/relnod/fsa/tempfs"
+	"github.com/relnod/fsa/testutil"
+	"github.com/stretchr/testify/assert"
 
-	"github.com/relnod/dotm/internal/testutil"
-	"github.com/relnod/dotm/internal/testutil/assert"
 	"github.com/relnod/dotm/pkg/fileutil"
 	"github.com/relnod/dotm/pkg/mock"
 )
@@ -15,34 +18,32 @@ func TestRecTraverseDir(t *testing.T) {
 	RegisterMockTestingT(t)
 
 	var tests = []struct {
-		desc          string
-		fileStructure testutil.FileStructure
-		visitorCalls  [][]string
+		desc         string
+		files        string
+		visitorCalls [][]string
 	}{
 		{
 			"No Visit calls for empty directories",
-			testutil.FileStructure{
-				"a/",
-				"b/",
-			},
+			`
+				a/
+				b/
+			`,
 			nil,
 		},
 		{
 			"Simple Visit call",
-			testutil.FileStructure{
-				"a/b",
-			},
+			"a/b",
 			[][]string{
 				{"a", "b"},
 			},
 		},
 		{
 			"Multiple Visit calls in nested directories",
-			testutil.FileStructure{
-				"a/a",
-				"a/b/c",
-				"b/a/s/d",
-			},
+			`
+				a/a
+				a/b/c
+				b/a/s/d
+			`,
 			[][]string{
 				{"a", "a"},
 				{"a/b", "c"},
@@ -53,17 +54,15 @@ func TestRecTraverseDir(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := testutil.NewFileSystem()
+			fs := tempfs.New(osfs.New())
 			defer fs.Cleanup()
 
-			fs.CreateFromFileStructure(test.fileStructure)
-
+			err := fsa.CreateFiles(fs, test.files)
+			assert.NoError(tt, err)
 			visitor := mock.NewMockVisitor()
 
-			err := fileutil.RecTraverseDir(fs.BasePath(), "", visitor)
-			assert.ErrorIsNil(tt, err)
-
-			visitor.VerifyWasCalled(Times(len(test.visitorCalls))).Visit(AnyString(), AnyString())
+			err = fileutil.RecTraverseDir(fs, "", "", visitor)
+			assert.NoError(tt, err)
 
 			if test.visitorCalls != nil {
 				inOrderContext := new(InOrderContext)
@@ -82,7 +81,6 @@ func TestRecTraverseDir(t *testing.T) {
 func TestLink(t *testing.T) {
 	var tests = []struct {
 		desc string
-		fs   testutil.FileStructure
 		from string
 		to   string
 		dry  bool
@@ -90,7 +88,6 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			"Simple linking works",
-			testutil.FileStructure{"a"},
 			"a",
 			"b",
 			false,
@@ -98,7 +95,6 @@ func TestLink(t *testing.T) {
 		},
 		{
 			"It doesn't link when doing a dry run",
-			testutil.FileStructure{"a"},
 			"a",
 			"b",
 			true,
@@ -108,21 +104,15 @@ func TestLink(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := testutil.NewFileSystem()
+			fs := tempfs.New(osfs.New())
 			defer fs.Cleanup()
 
-			fs.CreateFromFileStructure(test.fs)
+			_, err := fs.Create(test.from)
+			assert.Equal(tt, test.err, err)
 
-			destFS := testutil.NewFileSystem()
-			defer destFS.Cleanup()
-
-			err := fileutil.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
-
-			assert.ErrorEquals(tt, err, test.err)
-
-			if err == nil && !test.dry {
-				assert.IsSymlink(tt, destFS.Path(test.to))
-			}
+			err = fileutil.Link(fs, test.from, test.to, test.dry)
+			assert.Equal(tt, test.err, err)
+			testutil.IsSymlink(tt, fs, err == nil && !test.dry, test.to)
 		})
 	}
 }
@@ -130,25 +120,19 @@ func TestLink(t *testing.T) {
 func TestUnlink(t *testing.T) {
 	var tests = []struct {
 		desc string
-		fs   testutil.FileStructure
-		from string
-		to   string
+		file string
 		dry  bool
 		err  error
 	}{
 		{
-			"Simple linking works",
-			testutil.FileStructure{"a"},
+			"Simple unlinking works",
 			"a",
-			"b",
 			false,
 			nil,
 		},
 		{
-			"It doesn't link when doing a dry run",
-			testutil.FileStructure{"a"},
+			"It doesn't unlink when doing a dry run",
 			"a",
-			"b",
 			true,
 			nil,
 		},
@@ -156,21 +140,15 @@ func TestUnlink(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := testutil.NewFileSystem()
+			fs := tempfs.New(osfs.New())
 			defer fs.Cleanup()
 
-			fs.CreateFromFileStructure(test.fs)
+			_, err := fs.Create(test.file)
+			assert.Equal(tt, test.err, err)
 
-			destFS := testutil.NewFileSystem()
-			defer destFS.Cleanup()
-
-			err := fileutil.Link(fs.Path(test.from), destFS.Path(test.to), test.dry)
-
-			assert.ErrorEquals(tt, err, test.err)
-
-			if err == nil && !test.dry {
-				assert.IsSymlink(tt, destFS.Path(test.to))
-			}
+			err = fileutil.Unlink(fs, test.file, test.dry)
+			assert.Equal(tt, test.err, err)
+			testutil.FileExists(tt, fs, err == nil && test.dry, test.file)
 		})
 	}
 }
