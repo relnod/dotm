@@ -52,6 +52,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
 	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing puposes)")
+	rootCmd.PersistentFlags().MarkHidden("testRoot")
 }
 
 // Execute executes the root command.
