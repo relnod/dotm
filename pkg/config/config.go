@@ -2,6 +2,7 @@ package config
 
 import (
 	"bufio"
+	"os"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
@@ -43,8 +44,16 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// New takes the given config and intiailizes some values on it.
+func New(c *Config) *Config {
+	c.Remote = os.ExpandEnv(c.Remote)
+	c.Path = os.ExpandEnv(c.Path)
+	return c
+}
+
 // WriteFile writes a new config file in the toml format to a given path.
 func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
+	path = os.ExpandEnv(path)
 	f, err := fs.Create(path)
 	if err != nil {
 		return errors.Wrap(err, ErrCreateConfigFile)
@@ -63,6 +72,7 @@ func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
 // NewFromFile reads the file at the given path and decodes it into a new
 // config struct.
 func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
+	path = os.ExpandEnv(path)
 	config := &Config{}
 
 	data, err := fsutil.ReadFile(fs, path)
@@ -75,5 +85,5 @@ func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
 		return nil, errors.Wrap(err, ErrEncodeConfig)
 	}
 
-	return config, nil
+	return New(config), nil
 }

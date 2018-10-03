@@ -20,6 +20,8 @@ func TestAll(t *testing.T) {
 			defer fs.Cleanup()
 
 			assert.NoError(tt, testutil.CreateFiles(fs, c.given))
+			assert.NoError(tt, testutil.AddFiles(fs, "./testdata", "/"))
+			assert.NoError(tt, testutil.PrintFiles(fs))
 			assert.NoError(tt, c.exec(fs.Base()))
 			assert.NoError(tt, testutil.CheckFiles(fs, c.expected))
 		})

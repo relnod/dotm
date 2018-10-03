@@ -16,7 +16,7 @@ require (
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
 	github.com/petergtz/pegomock v0.0.0-20180725144810-278dd9bee025
 	github.com/pkg/errors v0.8.0
-	github.com/relnod/fsa v0.0.0-20181003161421-a2e742547033
+	github.com/relnod/fsa v0.0.0-20181003193535-d9d26ef7836a
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.2 // indirect

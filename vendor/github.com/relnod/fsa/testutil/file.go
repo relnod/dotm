@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -113,6 +114,49 @@ func CheckFiles(fs fsa.FileSystem, raw string) error {
 			return fmt.Errorf("%s should be a symlink", file.path)
 		}
 	}
+	return nil
+}
+
+// AddFiles adds all files from the given directory to the given file system.
+// Works recusively.
+func AddFiles(fs fsa.FileSystem, src, dest string) error {
+	return addFiles(fs, src, dest)
+}
+
+func addFiles(fs fsa.FileSystem, src, dest string) error {
+	files, err := ioutil.ReadDir(src)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		sourcePath := filepath.Join(src, f.Name())
+		destPath := filepath.Join(dest, f.Name())
+		if f.IsDir() {
+			err = fs.MkdirAll(destPath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+
+			err = addFiles(fs, sourcePath, destPath)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		data, err := ioutil.ReadFile(sourcePath)
+		if err != nil {
+			return err
+		}
+
+		err = fsutil.WriteFile(fs, destPath, data, os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

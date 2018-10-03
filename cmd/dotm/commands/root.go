@@ -29,8 +29,6 @@ func loadConfig(fs fsa.FileSystem) (*config.Config, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		configPath = os.ExpandEnv(configPath)
 	}
 	c, err := config.NewFromFile(fs, configPath)
 	if err != nil {

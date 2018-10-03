@@ -9,7 +9,7 @@ This Project is still WIP!
 
 Currently the only supported installation method is via the `go` command.
 ```
-go install github.com/relnod/dotm/cmd/dotm
+go get github.com/relnod/dotm/cmd/dotm
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ dotm init <path-to-existing-dotfile-folder>
 ### From a remote git repository
 
 ```
-dotm get <url-to-remote-repository>
+dotm install <url-to-remote-repository>
 ```
 
 ## Development

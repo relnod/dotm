@@ -11,6 +11,10 @@ func NewOsFs() *OsFs {
 	return &OsFs{}
 }
 
+func (f *OsFs) Path(path string) (string, error) {
+	return path, nil
+}
+
 func (f *OsFs) OpenFile(name string, flag int, perm os.FileMode) (*os.File, error) {
 	return os.OpenFile(name, flag, perm)
 }

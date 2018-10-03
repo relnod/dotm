@@ -35,6 +35,10 @@ func (f *BaseFs) path(path string) (string, error) {
 	return filepath.Join(f.base, path), nil
 }
 
+func (f *BaseFs) Path(path string) (string, error) {
+	return f.path(path)
+}
+
 func (f *BaseFs) OpenFile(name string, flag int, perm os.FileMode) (*os.File, error) {
 	name2, err := f.path(name)
 	if err != nil {

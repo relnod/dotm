@@ -2,8 +2,10 @@ package remote
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/relnod/fsa"
 	git "gopkg.in/src-d/go-git.v4"
 )
 
@@ -16,11 +18,13 @@ const (
 )
 
 // Clone clones a remote repository to a given path.
-func Clone(remoteURL, path string) error {
-	err := os.MkdirAll(path, os.ModePerm)
+func Clone(fs fsa.FileSystem, remoteURL, path string) error {
+	err := fs.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, ErrMkdirDestination)
 	}
+
+	remoteURL, path = sanitizePaths(fs, remoteURL, path)
 
 	_, err = git.PlainClone(path, false, &git.CloneOptions{
 		URL:      remoteURL,
@@ -34,7 +38,9 @@ func Clone(remoteURL, path string) error {
 }
 
 // Pull pulles the remote repository.
-func Pull(remoteURL, path string) error {
+func Pull(fs fsa.FileSystem, remoteURL, path string) error {
+
+	remoteURL, path = sanitizePaths(fs, remoteURL, path)
 	r, err := git.PlainOpen(path)
 	if err != nil {
 		return errors.Wrap(err, ErrOpenLocal)
@@ -51,6 +57,14 @@ func Pull(remoteURL, path string) error {
 	}
 
 	return nil
+}
+
+func sanitizePaths(fs fsa.FileSystem, remote, path string) (string, string) {
+	if filepath.IsAbs(remote) {
+		remote, _ = fs.Path(remote)
+	}
+	path, _ = fs.Path(path)
+	return remote, path
 }
 
 // Detect tries to detect a remote in a given path.
