@@ -26,7 +26,7 @@ func (t *testcase) exec(dir string) error {
 	cmd.Stderr = &outErr
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("failed to execute '%s'.\nStdout:\n%s\nStderr:\n%s", t.cmd, out.String(), outErr.String())
+		return fmt.Errorf("failed to execute '%s'\nStdout:\n%s\nStderr:\n%s", t.cmd, out.String(), outErr.String())
 	}
 	return nil
 }

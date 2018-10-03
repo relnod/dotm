@@ -115,3 +115,29 @@ func CheckFiles(fs fsa.FileSystem, raw string) error {
 	}
 	return nil
 }
+
+// PrintFiles prints all files in the file system to stdout.
+func PrintFiles(fs fsa.FileSystem) error {
+	return printFiles(fs, "/")
+}
+
+func printFiles(fs fsa.FileSystem, dir string) error {
+	files, err := fsutil.ReadDir(fs, dir)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		path := filepath.Join(dir, f.Name())
+		if f.IsDir() {
+			err := printFiles(fs, path)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		fmt.Println(path)
+	}
+
+	return nil
+}
