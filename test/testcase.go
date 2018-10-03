@@ -28,7 +28,6 @@ func (t *testcase) exec(dir string) error {
 	if err != nil {
 		return fmt.Errorf("failed to execute '%s'.\nStdout:\n%s\nStderr:\n%s", t.cmd, out.String(), outErr.String())
 	}
-	fmt.Printf("Stdout:\n%s", out.String())
 	return nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/fsutil"
 )
 
 // Errors
@@ -24,7 +25,7 @@ type Visitor interface {
 // Calls the visitor for each file it passes.
 // TODO: what is relDir for?
 func RecTraverseDir(fs fsa.FileSystem, dir string, relDir string, visitor Visitor) error {
-	files, err := fsa.ReadDir(fs, dir)
+	files, err := fsutil.ReadDir(fs, dir)
 	if err != nil {
 		return err
 	}

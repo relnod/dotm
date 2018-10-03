@@ -5,8 +5,7 @@ import (
 
 	. "github.com/petergtz/pegomock"
 	"github.com/relnod/fsa"
-	"github.com/relnod/fsa/osfs"
-	"github.com/relnod/fsa/tempfs"
+	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/relnod/dotm/pkg/dotfiles"
@@ -63,10 +62,10 @@ func TestTraverse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := tempfs.New(osfs.New())
+			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
 
-			err := fsa.CreateFiles(fs, test.files)
+			err := testutil.CreateFiles(fs, test.files)
 			assert.NoError(tt, err)
 
 			action := mock.NewMockAction()

@@ -5,8 +5,6 @@ import (
 
 	. "github.com/petergtz/pegomock"
 	"github.com/relnod/fsa"
-	"github.com/relnod/fsa/osfs"
-	"github.com/relnod/fsa/tempfs"
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
@@ -54,10 +52,10 @@ func TestRecTraverseDir(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := tempfs.New(osfs.New())
+			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
 
-			err := fsa.CreateFiles(fs, test.files)
+			err := testutil.CreateFiles(fs, test.files)
 			assert.NoError(tt, err)
 
 			visitor := mock.NewMockVisitor()
@@ -85,32 +83,29 @@ func TestLink(t *testing.T) {
 		from string
 		to   string
 		dry  bool
-		err  error
 	}{
 		{
 			"Simple linking works",
 			"/a",
 			"/b",
 			false,
-			nil,
 		},
 		{
 			"It doesn't link when doing a dry run",
-			"/a",
-			"/b",
+			"/d",
+			"/e",
 			true,
-			nil,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := tempfs.New(osfs.New())
+			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
 
-			assert.Equal(tt, test.err, testutil.CreateFiles(fs, test.from))
-			assert.Equal(tt, test.err, fileutil.Link(fs, test.from, test.to, test.dry))
-			testutil.IsSymlink(tt, fs, !test.dry, test.to)
+			assert.NoError(tt, testutil.CreateFiles(fs, test.from))
+			assert.NoError(tt, fileutil.Link(fs, test.from, test.to, test.dry))
+			assert.Equal(tt, testutil.IsSymlink(fs, test.to), !test.dry)
 		})
 	}
 }
@@ -120,30 +115,27 @@ func TestUnlink(t *testing.T) {
 		desc string
 		file string
 		dry  bool
-		err  error
 	}{
 		{
 			"Simple unlinking works",
 			"/a",
 			false,
-			nil,
 		},
 		{
 			"It doesn't unlink when doing a dry run",
 			"/b",
 			true,
-			nil,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.desc, func(tt *testing.T) {
-			fs := tempfs.New(osfs.New())
+			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
 
-			assert.Equal(tt, test.err, testutil.CreateFiles(fs, test.file))
-			assert.Equal(tt, test.err, fileutil.Unlink(fs, test.file, test.dry))
-			testutil.FileExists(tt, fs, test.dry, test.file)
+			assert.NoError(tt, testutil.CreateFiles(fs, test.file))
+			assert.NoError(tt, fileutil.Unlink(fs, test.file, test.dry))
+			assert.Equal(tt, testutil.FileExists(fs, test.file), test.dry)
 		})
 	}
 }

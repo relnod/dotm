@@ -3,8 +3,7 @@ package test
 import (
 	"testing"
 
-	"github.com/relnod/fsa/osfs"
-	"github.com/relnod/fsa/tempfs"
+	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,13 +16,11 @@ func TestAll(t *testing.T) {
 
 	for _, c := range testcases {
 		t.Run(c.name, func(tt *testing.T) {
-			fs := tempfs.New(osfs.New())
+			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
 
 			assert.NoError(tt, testutil.CreateFiles(fs, c.given))
-
 			assert.NoError(tt, c.exec(fs.Base()))
-
 			assert.NoError(tt, testutil.CheckFiles(fs, c.expected))
 		})
 	}
