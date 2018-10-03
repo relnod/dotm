@@ -4,8 +4,6 @@ import (
 	"os"
 
 	"github.com/relnod/fsa"
-	"github.com/relnod/fsa/basefs"
-	"github.com/relnod/fsa/osfs"
 	"github.com/spf13/cobra"
 
 	"github.com/relnod/dotm/pkg/config"
@@ -17,9 +15,9 @@ var (
 )
 
 func newFS() (fs fsa.FileSystem) {
-	fs = osfs.New()
+	fs = fsa.NewOsFs()
 	if testRoot != "" {
-		fs = basefs.New(fs, testRoot)
+		fs = fsa.NewBaseFs(fs, testRoot)
 	}
 	return fs
 }

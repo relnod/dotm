@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/fsutil"
 
 	"github.com/relnod/dotm/pkg/fileutil"
 )
@@ -54,7 +55,7 @@ func (t traverseVisitor) Visit(dir, file string) {
 // TODO: rethink arguments, maybe add Traverser struct
 // TODO: finish implementation
 func (t *Traverser) Traverse(source string, dest string, action Action) error {
-	files, err := fsa.ReadDir(t.fs, source)
+	files, err := fsutil.ReadDir(t.fs, source)
 	if err != nil {
 		// TODO: wrap error
 		return err
