@@ -2,11 +2,11 @@ package config
 
 import (
 	"bufio"
-	"io/ioutil"
-	"os"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
+	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/fsutil"
 )
 
 // Errors
@@ -29,12 +29,13 @@ type Config struct {
 	Path     string
 	Includes []string
 	Excludea []string
+	FS       fsa.FileSystem
 }
 
 // Validate returns an error if the configuration is invalid.
 func (c *Config) Validate() error {
 	if c.Remote == "" {
-		return ErrEmptyRemote
+		// return ErrEmptyRemote
 	}
 	if c.Path == "" {
 		return ErrEmptyPath
@@ -42,9 +43,9 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// WriteTomlFile writes a new config file in the toml format to a given path.
-func WriteTomlFile(path string, c *Config) error {
-	f, err := os.Create(path)
+// WriteFile writes a new config file in the toml format to a given path.
+func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
+	f, err := fs.Create(path)
 	if err != nil {
 		return errors.Wrap(err, ErrCreateConfigFile)
 	}
@@ -59,12 +60,12 @@ func WriteTomlFile(path string, c *Config) error {
 	return nil
 }
 
-// NewFromTomlFile reads the file at the given path and decodes it into a new
+// NewFromFile reads the file at the given path and decodes it into a new
 // config struct.
-func NewFromTomlFile(path string) (*Config, error) {
+func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
 	config := &Config{}
 
-	data, err := ioutil.ReadFile(path)
+	data, err := fsutil.ReadFile(fs, path)
 	if err != nil {
 		return nil, errors.Wrap(err, ErrOpenConfigFile)
 	}

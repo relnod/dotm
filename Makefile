@@ -20,9 +20,9 @@ TARGET ?= linux
 all: verify test
 
 # === test ===
-# Runs all unit tests
+# Runs all tests (unit and e2e)
 .PHONY: test
-test: test-unit
+test: test-unit test-e2e
 
 # === test-unit ===
 # Runs all unit tests
@@ -30,7 +30,15 @@ test: test-unit
 test-unit:
 	@echo "Running unit tests"
 	@echo ""
-	go test -v `go list ./... | grep -v test/`
+	go test -v `go list ./... | grep -v /test`
+
+# === test-e2e ===
+# Runs all e2e tests
+.PHONY: test-unit
+test-e2e: install
+	@echo "Running e2e tests"
+	@echo ""
+	go test -v ./test
 
 # === update ===
 # Updates all generated files
@@ -50,10 +58,19 @@ verify:
 watch:
 	modd -f hack/dev/modd.conf
 
-export RULE ?= help
+# === install ===
+# Installs dotm with go the go command
+.PHONY: install
+install:
+	go install ./cmd/dotm
 
+# === build ===
+# Builds the dotm binary
+.PHONY: build
 build:
-	CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build
+	CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build ./cmd/dotm
+
+export RULE ?= help
 
 # === help ===
 # Prints this help message

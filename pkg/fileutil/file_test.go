@@ -59,6 +59,7 @@ func TestRecTraverseDir(t *testing.T) {
 
 			err := fsa.CreateFiles(fs, test.files)
 			assert.NoError(tt, err)
+
 			visitor := mock.NewMockVisitor()
 
 			err = fileutil.RecTraverseDir(fs, "", "", visitor)
@@ -88,15 +89,15 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			"Simple linking works",
-			"a",
-			"b",
+			"/a",
+			"/b",
 			false,
 			nil,
 		},
 		{
 			"It doesn't link when doing a dry run",
-			"a",
-			"b",
+			"/a",
+			"/b",
 			true,
 			nil,
 		},
@@ -107,12 +108,9 @@ func TestLink(t *testing.T) {
 			fs := tempfs.New(osfs.New())
 			defer fs.Cleanup()
 
-			_, err := fs.Create(test.from)
-			assert.Equal(tt, test.err, err)
-
-			err = fileutil.Link(fs, test.from, test.to, test.dry)
-			assert.Equal(tt, test.err, err)
-			testutil.IsSymlink(tt, fs, err == nil && !test.dry, test.to)
+			assert.Equal(tt, test.err, testutil.CreateFiles(fs, test.from))
+			assert.Equal(tt, test.err, fileutil.Link(fs, test.from, test.to, test.dry))
+			testutil.IsSymlink(tt, fs, !test.dry, test.to)
 		})
 	}
 }
@@ -126,13 +124,13 @@ func TestUnlink(t *testing.T) {
 	}{
 		{
 			"Simple unlinking works",
-			"a",
+			"/a",
 			false,
 			nil,
 		},
 		{
 			"It doesn't unlink when doing a dry run",
-			"a",
+			"/b",
 			true,
 			nil,
 		},
@@ -143,12 +141,9 @@ func TestUnlink(t *testing.T) {
 			fs := tempfs.New(osfs.New())
 			defer fs.Cleanup()
 
-			_, err := fs.Create(test.file)
-			assert.Equal(tt, test.err, err)
-
-			err = fileutil.Unlink(fs, test.file, test.dry)
-			assert.Equal(tt, test.err, err)
-			testutil.FileExists(tt, fs, err == nil && test.dry, test.file)
+			assert.Equal(tt, test.err, testutil.CreateFiles(fs, test.file))
+			assert.Equal(tt, test.err, fileutil.Unlink(fs, test.file, test.dry))
+			testutil.FileExists(tt, fs, test.dry, test.file)
 		})
 	}
 }

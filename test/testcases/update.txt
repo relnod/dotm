@@ -1,0 +1,8 @@
+Simple test case for update command
+---
+/home/$USER/.dotfiles.toml#path="/dotfiles"
+/dotfiles/tmux/.tmux.conf
+---
+dotm update
+---
+/home/$USER/.tmux.conf:ln

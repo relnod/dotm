@@ -19,7 +19,7 @@ var updateCmd = &cobra.Command{
 	Short: "Update the dotfiles",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := loadConfig()
+		c, err := loadConfig(newFS())
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
 			return err

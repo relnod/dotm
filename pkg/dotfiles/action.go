@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/relnod/fsa"
-	"github.com/relnod/fsa/osfs"
 
 	"github.com/relnod/dotm/pkg/fileutil"
 )
@@ -18,12 +17,11 @@ var (
 )
 
 // Link recursively links files from one path to another.
-func Link(from, to string, opts *ActionOptions) error {
+func Link(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
 	if opts == nil {
 		opts = defaultActionOptions
 	}
 
-	fs := osfs.New()
 	t := NewTraverser(fs, nil)
 	err := t.Traverse(from, to, NewLinkAction(fs, opts.Dry))
 	if err != nil {
@@ -34,12 +32,11 @@ func Link(from, to string, opts *ActionOptions) error {
 }
 
 // UnLink recursively removes the symlinks.
-func UnLink(from, to string, opts *ActionOptions) error {
+func UnLink(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
 	if opts == nil {
 		opts = defaultActionOptions
 	}
 
-	fs := osfs.New()
 	t := NewTraverser(fs, nil)
 	err := t.Traverse(from, to, NewUnlinkAction(fs, opts.Dry))
 	if err != nil {
