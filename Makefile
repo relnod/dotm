@@ -30,7 +30,8 @@ test: test-unit test-e2e
 test-unit:
 	@echo "Running unit tests"
 	@echo ""
-	go test -v `go list ./... | grep -v /test`
+	GO111MODULE=on go test -mod=vendor -v `go list ./... | grep -v /test`
+	@echo ""
 
 # === test-e2e ===
 # Runs all e2e tests
@@ -38,7 +39,8 @@ test-unit:
 test-e2e: install
 	@echo "Running e2e tests"
 	@echo ""
-	go test -v ./test
+	GO111MODULE=on go test -mod=vendor -v ./test
+	@echo ""
 
 # === update ===
 # Updates all generated files
