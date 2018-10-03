@@ -1,5 +1,7 @@
 # github.com/BurntSushi/toml v0.3.0
 github.com/BurntSushi/toml
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
 # github.com/emirpasic/gods v1.9.0
 github.com/emirpasic/gods/trees/binaryheap
 github.com/emirpasic/gods/containers
@@ -24,6 +26,12 @@ github.com/petergtz/pegomock
 github.com/petergtz/pegomock/internal/verify
 # github.com/pkg/errors v0.8.0
 github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/relnod/fsa v0.0.0-20181003140646-fa4326f0c9d9
+github.com/relnod/fsa
+github.com/relnod/fsa/fsutil
+github.com/relnod/fsa/testutil
 # github.com/sergi/go-diff v1.0.0
 github.com/sergi/go-diff/diffmatchpatch
 # github.com/spf13/cobra v0.0.3
@@ -35,6 +43,8 @@ github.com/src-d/gcfg
 github.com/src-d/gcfg/scanner
 github.com/src-d/gcfg/token
 github.com/src-d/gcfg/types
+# github.com/stretchr/testify v1.2.2
+github.com/stretchr/testify/assert
 # github.com/xanzy/ssh-agent v0.2.0
 github.com/xanzy/ssh-agent
 # golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
