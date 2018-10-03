@@ -24,6 +24,7 @@ var installCmd = &cobra.Command{
 		c := &config.Config{
 			Remote: args[0],
 			Path:   path,
+			FS:     newFS(),
 		}
 
 		err = dotfiles.Install(c, configPath)

@@ -18,7 +18,7 @@ func Init(c *config.Config, configPath string) error {
 		return err
 	}
 
-	err = Link(c.Path, usr.HomeDir, nil)
+	err = Link(c.FS, c.Path, usr.HomeDir, nil)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func Init(c *config.Config, configPath string) error {
 		c.Remote = remoteURL
 	}
 
-	err = config.WriteTomlFile(configPath, c)
+	err = config.WriteFile(c.FS, configPath, c)
 	if err != nil {
 		return err
 	}

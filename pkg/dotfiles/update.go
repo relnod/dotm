@@ -32,7 +32,7 @@ func Update(c *config.Config, opts *UpdateOptions) error {
 		return err
 	}
 
-	err = Link(c.Path, usr.HomeDir, nil)
+	err = Link(c.FS, c.Path, usr.HomeDir, nil)
 	if err != nil {
 		return err
 	}

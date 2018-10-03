@@ -1,0 +1,9 @@
+Simple test case for uninstall command
+---
+/home/$USER/.dotfiles.toml#path="/dotfiles"
+/dotfiles/tmux/.tmux.conf
+/home/$USER/.tmux.conf:ln
+---
+dotm uninstall
+---
+/home/$USER/.tmux.conf:deleted

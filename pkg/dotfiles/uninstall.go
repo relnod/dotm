@@ -20,7 +20,7 @@ func Uninstall(c *config.Config) error {
 		return err
 	}
 
-	err = UnLink(c.Path, usr.HomeDir, nil)
+	err = UnLink(c.FS, c.Path, usr.HomeDir, nil)
 	if err != nil {
 		return err
 	}
