@@ -21,7 +21,7 @@ func Update(c *config.Config, opts *UpdateOptions) error {
 	}
 
 	if opts.UpdateFromRemote {
-		err = remote.Pull(c.Remote, c.Path)
+		err = remote.Pull(c.FS, c.Remote, c.Path)
 		if err != nil {
 			return err
 		}

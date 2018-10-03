@@ -27,4 +27,6 @@ type FileSystem interface {
 	Lchown(name string, uid, gid int) error
 	Readlink(name string) (string, error)
 	Symlink(oldname, newname string) error
+
+	Path(string) (string, error)
 }

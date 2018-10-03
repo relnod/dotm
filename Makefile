@@ -39,7 +39,14 @@ test-unit:
 test-e2e: install
 	@echo "Running e2e tests"
 	@echo ""
+	cd test/testdata/remote && \
+		git init && \
+	    git config --local user.email "you@example.com" && \
+	    git config --local user.name "Your Name" && \
+		git add . && \
+		git commit -m "initial commit"
 	GO111MODULE=on go test -mod=vendor -v ./test
+	rm -rf test/testdata/remote/.git
 	@echo ""
 
 # === update ===

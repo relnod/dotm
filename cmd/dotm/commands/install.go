@@ -21,11 +21,11 @@ var installCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		c := &config.Config{
+		c := config.New(&config.Config{
 			Remote: args[0],
 			Path:   path,
 			FS:     newFS(),
-		}
+		})
 
 		err = dotfiles.Install(c, configPath)
 		if err != nil {
@@ -39,6 +39,6 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	installCmd.Flags().StringVarP(&path, "path", "p", "~/.dotfiles/", "Local git path")
+	installCmd.Flags().StringVarP(&path, "path", "p", "$HOME/.dotfiles/", "Local git path")
 	rootCmd.AddCommand(installCmd)
 }

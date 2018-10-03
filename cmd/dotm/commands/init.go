@@ -28,11 +28,11 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		c := &config.Config{
+		c := config.New(&config.Config{
 			Remote: remote,
 			Path:   path,
 			FS:     newFS(),
-		}
+		})
 
 		err = dotfiles.Init(c, os.ExpandEnv(configPath))
 		if err != nil {

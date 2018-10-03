@@ -49,6 +49,8 @@ github.com/relnod/fsa v0.0.0-20181003140646-fa4326f0c9d9 h1:UmIK7QaYEGDUScvPgEZs
 github.com/relnod/fsa v0.0.0-20181003140646-fa4326f0c9d9/go.mod h1:CJTbCBvKOmXtK3egrGm8bAVg7oRy/VnwglEJbcpnVQY=
 github.com/relnod/fsa v0.0.0-20181003161421-a2e742547033 h1:UvK0TkQVH765TpN7V+r/C9RyV1eSf9YgvzovlXJhw6c=
 github.com/relnod/fsa v0.0.0-20181003161421-a2e742547033/go.mod h1:CJTbCBvKOmXtK3egrGm8bAVg7oRy/VnwglEJbcpnVQY=
+github.com/relnod/fsa v0.0.0-20181003193535-d9d26ef7836a h1:Sf0NpazOOKf00geXdsSxbC0smbujnik/b0gSUl8WYas=
+github.com/relnod/fsa v0.0.0-20181003193535-d9d26ef7836a/go.mod h1:CJTbCBvKOmXtK3egrGm8bAVg7oRy/VnwglEJbcpnVQY=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/spf13/cobra v0.0.3 h1:ZlrZ4XsMRm04Fr5pSFxBgfND2EBVa1nLpiy1stUsX/8=

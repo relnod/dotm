@@ -4,8 +4,9 @@ import (
 	"errors"
 	"os/user"
 
+	"github.com/relnod/fsa/testutil"
+
 	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/fileutil"
 	"github.com/relnod/dotm/pkg/remote"
 )
 
@@ -24,15 +25,12 @@ func Install(c *config.Config, configPath string) error {
 		return err
 	}
 
-	exists, err := fileutil.FileExists(c.Path)
-	if err != nil {
-		return err
-	}
+	exists := testutil.FileExists(c.FS, c.Path)
 	if exists {
 		return ErrPathExists
 	}
 
-	err = remote.Clone(c.Remote, c.Path)
+	err = remote.Clone(c.FS, c.Remote, c.Path)
 	if err != nil {
 		return err
 	}
