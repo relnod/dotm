@@ -46,19 +46,19 @@ test-e2e: install
 # Updates all generated files
 .PHONY: update
 update:
-	./hack/make-rules/update.sh
+	./scripts/make-rules/update.sh
 
 # === verify ===
 # Runs various verify checks
 .PHONY: verify
 verify:
-	./hack/make-rules/verify.sh
+	./scripts/make-rules/verify.sh
 
 # === watch ===
 # Starts modd (runs tests on file change)
 .PHONY: watch
 watch:
-	modd -f hack/dev/modd.conf
+	modd -f scripts/dev/modd.conf
 
 # === install ===
 # Installs dotm with go the go command
@@ -78,4 +78,4 @@ export RULE ?= help
 # Prints this help message
 .PHONY: help
 help:
-	@./hack/make-rules/help.sh
+	@./scripts/make-rules/help.sh
