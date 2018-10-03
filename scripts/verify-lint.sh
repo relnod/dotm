@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-source "${ROOT}/hack/lib/gotools.sh"
+source "${ROOT}/scripts/lib/gotools.sh"
 
 echo "Verifying golint"
 
