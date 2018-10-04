@@ -44,6 +44,14 @@ excludes = [
     "nvim",
     "tmux"
 ]
+
+pre_update = [
+    "echo 'pre update'"
+]
+
+post_update = [
+    "echo 'post update'"
+]
 ```
 
 ### Dotfiles folder

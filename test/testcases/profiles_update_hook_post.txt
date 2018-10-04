@@ -1,0 +1,10 @@
+Executes post update hook
+---
+/home/$USER/.dotfiles.toml#[profiles.default]\npath="/dotfiles"\npost_update=["rm $BASE/a"]
+/dotfiles/tmux/.tmux.conf
+/a
+---
+dotm update default
+---
+/home/$USER/.tmux.conf:ln
+/a:deleted

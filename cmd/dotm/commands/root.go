@@ -51,7 +51,6 @@ Configuration file
 The configuration file is located at $HOME/.dotfiles.toml (can be changed with the --config flag). It can hold multiple profiles. Each profile consists of a path to the local dotfile location and an optional remote path to a git repository.
 
 Example:
-toml
 # You can define multiple profiles
 [profiles.default]
 
@@ -73,6 +72,14 @@ excludes = [
     "bash",
     "nvim",
     "tmux"
+]
+
+pre_update = [
+    "echo 'pre update'"
+]
+
+post_update = [
+    "echo 'post update'"
 ]
 
 Dotfiles folder

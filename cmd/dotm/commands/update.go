@@ -10,7 +10,7 @@ import (
 
 var (
 	updateFromRemote bool
-	msgUpdateSuccess = "Dotfiles where updated successfully"
+	msgUpdateSuccess = "Dotfiles were updated successfully"
 	msgUpdateFail    = "Failed to update dotfiles"
 )
 
