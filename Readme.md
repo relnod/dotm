@@ -74,6 +74,16 @@ dotm init <path-to-existing-dotfile-folder>
 dotm install <url-to-remote-repository>
 ```
 
+### Hooks
+Update hooks can be applied at profile level (via global config) and per top level directory with a hooks.toml in the top level directory. Note: this file won't be symlinked.
+
+Example:
+```toml
+pre_update = [
+    "nvim +PlugInstall +qall"
+]
+```
+
 ## Development
 
 There is a Makefile to help development. You can run `make watch` to start a file watcher, that runs tests on file change plus some other helpfull stuff. Type `make help` for a list of all commands.

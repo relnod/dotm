@@ -95,6 +95,14 @@ dotm init <path-to-existing-dotfile-folder>
 
 From a remote git repository:
 dotm install <url-to-remote-repository>
+
+Hooks
+Update hooks can be applied at profile level (via global config) and per top level directory with a hooks.toml in the top level directory. Note: this file won't be symlinked.
+
+Example:
+pre_update = [
+    "nvim +PlugInstall +qall"
+]
 	`,
 }
 
