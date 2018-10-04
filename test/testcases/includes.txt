@@ -1,0 +1,10 @@
+Includes all in includes flag
+---
+/dotfiles/tmux/.tmux.conf
+/dotfiles/bash/.bashrc
+---
+dotm init /dotfiles --includes=bash
+---
+/home/$USER/.dotfiles.toml
+/home/$USER/.tmux.conf:deleted
+/home/$USER/.bashrc:ln

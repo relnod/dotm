@@ -22,9 +22,11 @@ var installCmd = &cobra.Command{
 		var err error
 
 		c := config.New(&config.Config{
-			Remote: args[0],
-			Path:   path,
-			FS:     newFS(),
+			Remote:   args[0],
+			Path:     path,
+			FS:       newFS(),
+			Excludes: *excludes,
+			Includes: *includes,
 		})
 
 		err = dotfiles.Install(c, configPath)

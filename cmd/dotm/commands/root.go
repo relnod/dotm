@@ -12,6 +12,8 @@ import (
 var (
 	configPath string
 	testRoot   string
+	excludes   *[]string
+	includes   *[]string
 )
 
 func newFS() (fs fsa.FileSystem) {
@@ -49,6 +51,8 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+	excludes = rootCmd.PersistentFlags().StringSlice("excludes", nil, "Directories to be excluded")
+	includes = rootCmd.PersistentFlags().StringSlice("includes", nil, "Directories to be included")
 	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing puposes)")
 	rootCmd.PersistentFlags().MarkHidden("testRoot")
 }

@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type testcase struct {
@@ -28,6 +30,7 @@ func (t *testcase) exec(dir string) error {
 	if err != nil {
 		return fmt.Errorf("failed to execute '%s'\nStdout:\n%s\nStderr:\n%s", t.cmd, out.String(), outErr.String())
 	}
+	fmt.Printf("Stdout:\n%s", out.String())
 	return nil
 }
 
@@ -51,7 +54,7 @@ func parseDir(dirname string) ([]*testcase, error) {
 
 		c, err := parseTestCase(string(raw))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "failed to parse %s", file.Name())
 		}
 
 		testcases = append(testcases, c)
@@ -62,7 +65,7 @@ func parseDir(dirname string) ([]*testcase, error) {
 func parseTestCase(raw string) (*testcase, error) {
 	sections := strings.Split(string(raw), "---")
 	if len(sections) != 4 {
-		return nil, fmt.Errorf("Expected 4 sections in testcase. got %d", len(sections))
+		return nil, fmt.Errorf("expected 4 sections in testcase. got %d", len(sections))
 	}
 	return &testcase{
 		name:     sections[0],

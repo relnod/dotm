@@ -22,7 +22,7 @@ func Link(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
 		opts = defaultActionOptions
 	}
 
-	t := NewTraverser(fs, nil)
+	t := NewTraverser(fs, opts.Excludes, opts.Includes)
 	err := t.Traverse(from, to, NewLinkAction(fs, opts.Dry))
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func UnLink(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
 		opts = defaultActionOptions
 	}
 
-	t := NewTraverser(fs, nil)
+	t := NewTraverser(fs, opts.Excludes, opts.Includes)
 	err := t.Traverse(from, to, NewUnlinkAction(fs, opts.Dry))
 	if err != nil {
 		return err
@@ -51,12 +51,14 @@ type ActionOptions struct {
 	Dry      bool
 	Verbose  bool
 	Excludes []string
+	Includes []string
 }
 
 var defaultActionOptions = &ActionOptions{
 	Dry:      false,
 	Verbose:  false,
 	Excludes: defaultExcluded,
+	Includes: nil,
 }
 
 // LinkAction implements the action.Interface for a link action.

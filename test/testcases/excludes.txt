@@ -1,0 +1,10 @@
+Excludes all in exclude flag
+---
+/dotfiles/tmux/.tmux.conf
+/dotfiles/bash/.basrc
+---
+dotm init /dotfiles --excludes=bash
+---
+/home/$USER/.dotfiles.toml
+/home/$USER/.tmux.conf:ln
+/home/$USER/.bashrc:deleted
