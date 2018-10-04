@@ -29,7 +29,7 @@ type Config struct {
 	Remote   string
 	Path     string
 	Includes []string
-	Excludea []string
+	Excludes []string
 	FS       fsa.FileSystem
 }
 

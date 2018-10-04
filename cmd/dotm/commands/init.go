@@ -29,9 +29,11 @@ var initCmd = &cobra.Command{
 		}
 
 		c := config.New(&config.Config{
-			Remote: remote,
-			Path:   path,
-			FS:     newFS(),
+			Remote:   remote,
+			Path:     path,
+			FS:       newFS(),
+			Excludes: *excludes,
+			Includes: *includes,
 		})
 
 		err = dotfiles.Init(c, os.ExpandEnv(configPath))

@@ -90,7 +90,7 @@ func TestActionUnlink(t *testing.T) {
 				test.dest,
 				test.name,
 			))
-			// assert.True(tt, testutil.FileExists(fs, filepath.Join(test.dest, test.name)))
+			assert.False(tt, testutil.FileExists(fs, filepath.Join(test.dest, test.name)))
 		})
 	}
 }

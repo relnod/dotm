@@ -35,10 +35,11 @@ test-unit:
 
 # === test-e2e ===
 # Runs all e2e tests
-.PHONY: test-unit
+.PHONY: test-e2e
 test-e2e: install
 	@echo "Running e2e tests"
 	@echo ""
+	rm -rf test/testdata/remote/.git
 	cd test/testdata/remote && \
 		git init && \
 	    git config --local user.email "you@example.com" && \

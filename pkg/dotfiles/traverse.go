@@ -22,18 +22,20 @@ type Action interface {
 // Traverser is used to traverse the dotfiles structure.
 type Traverser struct {
 	fs       fsa.FileSystem
-	excluded []string
+	excludes []string
+	includes []string
 }
 
 // NewTraverser returns a new traverser.
-func NewTraverser(fs fsa.FileSystem, excluded []string) *Traverser {
+func NewTraverser(fs fsa.FileSystem, excludes []string, includes []string) *Traverser {
 	return &Traverser{
 		fs:       fs,
-		excluded: append(defaultExcluded, excluded...),
+		excludes: append(defaultExcluded, excludes...),
+		includes: includes,
 	}
 }
 
-// traverseVisitor implements the visitor.Interface.
+// traverseVisitor implements fileutil.Visitor.
 type traverseVisitor struct {
 	action Action
 	source string
@@ -66,6 +68,10 @@ func (t *Traverser) Traverse(source string, dest string, action Action) error {
 			continue
 		}
 
+		if !t.isIncluded(f.Name()) {
+			continue
+		}
+
 		if t.isExcluded(f.Name()) {
 			continue
 		}
@@ -87,11 +93,24 @@ func (t *Traverser) Traverse(source string, dest string, action Action) error {
 }
 
 func (t *Traverser) isExcluded(dir string) bool {
-	for _, exclude := range t.excluded {
+	for _, exclude := range t.excludes {
 		if dir == exclude {
 			return true
 		}
 	}
+	return false
+}
 
+func (t *Traverser) isIncluded(dir string) bool {
+	// If no includes are, all are included.
+	if t.includes == nil {
+		return true
+	}
+
+	for _, include := range t.includes {
+		if dir == include {
+			return true
+		}
+	}
 	return false
 }

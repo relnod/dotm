@@ -40,7 +40,13 @@ func Install(c *config.Config, configPath string) error {
 		return err
 	}
 
-	err = Link(c.FS, c.Path, usr.HomeDir, nil)
+	err = Link(c.FS, c.Path, usr.HomeDir, &ActionOptions{
+		Excludes: c.Excludes,
+		Includes: c.Includes,
+	})
+	if err != nil {
+		return err
+	}
 
 	err = config.WriteFile(c.FS, configPath, c)
 	if err != nil {
