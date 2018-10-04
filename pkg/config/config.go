@@ -34,30 +34,29 @@ type Config struct {
 
 // FindProfiles tries to find profiles matching a list of profiles.
 // If only one name was given and the name is "all", return all profiles.
-func (c *Config) FindProfiles(names ...string) ([]*Profile, error) {
-	var profiles []*Profile
+func (c *Config) FindProfiles(names ...string) (map[string]*Profile, error) {
 	if len(names) == 1 && names[0] == "all" {
-		for _, p := range c.Profiles {
-			profiles = append(profiles, p)
-		}
-		return profiles, nil
+		return c.Profiles, nil
 	}
+	profiles := make(map[string]*Profile, 1)
 	for _, name := range names {
 		p, ok := c.Profiles[name]
 		if !ok {
 			return nil, ErrProfileNotFound
 		}
-		profiles = append(profiles, p)
+		profiles[name] = p
 	}
 	return profiles, nil
 }
 
 // Profile defines the configuration for one dotfile forlder.
 type Profile struct {
-	Remote   string   `toml:"remote"`
-	Path     string   `toml:"path"`
-	Includes []string `toml:"includes"`
-	Excludes []string `toml:"excludes"`
+	Remote     string   `toml:"remote"`
+	Path       string   `toml:"path"`
+	Includes   []string `toml:"includes"`
+	Excludes   []string `toml:"excludes"`
+	PreUpdate  []string `toml:"pre_update"`
+	PostUpdate []string `toml:"post_update"`
 }
 
 // Validate returns an error if the configuration is invalid.

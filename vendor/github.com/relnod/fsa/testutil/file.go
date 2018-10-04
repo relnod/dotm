@@ -22,10 +22,11 @@ type file struct {
 
 func parse(raw string) []file {
 	raw = os.ExpandEnv(raw)
-	r := regexp.MustCompile("[^\\s]+")
+	r := regexp.MustCompile("[^\n\t]+")
 	paths := r.FindAllString(raw, -1)
 	var files []file
 	for _, path := range paths {
+		path = strings.TrimSpace(path)
 		f := file{path: path}
 		if strings.HasSuffix(path, "/") {
 			f.isDir = true

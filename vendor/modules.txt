@@ -28,7 +28,7 @@ github.com/petergtz/pegomock/internal/verify
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/relnod/fsa v0.0.0-20181004194311-df58341c62d0
+# github.com/relnod/fsa v0.0.0-20181004221733-81bdf55ed744
 github.com/relnod/fsa
 github.com/relnod/fsa/fsutil
 github.com/relnod/fsa/testutil

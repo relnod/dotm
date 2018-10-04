@@ -20,23 +20,23 @@ func TestConfigFindProfiles(t *testing.T) {
 		},
 	}
 
-	var profiles []*config.Profile
+	var profiles map[string]*config.Profile
 	var err error
 
 	// Find profile test1
 	profiles, err = c.FindProfiles("test1")
 	assert.NoError(t, err)
-	assert.EqualValues(t, []*config.Profile{profile1}, profiles)
+	assert.EqualValues(t, map[string]*config.Profile{"test1": profile1}, profiles)
 
 	// Find profiles test2 and test3
 	profiles, err = c.FindProfiles("test2", "test3")
 	assert.NoError(t, err)
-	assert.EqualValues(t, []*config.Profile{profile2, profile3}, profiles)
+	assert.EqualValues(t, map[string]*config.Profile{"test2": profile2, "test3": profile3}, profiles)
 
 	// Find all profiles
 	profiles, err = c.FindProfiles("all")
 	assert.NoError(t, err)
-	assert.EqualValues(t, []*config.Profile{profile1, profile2, profile3}, profiles)
+	assert.EqualValues(t, c.Profiles, profiles)
 
 	// Error, when profile was not found
 	profiles, err = c.FindProfiles("blablub")

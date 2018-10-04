@@ -1,0 +1,10 @@
+Executes pre update hook
+---
+/home/$USER/.dotfiles.toml#[profiles.default]\npath="/dotfiles"\npre_update=["rm $BASE/a"]
+/dotfiles/tmux/.tmux.conf
+/a
+---
+dotm update default
+---
+/home/$USER/.tmux.conf:ln
+/a:deleted

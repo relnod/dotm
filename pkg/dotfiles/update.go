@@ -1,6 +1,9 @@
 package dotfiles
 
 import (
+	"os/exec"
+	"strings"
+
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/remote"
 )
@@ -17,6 +20,11 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 	}
 
 	for _, p := range profiles {
+		err = executeHook(p.PreUpdate)
+		if err != nil {
+			return err
+		}
+
 		if opts.UpdateFromRemote {
 			err = remote.PullProfile(c.FS, p)
 			if err != nil {
@@ -25,6 +33,11 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 		}
 
 		err = LinkProfile(c.FS, p)
+		if err != nil {
+			return err
+		}
+
+		err = executeHook(p.PostUpdate)
 		if err != nil {
 			return err
 		}
@@ -40,4 +53,17 @@ type UpdateOptions struct {
 
 var defaultUpdateOptions = &UpdateOptions{
 	UpdateFromRemote: false,
+}
+
+func executeHook(cmds []string) error {
+	for _, cmdRaw := range cmds {
+		args := strings.Split(cmdRaw, " ")
+		cmd := exec.Command(args[0], args[1:]...)
+		err := cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
