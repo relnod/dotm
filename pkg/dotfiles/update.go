@@ -1,43 +1,33 @@
 package dotfiles
 
 import (
-	"os/user"
-
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/remote"
 )
 
 // Update updates the dotfiles for a given configuration.
-func Update(c *config.Config, opts *UpdateOptions) error {
-	var err error
-
+func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 	if opts == nil {
 		opts = defaultUpdateOptions
 	}
 
-	err = c.Validate()
+	profiles, err := c.FindProfiles(names...)
 	if err != nil {
 		return err
 	}
 
-	if opts.UpdateFromRemote {
-		err = remote.Pull(c.FS, c.Remote, c.Path)
+	for _, p := range profiles {
+		if opts.UpdateFromRemote {
+			err = remote.PullProfile(c.FS, p)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = LinkProfile(c.FS, p)
 		if err != nil {
 			return err
 		}
-	}
-
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	err = Link(c.FS, c.Path, usr.HomeDir, &ActionOptions{
-		Excludes: c.Excludes,
-		Includes: c.Includes,
-	})
-	if err != nil {
-		return err
 	}
 
 	return nil

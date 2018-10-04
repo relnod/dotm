@@ -1,0 +1,11 @@
+Multiple profiles to be updated via all
+---
+/home/$USER/.dotfiles.toml#[profiles.1]\npath="/dotfiles1"\n[profiles.2]\npath="/dotfiles2"
+
+/dotfiles1/tmux/.tmux.conf
+/dotfiles2/bash/.bashrc
+---
+dotm update all
+---
+/home/$USER/.tmux.conf:ln
+/home/$USER/.bashrc:ln

@@ -3,10 +3,12 @@ package dotfiles
 import (
 	"errors"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"github.com/relnod/fsa"
 
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/fileutil"
 )
 
@@ -16,33 +18,31 @@ var (
 	ErrReadingFileStats    = errors.New("Could not read file stats")
 )
 
-// Link recursively links files from one path to another.
-func Link(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
-	if opts == nil {
-		opts = defaultActionOptions
-	}
-
-	t := NewTraverser(fs, opts.Excludes, opts.Includes)
-	err := t.Traverse(from, to, NewLinkAction(fs, opts.Dry))
+// LinkProfile recursively links all files from one profile.
+func LinkProfile(fs fsa.FileSystem, p *config.Profile) error {
+	usr, err := user.Current()
 	if err != nil {
 		return err
 	}
-
+	t := NewTraverser(fs, p.Excludes, p.Includes)
+	err = t.Traverse(p.Path, usr.HomeDir, NewLinkAction(fs, false))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-// UnLink recursively removes the symlinks.
-func UnLink(fs fsa.FileSystem, from, to string, opts *ActionOptions) error {
-	if opts == nil {
-		opts = defaultActionOptions
-	}
-
-	t := NewTraverser(fs, opts.Excludes, opts.Includes)
-	err := t.Traverse(from, to, NewUnlinkAction(fs, opts.Dry))
+// UnLinkProfile recursively removes the symlinks for one profile.
+func UnLinkProfile(fs fsa.FileSystem, p *config.Profile) error {
+	usr, err := user.Current()
 	if err != nil {
 		return err
 	}
-
+	t := NewTraverser(fs, p.Excludes, p.Includes)
+	err = t.Traverse(p.Path, usr.HomeDir, NewUnlinkAction(fs, false))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

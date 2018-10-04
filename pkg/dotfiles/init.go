@@ -1,38 +1,30 @@
 package dotfiles
 
 import (
-	"os/user"
-
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/remote"
 )
 
 // Init initializes a set of dotfiles.
-func Init(c *config.Config, configPath string) error {
-	var err error
+func Init(c *config.Config, names []string, configPath string) error {
+	profiles, err := c.FindProfiles(names...)
+	if err != nil {
+		return err
+	}
 
 	// TODO: check if dotfiles are already installed
 
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
+	for _, profile := range profiles {
+		err = LinkProfile(c.FS, profile)
+		if err != nil {
+			return err
+		}
 
-	err = Link(c.FS, c.Path, usr.HomeDir, &ActionOptions{
-		Excludes: c.Excludes,
-		Includes: c.Includes,
-	})
-	if err != nil {
-		return err
-	}
-	if err != nil {
-		return err
-	}
-
-	if c.Remote == "" {
-		// Ignore error since remote detection is optional.
-		remoteURL, _ := remote.Detect(c.Path)
-		c.Remote = remoteURL
+		if profile.Remote == "" {
+			// Ignore error since remote detection is optional.
+			remoteURL, _ := remote.Detect(profile.Path)
+			profile.Remote = remoteURL
+		}
 	}
 
 	err = config.WriteFile(c.FS, configPath, c)

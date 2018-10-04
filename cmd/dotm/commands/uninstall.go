@@ -14,16 +14,18 @@ var (
 )
 
 var uninstallCmd = &cobra.Command{
-	Use:   "uninstall",
-	Short: "Uninstall the dotfiles",
-	Long:  ``,
+	Use:   "uninstall [profiles]",
+	Short: "Uninstall the profiles",
+	Long:  `Removes all symlinks for the given profiles. When profile "all" is set, all profiles will get uninstalled.`,
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := loadConfig(newFS())
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
 			return err
 		}
-		err = dotfiles.Uninstall(c)
+
+		err = dotfiles.Uninstall(c, args)
 		if err != nil {
 			printl(msgUnistallFail)
 			return err

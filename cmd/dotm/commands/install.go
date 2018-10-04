@@ -14,22 +14,25 @@ var (
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install [remote]",
 	Short: "Install the dotfiles",
-	Long:  ``,
+	Long:  `Installs the dotfiles from a remote path. If no profile was specified, the profile name will be "default"`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		c := config.New(&config.Config{
+		c, err := loadConfig(newFS())
+		if err != nil {
+			c = config.NewConfig(newFS())
+		}
+		c.Profiles[profile] = &config.Profile{
 			Remote:   args[0],
 			Path:     path,
-			FS:       newFS(),
 			Excludes: *excludes,
 			Includes: *includes,
-		})
+		}
 
-		err = dotfiles.Install(c, configPath)
+		err = dotfiles.Install(c, []string{profile}, configPath)
 		if err != nil {
 			printl(msgInstallFail, args[0])
 			return err
@@ -41,6 +44,7 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	installCmd.Flags().StringVarP(&path, "path", "p", "$HOME/.dotfiles/", "Local git path")
+	installCmd.Flags().StringVar(&path, "path", "$HOME/.dotfiles/", "Local git path")
+	installCmd.Flags().StringVarP(&profile, "profile", "p", "default", "profile name")
 	rootCmd.AddCommand(installCmd)
 }

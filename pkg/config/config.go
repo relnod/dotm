@@ -12,8 +12,9 @@ import (
 
 // Errors
 var (
-	ErrEmptyRemote = errors.New("empty remote url")
-	ErrEmptyPath   = errors.New("empty path")
+	ErrEmptyRemote     = errors.New("empty remote url")
+	ErrEmptyPath       = errors.New("empty path")
+	ErrProfileNotFound = errors.New("profile not found")
 )
 
 // Error wrappers
@@ -25,16 +26,42 @@ const (
 )
 
 // Config represents the configuration file for dotm.
+// A configuration file consists of multiple profiles.
 type Config struct {
-	Remote   string
-	Path     string
-	Includes []string
-	Excludes []string
-	FS       fsa.FileSystem
+	FS       fsa.FileSystem      `toml:"-"`
+	Profiles map[string]*Profile `toml:"profiles"`
+}
+
+// FindProfiles tries to find profiles matching a list of profiles.
+// If only one name was given and the name is "all", return all profiles.
+func (c *Config) FindProfiles(names ...string) ([]*Profile, error) {
+	var profiles []*Profile
+	if len(names) == 1 && names[0] == "all" {
+		for _, p := range c.Profiles {
+			profiles = append(profiles, p)
+		}
+		return profiles, nil
+	}
+	for _, name := range names {
+		p, ok := c.Profiles[name]
+		if !ok {
+			return nil, ErrProfileNotFound
+		}
+		profiles = append(profiles, p)
+	}
+	return profiles, nil
+}
+
+// Profile defines the configuration for one dotfile forlder.
+type Profile struct {
+	Remote   string   `toml:"remote"`
+	Path     string   `toml:"path"`
+	Includes []string `toml:"includes"`
+	Excludes []string `toml:"excludes"`
 }
 
 // Validate returns an error if the configuration is invalid.
-func (c *Config) Validate() error {
+func (c *Profile) Validate() error {
 	if c.Remote == "" {
 		// return ErrEmptyRemote
 	}
@@ -46,9 +73,19 @@ func (c *Config) Validate() error {
 
 // New takes the given config and intiailizes some values on it.
 func New(c *Config) *Config {
-	c.Remote = os.ExpandEnv(c.Remote)
-	c.Path = os.ExpandEnv(c.Path)
+	for _, profile := range c.Profiles {
+		profile.Remote = os.ExpandEnv(profile.Remote)
+		profile.Path = os.ExpandEnv(profile.Path)
+	}
 	return c
+}
+
+// NewConfig returns a new config.
+func NewConfig(fs fsa.FileSystem) *Config {
+	return &Config{
+		FS:       fs,
+		Profiles: make(map[string]*Profile, 1),
+	}
 }
 
 // WriteFile writes a new config file in the toml format to a given path.
