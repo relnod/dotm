@@ -38,6 +38,6 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
-	updateCmd.Flags().BoolVar(&updateFromRemote, "remote", false, "update from remote")
+	updateCmd.Flags().BoolVar(&updateFromRemote, "fromRemote", false, "update from remote")
 	rootCmd.AddCommand(updateCmd)
 }
