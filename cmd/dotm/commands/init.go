@@ -17,9 +17,9 @@ var (
 )
 
 var initCmd = &cobra.Command{
-	Use:   "init",
+	Use:   "init [path]",
 	Short: "Initialize the dotfiles",
-	Long:  ``,
+	Long:  `Initializes the dotfiles from the given path. If no profile was specified, the profile name will be "default"`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
@@ -28,17 +28,20 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		c := config.New(&config.Config{
+		c, err := loadConfig(newFS())
+		if err != nil {
+			c = config.NewConfig(newFS())
+		}
+		c.Profiles[profile] = &config.Profile{
 			Remote:   remote,
 			Path:     path,
-			FS:       newFS(),
 			Excludes: *excludes,
 			Includes: *includes,
-		})
+		}
 
-		err = dotfiles.Init(c, os.ExpandEnv(configPath))
+		err = dotfiles.Init(c, []string{profile}, os.ExpandEnv(configPath))
 		if err != nil {
-			printl(msgInitFail, c.Path)
+			printl(msgInitFail, path)
 			return err
 		}
 
@@ -49,5 +52,6 @@ var initCmd = &cobra.Command{
 
 func init() {
 	initCmd.Flags().StringVarP(&remote, "remote", "r", "", "remote git location")
+	initCmd.Flags().StringVarP(&profile, "profile", "p", "default", "profile name")
 	rootCmd.AddCommand(initCmd)
 }

@@ -42,7 +42,7 @@ func parse(raw string) []file {
 		content := strings.Split(path, "#")
 		if len(content) == 2 {
 			f.path = content[0]
-			f.content = content[1]
+			f.content = strings.Replace(content[1], "\\n", "\n", -1)
 		}
 
 		files = append(files, f)

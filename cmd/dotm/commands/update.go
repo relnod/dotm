@@ -15,16 +15,17 @@ var (
 )
 
 var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update the dotfiles",
-	Long:  ``,
+	Use:   "update [profiles]",
+	Short: "Update the profiles",
+	Long:  `Updates all symlinks for the given profiles. When profile "all" is set, all profiles will get updated.`,
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := loadConfig(newFS())
 		if err != nil {
 			fmt.Printf("Failed to read config\n")
 			return err
 		}
-		err = dotfiles.Update(c, &dotfiles.UpdateOptions{
+		err = dotfiles.Update(c, args, &dotfiles.UpdateOptions{
 			UpdateFromRemote: updateFromRemote,
 		})
 		if err != nil {

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/fsa"
 	git "gopkg.in/src-d/go-git.v4"
 )
@@ -17,14 +18,14 @@ const (
 	ErrOpenLocal        = "failed to open local repository"
 )
 
-// Clone clones a remote repository to a given path.
-func Clone(fs fsa.FileSystem, remoteURL, path string) error {
-	err := fs.MkdirAll(path, os.ModePerm)
+// CloneProfile clones the remote repository for a profile.
+func CloneProfile(fs fsa.FileSystem, p *config.Profile) error {
+	err := fs.MkdirAll(p.Path, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, ErrMkdirDestination)
 	}
 
-	remoteURL, path = sanitizePaths(fs, remoteURL, path)
+	remoteURL, path := sanitizePaths(fs, p.Remote, p.Path)
 
 	_, err = git.PlainClone(path, false, &git.CloneOptions{
 		URL:      remoteURL,
@@ -37,10 +38,9 @@ func Clone(fs fsa.FileSystem, remoteURL, path string) error {
 	return nil
 }
 
-// Pull pulles the remote repository.
-func Pull(fs fsa.FileSystem, remoteURL, path string) error {
-
-	remoteURL, path = sanitizePaths(fs, remoteURL, path)
+// PullProfile pulles the remote repository for a profile
+func PullProfile(fs fsa.FileSystem, p *config.Profile) error {
+	_, path := sanitizePaths(fs, p.Remote, p.Path)
 	r, err := git.PlainOpen(path)
 	if err != nil {
 		return errors.Wrap(err, ErrOpenLocal)

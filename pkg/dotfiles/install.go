@@ -2,7 +2,6 @@ package dotfiles
 
 import (
 	"errors"
-	"os/user"
 
 	"github.com/relnod/fsa/testutil"
 
@@ -17,35 +16,27 @@ var (
 
 // Install clones the dotfiles from a remote git repository to a local
 // path and then installs them.
-func Install(c *config.Config, configPath string) error {
-	var err error
-
-	err = c.Validate()
+func Install(c *config.Config, names []string, configPath string) error {
+	profiles, err := c.FindProfiles(names...)
 	if err != nil {
 		return err
 	}
 
-	exists := testutil.FileExists(c.FS, c.Path)
-	if exists {
-		return ErrPathExists
-	}
+	for _, p := range profiles {
+		exists := testutil.FileExists(c.FS, p.Path)
+		if exists {
+			return ErrPathExists
+		}
 
-	err = remote.Clone(c.FS, c.Remote, c.Path)
-	if err != nil {
-		return err
-	}
+		err = remote.CloneProfile(c.FS, p)
+		if err != nil {
+			return err
+		}
 
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	err = Link(c.FS, c.Path, usr.HomeDir, &ActionOptions{
-		Excludes: c.Excludes,
-		Includes: c.Includes,
-	})
-	if err != nil {
-		return err
+		err = LinkProfile(c.FS, p)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = config.WriteFile(c.FS, configPath, c)

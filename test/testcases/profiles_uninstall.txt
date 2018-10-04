@@ -1,0 +1,13 @@
+Multiple profiles to be unistalled
+---
+/home/$USER/.dotfiles.toml#[profiles.1]\npath="/dotfiles1"\n[profiles.2]\npath="/dotfiles2"
+
+/dotfiles1/tmux/.tmux.conf
+/dotfiles2/bash/.bashrc
+/home/$USER/.tmux.conf:ln
+/home/$USER/.bashrc:ln
+---
+dotm uninstall 1 2
+---
+/home/$USER/.tmux.conf:deleted
+/home/$USER/.bashrc:deleted
