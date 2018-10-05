@@ -139,3 +139,71 @@ func TestUnlink(t *testing.T) {
 		})
 	}
 }
+
+func TestBackup(t *testing.T) {
+	var tests = []struct {
+		desc       string
+		file       string
+		dry        bool
+		filesAfter string
+	}{
+		{
+			"Simple backup works",
+			"/a",
+			false,
+			`/a:deleted
+			/a.backup`,
+		},
+		{
+			"It doesn't backup when doing a dry run",
+			"/b",
+			true,
+			"/b",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(tt *testing.T) {
+			fs := fsa.NewTempFs(fsa.NewOsFs())
+			defer fs.Cleanup()
+
+			assert.NoError(tt, testutil.CreateFiles(fs, test.file))
+			assert.NoError(tt, fileutil.Backup(fs, test.file, test.dry))
+			assert.NoError(tt, testutil.CheckFiles(fs, test.filesAfter))
+		})
+	}
+}
+
+func TestRestoreBackup(t *testing.T) {
+	var tests = []struct {
+		desc       string
+		file       string
+		dry        bool
+		filesAfter string
+	}{
+		{
+			"Restoring a backup works",
+			"/a.backup",
+			false,
+			`/a.backup:deleted
+			/a`,
+		},
+		{
+			"It doesn't restore when doing a dry run",
+			"/a.backup",
+			true,
+			"/a.backup",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.desc, func(tt *testing.T) {
+			fs := fsa.NewTempFs(fsa.NewOsFs())
+			defer fs.Cleanup()
+
+			assert.NoError(tt, testutil.CreateFiles(fs, test.file))
+			assert.NoError(tt, fileutil.RestoreBackup(fs, "/a", test.dry))
+			assert.NoError(tt, testutil.CheckFiles(fs, test.filesAfter))
+		})
+	}
+}

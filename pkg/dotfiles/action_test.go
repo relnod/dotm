@@ -42,7 +42,7 @@ func TestActionLink(t *testing.T) {
 
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
-			action := dotfiles.NewLinkAction(fs, false)
+			action := dotfiles.NewLinkAction(fs, nil)
 			assert.NoError(tt, action.Run(
 				test.source,
 				test.dest,
@@ -84,7 +84,7 @@ func TestActionUnlink(t *testing.T) {
 
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
-			action := dotfiles.NewUnlinkAction(fs, false)
+			action := dotfiles.NewUnlinkAction(fs, nil)
 			assert.NoError(tt, action.Run(
 				test.source,
 				test.dest,
