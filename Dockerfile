@@ -1,12 +1,10 @@
-From golang:1.11 as build 
+From golang:1.11.1
 
-COPY . /build
-WORKDIR /build
+COPY . /repo
+WORKDIR /repo
 
 RUN make build
 
-FROM scratch
+USER root
 
-COPY --from=build /build/dotm /dotm
-
-ENTRYPOINT [ "/dotm" ]
+ENTRYPOINT [ "/repo/scripts/docker/entrypoint.sh" ]

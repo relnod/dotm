@@ -2,7 +2,7 @@ version: 2
 jobs:
   verify:
     docker:
-      - image: circleci/golang:1.11
+      - image: circleci/golang:1.11.1
     steps:
       - checkout
       - run:
@@ -14,11 +14,14 @@ jobs:
             make verify
   test:
     docker:
-      - image: circleci/golang:1.11
+      - image: circleci/golang:1.11.1
         environment:
           USER: circleci
+          SKIP_TEST_DOCKER: "volumes don't work in circleci (docker in docker)"
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: make test
 workflows:
   version: 2

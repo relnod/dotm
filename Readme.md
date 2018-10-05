@@ -7,10 +7,19 @@ This Project is still WIP!
 
 ## Installation
 
-Currently the only supported installation method is via the `go` command.
+### Using Go
+If you have a working go environment, you can simply install it via `go get`.
 ```
 go get github.com/relnod/dotm/cmd/dotm
 ```
+
+### Docker
+If you have a working docker environment, you can run dotm with the following alias:
+
+```
+alias="docker run -v /home/$USER:/home/$USER --env USER=$USER reldod/dotm:latest"
+```
+NOTE: Hooks might not work, if they require additional programs. If you want to call extra programs, you can create a new container based on relnod/dotm:latest and add those.
 
 ## Usage
 

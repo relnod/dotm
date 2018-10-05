@@ -1,10 +1,8 @@
 package test
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -18,19 +16,12 @@ type testcase struct {
 	expected string
 }
 
-func (t *testcase) exec(dir string) error {
-	args := strings.Split(t.cmd, " ")
-	args = append(args, fmt.Sprintf("--testRoot=%s", dir))
-	cmd := exec.Command(args[0], args[1:]...)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	var outErr bytes.Buffer
-	cmd.Stderr = &outErr
-	err := cmd.Run()
+func (t *testcase) exec(cmd, dir string) error {
+	cmd = strings.Replace(t.cmd, "dotm", cmd, 1) + " --testRoot=" + dir
+	out, err := execCommand(cmd)
 	if err != nil {
-		return fmt.Errorf("failed to execute '%s'\nStdout:\n%s\nStderr:\n%s", t.cmd, out.String(), outErr.String())
+		return fmt.Errorf("Failed to execute '%s'\nOut:%s", cmd, out)
 	}
-	// fmt.Printf("Stdout:\n%s", out.String())
 	return nil
 }
 
@@ -67,10 +58,11 @@ func parseTestCase(raw string) (*testcase, error) {
 	if len(sections) != 4 {
 		return nil, fmt.Errorf("expected 4 sections in testcase. got %d", len(sections))
 	}
+	cmd := strings.TrimSpace(sections[2])
 	return &testcase{
 		name:     sections[0],
 		given:    sections[1],
-		cmd:      strings.Replace(sections[2], "\n", "", -1),
+		cmd:      cmd,
 		expected: sections[3],
 	}, nil
 }
