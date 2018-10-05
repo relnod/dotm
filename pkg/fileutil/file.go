@@ -22,8 +22,8 @@ type Visitor interface {
 }
 
 // RecTraverseDir recursively traverses all directories starting at dir.
-// Calls the visitor for each file it passes.
-// TODO: what is relDir for?
+// Calls the visitor for each file it passes and passes the relDir and file name
+// to the visitor.
 func RecTraverseDir(fs fsa.FileSystem, dir string, relDir string, visitor Visitor) error {
 	files, err := fsutil.ReadDir(fs, dir)
 	if err != nil {

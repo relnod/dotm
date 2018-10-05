@@ -1,17 +1,25 @@
 package dotfiles
 
 import (
+	"os/user"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/fsutil"
 
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/fileutil"
 )
 
-var defaultExcluded = []string{
-	".git",
-}
+// Errors, that can occur during traversal
+const (
+	ErrReadDirPath = "failed to read dir for profile path"
+)
+
+// defaultExcluded specifies a list of directories, that will always be
+// excluded.
+var defaultExcluded = []string{".git"}
 
 // Action defines an action, that can be run during the dotfile traversal.
 type Action interface {
@@ -19,20 +27,45 @@ type Action interface {
 	Run(source, dest, name string) error
 }
 
-// Traverser is used to traverse the dotfiles structure.
-type Traverser struct {
-	fs       fsa.FileSystem
-	excludes []string
-	includes []string
-}
-
-// NewTraverser returns a new traverser.
-func NewTraverser(fs fsa.FileSystem, excludes []string, includes []string) *Traverser {
-	return &Traverser{
-		fs:       fs,
-		excludes: append(defaultExcluded, excludes...),
-		includes: includes,
+// Traverse traverses the dotfiles directory for a profile. Calls action.Run()
+// for each passed file.
+func Traverse(fs fsa.FileSystem, p *config.Profile, action Action) error {
+	usr, err := user.Current()
+	if err != nil {
+		return err
 	}
+	dest := usr.HomeDir
+
+	files, err := fsutil.ReadDir(fs, p.Path)
+	if err != nil {
+		return errors.Wrap(err, ErrReadDirPath)
+	}
+
+	for _, f := range files {
+		if !f.IsDir() {
+			continue
+		}
+		if !isIncluded(p.Includes, f.Name()) {
+			continue
+		}
+		if isExcluded(p.Excludes, f.Name()) {
+			continue
+		}
+
+		tv := traverseVisitor{
+			action: action,
+			source: p.Path,
+			dest:   dest,
+			name:   f.Name(),
+		}
+
+		err := fileutil.RecTraverseDir(fs, filepath.Join(p.Path, f.Name()), "", tv)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // traverseVisitor implements fileutil.Visitor.
@@ -52,48 +85,10 @@ func (t traverseVisitor) Visit(dir, file string) {
 	)
 }
 
-// Traverse traverses the dotfiles directory. Calling action.Run()
-// for every file passed
-// TODO: rethink arguments, maybe add Traverser struct
-// TODO: finish implementation
-func (t *Traverser) Traverse(source string, dest string, action Action) error {
-	files, err := fsutil.ReadDir(t.fs, source)
-	if err != nil {
-		// TODO: wrap error
-		return err
-	}
-
-	for _, f := range files {
-		if !f.IsDir() {
-			continue
-		}
-
-		if !t.isIncluded(f.Name()) {
-			continue
-		}
-
-		if t.isExcluded(f.Name()) {
-			continue
-		}
-
-		tv := traverseVisitor{
-			action: action,
-			source: source,
-			dest:   dest,
-			name:   f.Name(),
-		}
-
-		err := fileutil.RecTraverseDir(t.fs, filepath.Join(source, f.Name()), "", tv)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (t *Traverser) isExcluded(dir string) bool {
-	for _, exclude := range t.excludes {
+// isExcluded checks if the directory should be excluded.
+func isExcluded(excludes []string, dir string) bool {
+	excludes = append(excludes, defaultExcluded...)
+	for _, exclude := range excludes {
 		if dir == exclude {
 			return true
 		}
@@ -101,13 +96,13 @@ func (t *Traverser) isExcluded(dir string) bool {
 	return false
 }
 
-func (t *Traverser) isIncluded(dir string) bool {
+// isIncluded checks if the directory should be included.
+func isIncluded(includes []string, dir string) bool {
 	// If no includes are, all are included.
-	if t.includes == nil {
+	if includes == nil {
 		return true
 	}
-
-	for _, include := range t.includes {
+	for _, include := range includes {
 		if dir == include {
 			return true
 		}

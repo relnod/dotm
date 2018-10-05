@@ -3,7 +3,6 @@ package dotfiles
 import (
 	"errors"
 	"os"
-	"os/user"
 	"path/filepath"
 
 	"github.com/relnod/fsa"
@@ -20,12 +19,7 @@ var (
 
 // LinkProfile recursively links all files from one profile.
 func LinkProfile(fs fsa.FileSystem, p *config.Profile) error {
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-	t := NewTraverser(fs, p.Excludes, p.Includes)
-	err = t.Traverse(p.Path, usr.HomeDir, NewLinkAction(fs, false))
+	err := Traverse(fs, p, NewLinkAction(fs, false))
 	if err != nil {
 		return err
 	}
@@ -34,31 +28,11 @@ func LinkProfile(fs fsa.FileSystem, p *config.Profile) error {
 
 // UnLinkProfile recursively removes the symlinks for one profile.
 func UnLinkProfile(fs fsa.FileSystem, p *config.Profile) error {
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-	t := NewTraverser(fs, p.Excludes, p.Includes)
-	err = t.Traverse(p.Path, usr.HomeDir, NewUnlinkAction(fs, false))
+	err := Traverse(fs, p, NewUnlinkAction(fs, false))
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-// ActionOptions defines a set options for an action
-type ActionOptions struct {
-	Dry      bool
-	Verbose  bool
-	Excludes []string
-	Includes []string
-}
-
-var defaultActionOptions = &ActionOptions{
-	Dry:      false,
-	Verbose:  false,
-	Excludes: defaultExcluded,
-	Includes: nil,
 }
 
 // LinkAction implements the action.Interface for a link action.
