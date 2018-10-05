@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/fsutil"
 	"github.com/relnod/fsa/testutil"
@@ -91,7 +90,6 @@ func Backup(fs fsa.FileSystem, file string, dry bool) error {
 // perfomers a dry run.
 func RestoreBackup(fs fsa.FileSystem, file string, dry bool) error {
 	if !testutil.FileExists(fs, backupPath(file)) {
-		spew.Dump(backupPath(file))
 		return nil
 	}
 	if dry {

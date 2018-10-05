@@ -22,7 +22,7 @@ all: verify test
 # === test ===
 # Runs all tests (unit and e2e)
 .PHONY: test
-test: test-unit test-e2e
+test: test-unit test-e2e test-e2e-docker
 
 # === test-unit ===
 # Runs all unit tests
@@ -34,20 +34,21 @@ test-unit:
 	@echo ""
 
 # === test-e2e ===
-# Runs all e2e tests
+# Runs all e2e tests using the local binary
 .PHONY: test-e2e
-test-e2e: install
+test-e2e: build
 	@echo "Running e2e tests"
 	@echo ""
-	rm -rf test/testdata/remote/.git
-	cd test/testdata/remote && \
-		git init && \
-	    git config --local user.email "you@example.com" && \
-	    git config --local user.name "Your Name" && \
-		git add . && \
-		git commit -m "initial commit"
-	GO111MODULE=on go test -mod=vendor -v ./test
-	rm -rf test/testdata/remote/.git
+	GO111MODULE=on go test -mod=vendor -v ${ROOT}/test -run=Normal
+	@echo ""
+
+# === test-e2e-docker ===
+# Runs all e2e tests using the docker alias
+.PHONY: test-e2e-docker
+test-e2e-docker: build-docker
+	@echo "Running e2e tests with docker alias"
+	@echo ""
+	GO111MODULE=on go test -mod=vendor -v ${ROOT}/test -run=Docker
 	@echo ""
 
 # === update ===
@@ -78,7 +79,20 @@ install:
 # Builds the dotm binary
 .PHONY: build
 build:
-	CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build ./cmd/dotm
+	GO111MODULE=on CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build -mod=vendor ./cmd/dotm
+
+# === build-docker ===
+# Builds the latest docker container
+.PHONY: build-docker
+build-docker:
+	docker build . --tag=relnod/dotm:latest
+
+# === push-docker ===
+# Builds and pushes the image to dockerhub
+.PHONY: push-docker
+push-docker: build-docker
+	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	docker push relnod/dotm:latest
 
 export RULE ?= help
 
