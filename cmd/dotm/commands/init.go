@@ -39,7 +39,7 @@ var initCmd = &cobra.Command{
 			Includes: includes,
 		}
 
-		err = dotfiles.Init(c, []string{profile}, os.ExpandEnv(configPath), &dotfiles.InitOptions{
+		err = dotfiles.Init(config.New(c), []string{profile}, os.ExpandEnv(configPath), &dotfiles.InitOptions{
 			Dry:   dry,
 			Force: force,
 		})

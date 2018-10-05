@@ -32,7 +32,7 @@ var installCmd = &cobra.Command{
 			Includes: includes,
 		}
 
-		err = dotfiles.Install(c, []string{profile}, configPath, &dotfiles.InstallOptions{
+		err = dotfiles.Install(config.New(c), []string{profile}, configPath, &dotfiles.InstallOptions{
 			Dry:   dry,
 			Force: force,
 		})

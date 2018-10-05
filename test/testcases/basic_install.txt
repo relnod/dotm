@@ -3,6 +3,8 @@ Simple test case for install command
 ---
 dotm install /remote
 ---
+/home/$USER/.dotfiles/tmux/.tmux.conf
+/home/$USER/.dotfiles/nvim/.config/nvim/init.vim
 /home/$USER/.dotfiles.toml
 /home/$USER/.tmux.conf:ln
 /home/$USER/.config/nvim/init.vim:ln
