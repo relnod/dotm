@@ -5,14 +5,14 @@ import (
 )
 
 // Uninstall uninstalles the dotfiles.
-func Uninstall(c *config.Config, names []string) error {
+func Uninstall(c *config.Config, names []string, opts *UninstallOptions) error {
 	profiles, err := c.FindProfiles(names...)
 	if err != nil {
 		return err
 	}
 
 	for _, p := range profiles {
-		err = UnLinkProfile(c.FS, p)
+		err = UnlinkProfile(c.FS, p, opts)
 		if err != nil {
 			return err
 		}
@@ -23,4 +23,19 @@ func Uninstall(c *config.Config, names []string) error {
 	}
 
 	return nil
+}
+
+// UninstallOptions is set of options for the uninstall function. Implements the
+// dotfiles.UnlinkOptions.
+type UninstallOptions struct {
+	Force bool
+	Dry   bool
+}
+
+// OptDry implementation
+func (i *UninstallOptions) OptDry() bool { return i.Dry }
+
+var defaultUninstallOptions = &InstallOptions{
+	Force: false,
+	Dry:   false,
 }

@@ -2,12 +2,14 @@ package fileutil
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/fsutil"
+	"github.com/relnod/fsa/testutil"
 )
 
 // Errors
@@ -48,7 +50,7 @@ func RecTraverseDir(fs fsa.FileSystem, dir string, relDir string, visitor Visito
 // perfomers a dry run.
 func Link(fs fsa.FileSystem, from string, to string, dry bool) error {
 	if dry {
-		log.Printf("Creating Symlink from %s to %s", from, to)
+		fmt.Printf("Creating Symlink from %s to %s\n", from, to)
 		return nil
 	}
 
@@ -64,10 +66,9 @@ func Link(fs fsa.FileSystem, from string, to string, dry bool) error {
 // perfomers a dry run.
 func Unlink(fs fsa.FileSystem, file string, dry bool) error {
 	if dry {
-		log.Printf("Removing %s", file)
+		fmt.Printf("Removing %s\n", file)
 		return nil
 	}
-
 	err := fs.Remove(file)
 	if err != nil {
 		return err
@@ -76,14 +77,43 @@ func Unlink(fs fsa.FileSystem, file string, dry bool) error {
 	return nil
 }
 
-// FileExists checks if a file at the given path exists.
-func FileExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+// Backup moves the given file to filename.backup. When dry is true only
+// perfomers a dry run.
+func Backup(fs fsa.FileSystem, file string, dry bool) error {
+	if dry {
+		fmt.Printf("Creating backup for %s\n", file)
+		return nil
 	}
-	if os.IsNotExist(err) {
-		return false, nil
+	return moveFile(fs, file, backupPath(file))
+}
+
+// RestoreBackup tries to restore a backup. When dry is true only
+// perfomers a dry run.
+func RestoreBackup(fs fsa.FileSystem, file string, dry bool) error {
+	if !testutil.FileExists(fs, backupPath(file)) {
+		spew.Dump(backupPath(file))
+		return nil
 	}
-	return true, err
+	if dry {
+		fmt.Printf("Creating backup for %s\n", file)
+		return nil
+	}
+
+	return moveFile(fs, backupPath(file), file)
+}
+
+func moveFile(fs fsa.FileSystem, from, to string) error {
+	data, err := fsutil.ReadFile(fs, from)
+	if err != nil {
+		return err
+	}
+	err = fsutil.WriteFile(fs, to, data, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return fs.Remove(from)
+}
+
+func backupPath(path string) string {
+	return path + ".backup"
 }

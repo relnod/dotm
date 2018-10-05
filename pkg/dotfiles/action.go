@@ -18,33 +18,54 @@ var (
 )
 
 // LinkProfile recursively links all files from one profile.
-func LinkProfile(fs fsa.FileSystem, p *config.Profile) error {
-	err := Traverse(fs, p, NewLinkAction(fs, false))
+func LinkProfile(fs fsa.FileSystem, p *config.Profile, opts LinkOptions) error {
+	err := Traverse(fs, p, NewLinkAction(fs, opts))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// UnLinkProfile recursively removes the symlinks for one profile.
-func UnLinkProfile(fs fsa.FileSystem, p *config.Profile) error {
-	err := Traverse(fs, p, NewUnlinkAction(fs, false))
+// UnlinkProfile recursively removes the symlinks for one profile.
+func UnlinkProfile(fs fsa.FileSystem, p *config.Profile, opts UnlinkOptions) error {
+	err := Traverse(fs, p, NewUnlinkAction(fs, opts))
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
+// ActionOptions defines the generic options for an action.
+type ActionOptions interface {
+	// Dry specifies if the action should perform a dry run.
+	OptDry() bool
+}
+
+// LinkOptions defines how an option for a link action should look.
+type LinkOptions interface {
+	ActionOptions
+
+	// Force specifies if existing files should be overwritten by a symlink.
+	OptForce() bool
+}
+
+type defaultLinkOptions struct{}
+
+func (d *defaultLinkOptions) OptDry() bool   { return false }
+func (d *defaultLinkOptions) OptForce() bool { return false }
 
 // LinkAction implements the action.Interface for a link action.
 type LinkAction struct {
-	fs  fsa.FileSystem
-	dry bool
+	fs   fsa.FileSystem
+	opts LinkOptions
 }
 
-// NewLinkAction returns a new link action. If dry is set to true a dry run
-// will be performed.
-func NewLinkAction(fs fsa.FileSystem, dry bool) *LinkAction {
-	return &LinkAction{fs: fs, dry: dry}
+// NewLinkAction returns a new link action.
+func NewLinkAction(fs fsa.FileSystem, opts LinkOptions) *LinkAction {
+	if opts == nil {
+		opts = &defaultLinkOptions{}
+	}
+	return &LinkAction{fs: fs, opts: opts}
 }
 
 // Run links a file from source to dest.
@@ -63,42 +84,56 @@ func (l *LinkAction) Run(source, dest, name string) error {
 			return nil
 		}
 
-		// TODO: override option (force)
-		// TODO: backup option
-	}
-	if !os.IsNotExist(err) {
+		if l.opts.OptForce() {
+			fileutil.Backup(l.fs, destFile, l.opts.OptDry())
+		}
+	} else if !os.IsNotExist(err) {
 		return ErrReadingFileStats
 	}
 
-	return fileutil.Link(l.fs, sourceFile, destFile, l.dry)
+	return fileutil.Link(l.fs, sourceFile, destFile, l.opts.OptDry())
 }
 
-// UnlinkAction implements the action.Interface for an unlink action.
+// UnlinkOptions defines how an option for an unlink action should look.
+type UnlinkOptions interface {
+	ActionOptions
+}
+
+type defaultUnlinkOptions struct{}
+
+func (d *defaultUnlinkOptions) OptDry() bool { return false }
+
+// UnlinkAction implements dotfiles.Action with an unlink action.
 type UnlinkAction struct {
-	fs  fsa.FileSystem
-	dry bool
+	fs   fsa.FileSystem
+	opts UnlinkOptions
 }
 
-// NewUnlinkAction returns a new unlink action. If dry is set to true a dry run
-// will be performed.
-func NewUnlinkAction(fs fsa.FileSystem, dry bool) *UnlinkAction {
-	return &UnlinkAction{fs: fs, dry: dry}
+// NewUnlinkAction returns a new unlink action.
+func NewUnlinkAction(fs fsa.FileSystem, opts UnlinkOptions) *UnlinkAction {
+	if opts == nil {
+		opts = &defaultUnlinkOptions{}
+	}
+	return &UnlinkAction{fs: fs, opts: opts}
 }
 
 // Run unlinks the file at dest.
 func (u *UnlinkAction) Run(source, dest, name string) error {
-	fi, err := u.fs.Lstat(filepath.Join(dest, name))
+	path := filepath.Join(dest, name)
+	fi, err := u.fs.Lstat(path)
 	if os.IsNotExist(err) {
 		return nil
 	}
-
 	if err != nil {
 		return err
 	}
-
 	if fi.Mode()&os.ModeSymlink != os.ModeSymlink {
 		return nil
 	}
 
-	return fileutil.Unlink(u.fs, filepath.Join(dest, name), u.dry)
+	err = fileutil.Unlink(u.fs, path, u.opts.OptDry())
+	if err != nil {
+		return err
+	}
+	return fileutil.RestoreBackup(u.fs, path, u.opts.OptDry())
 }

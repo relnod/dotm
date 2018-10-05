@@ -1,0 +1,11 @@
+Correctly uninstalls dotfiles after --force update
+---
+/home/$USER/.dotfiles.toml#[profiles.default]\npath="/dotfiles"
+/dotfiles/tmux/.tmux.conf
+/home/$USER/.tmux.conf:ln
+/home/$USER/.tmux.conf.backup#b
+---
+dotm uninstall default
+---
+/home/$USER/.tmux.conf#b
+/home/$USER/.tmux.conf.backup:deleted

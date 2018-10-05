@@ -35,11 +35,14 @@ var initCmd = &cobra.Command{
 		c.Profiles[profile] = &config.Profile{
 			Remote:   remote,
 			Path:     path,
-			Excludes: *excludes,
-			Includes: *includes,
+			Excludes: excludes,
+			Includes: includes,
 		}
 
-		err = dotfiles.Init(c, []string{profile}, os.ExpandEnv(configPath))
+		err = dotfiles.Init(c, []string{profile}, os.ExpandEnv(configPath), &dotfiles.InitOptions{
+			Dry:   dry,
+			Force: force,
+		})
 		if err != nil {
 			printl(msgInitFail, path)
 			return err
@@ -52,6 +55,11 @@ var initCmd = &cobra.Command{
 
 func init() {
 	initCmd.Flags().StringVarP(&remote, "remote", "r", "", "remote git location")
-	initCmd.Flags().StringVarP(&profile, "profile", "p", "default", "profile name")
+	initCmd.Flags().StringVarP(&profile, "profile", "p", "Default", "Profile name")
+	initCmd.Flags().BoolVarP(&force, "force", "f", false, "force overwriting files")
+	initCmd.Flags().BoolVar(&dry, "dry", false, "perform a dry run")
+	initCmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+	initCmd.Flags().StringSliceVar(&excludes, "excludes", nil, "directories to be excluded")
+	initCmd.Flags().StringSliceVar(&includes, "includes", nil, "directories to be included")
 	rootCmd.AddCommand(initCmd)
 }

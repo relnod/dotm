@@ -57,7 +57,7 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 			}
 		}
 
-		err = LinkProfile(c.FS, p)
+		err = LinkProfile(c.FS, p, opts)
 		if err != nil {
 			return err
 		}
@@ -74,10 +74,20 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 // UpdateOptions is set of options for the update function.
 type UpdateOptions struct {
 	UpdateFromRemote bool
+	Force            bool
+	Dry              bool
 }
+
+// OptDry implementation
+func (i *UpdateOptions) OptDry() bool { return i.Dry }
+
+// OptForce implementation
+func (i *UpdateOptions) OptForce() bool { return i.Force }
 
 var defaultUpdateOptions = &UpdateOptions{
 	UpdateFromRemote: false,
+	Force:            false,
+	Dry:              false,
 }
 
 func executeHook(cmds []string) error {

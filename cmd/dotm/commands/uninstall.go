@@ -25,7 +25,9 @@ var uninstallCmd = &cobra.Command{
 			return err
 		}
 
-		err = dotfiles.Uninstall(c, args)
+		err = dotfiles.Uninstall(c, args, &dotfiles.UninstallOptions{
+			Dry: dry,
+		})
 		if err != nil {
 			printl(msgUnistallFail)
 			return err
@@ -37,5 +39,9 @@ var uninstallCmd = &cobra.Command{
 }
 
 func init() {
+	uninstallCmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+	uninstallCmd.Flags().StringSliceVar(&excludes, "excludes", nil, "directories to be excluded")
+	uninstallCmd.Flags().StringSliceVar(&includes, "includes", nil, "directories to be included")
+	uninstallCmd.Flags().BoolVar(&dry, "dry", false, "perform a dry run")
 	rootCmd.AddCommand(uninstallCmd)
 }

@@ -40,5 +40,9 @@ var updateCmd = &cobra.Command{
 
 func init() {
 	updateCmd.Flags().BoolVar(&updateFromRemote, "fromRemote", false, "update from remote")
+	updateCmd.Flags().BoolVarP(&force, "force", "f", false, "force overwriting files")
+	updateCmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+	updateCmd.Flags().StringSliceVar(&excludes, "excludes", nil, "directories to be excluded")
+	updateCmd.Flags().StringSliceVar(&includes, "includes", nil, "directories to be included")
 	rootCmd.AddCommand(updateCmd)
 }

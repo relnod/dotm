@@ -16,7 +16,11 @@ var (
 
 // Install clones the dotfiles from a remote git repository to a local
 // path and then installs them.
-func Install(c *config.Config, names []string, configPath string) error {
+func Install(c *config.Config, names []string, configPath string, opts *InstallOptions) error {
+	if opts == nil {
+		opts = defaultInstallOptions
+	}
+
 	profiles, err := c.FindProfiles(names...)
 	if err != nil {
 		return err
@@ -33,7 +37,7 @@ func Install(c *config.Config, names []string, configPath string) error {
 			return err
 		}
 
-		err = LinkProfile(c.FS, p)
+		err = LinkProfile(c.FS, p, opts)
 		if err != nil {
 			return err
 		}
@@ -45,4 +49,22 @@ func Install(c *config.Config, names []string, configPath string) error {
 	}
 
 	return nil
+}
+
+// InstallOptions is set of options for the install function. Implements the
+// dotfiles.LinkOptions.
+type InstallOptions struct {
+	Force bool
+	Dry   bool
+}
+
+// OptDry implementation
+func (i *InstallOptions) OptDry() bool { return i.Dry }
+
+// OptForce implementation
+func (i *InstallOptions) OptForce() bool { return i.Force }
+
+var defaultInstallOptions = &InstallOptions{
+	Force: false,
+	Dry:   false,
 }
