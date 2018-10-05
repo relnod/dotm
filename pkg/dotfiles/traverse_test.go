@@ -1,6 +1,8 @@
 package dotfiles_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	. "github.com/petergtz/pegomock"
@@ -8,6 +10,7 @@ import (
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
 	"github.com/relnod/dotm/pkg/mock"
 )
@@ -18,23 +21,20 @@ func TestTraverse(t *testing.T) {
 	var tests = []struct {
 		desc        string
 		files       string
-		excludes    []string
-		includes    []string
+		p           *config.Profile
 		actionCalls [][]string
 	}{
 		{
 			"No action calls for empty directories",
 			`a/
 			 b/`,
-			nil,
-			nil,
+			&config.Profile{Path: ""},
 			nil,
 		},
 		{
 			"Simple action call",
 			"a/a",
-			nil,
-			nil,
+			&config.Profile{Path: ""},
 			[][]string{
 				{"a", "", "a"},
 			},
@@ -44,8 +44,7 @@ func TestTraverse(t *testing.T) {
 			`a/a
 			 a/b/c
 			 b/d`,
-			nil,
-			nil,
+			&config.Profile{Path: ""},
 			[][]string{
 				{"a", "", "a"},
 				{"a/b", "b", "c"},
@@ -57,8 +56,7 @@ func TestTraverse(t *testing.T) {
 			`a/a,
 			 a/b/c
 			 b/d`,
-			[]string{"a"},
-			nil,
+			&config.Profile{Path: "", Excludes: []string{"a"}},
 			[][]string{
 				{"b", "", "d"},
 			},
@@ -70,8 +68,7 @@ func TestTraverse(t *testing.T) {
 		// 	`a/a,
 		// 	 a/b/c
 		// 	 b/d`,
-		// 	nil,
-		// 	[]string{"a"},
+		//   &config.Profile{Path: "", Includes: []string{"a"}},
 		// 	[][]string{
 		// 		{"a", "", "a"},
 		// 		{"a/b", "b", "c"},
@@ -82,8 +79,7 @@ func TestTraverse(t *testing.T) {
 		// 	`a/a,
 		// 	 b/b/c
 		// 	 c/d`,
-		// 	[]string{"a"},
-		// 	[]string{"a", "b"},
+		//   &config.Profile{Path: "", Includes: []string{"a", "b"}, Excludes: []string{"a"}},
 		// 	[][]string{
 		// 		{"a", "", "a"},
 		// 	},
@@ -98,8 +94,7 @@ func TestTraverse(t *testing.T) {
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
 			action := mock.NewMockAction()
-			traverser := dotfiles.NewTraverser(fs, test.excludes, test.includes)
-			assert.NoError(tt, traverser.Traverse("", "", action))
+			assert.NoError(tt, dotfiles.Traverse(fs, test.p, action))
 
 			action.VerifyWasCalled(Times(len(test.actionCalls))).Run(AnyString(), AnyString(), AnyString())
 
@@ -108,7 +103,7 @@ func TestTraverse(t *testing.T) {
 				for _, call := range test.actionCalls {
 					action.VerifyWasCalledInOrder(Once(), inOrderContext).Run(
 						call[0],
-						call[1],
+						filepath.Join(os.ExpandEnv("/home/$USER"), call[1]),
 						call[2],
 					)
 				}
