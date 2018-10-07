@@ -3,6 +3,7 @@ package config
 import (
 	"bufio"
 	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
@@ -23,6 +24,7 @@ const (
 	ErrOpenConfigFile   = "failed to open config file"
 	ErrEncodeConfig     = "failed to encode config"
 	ErrDecodeConfig     = "failed to decode config"
+	ErrInitialzeConfig  = "failed to initialize config"
 )
 
 // Config represents the configuration file for dotm.
@@ -59,6 +61,21 @@ type Profile struct {
 	PostUpdate []string `toml:"post_update"`
 }
 
+// Initialize sets the profile up
+func (c *Profile) Initialize() error {
+	var err error
+
+	c.Path, err = filepath.Abs(c.Path)
+	if err != nil {
+		return err
+	}
+
+	c.Remote = os.ExpandEnv(c.Remote)
+	c.Path = os.ExpandEnv(c.Path)
+
+	return nil
+}
+
 // Validate returns an error if the configuration is invalid.
 func (c *Profile) Validate() error {
 	if c.Remote == "" {
@@ -71,12 +88,14 @@ func (c *Profile) Validate() error {
 }
 
 // New takes the given config and intiailizes some values on it.
-func New(c *Config) *Config {
+func New(c *Config) (*Config, error) {
 	for _, profile := range c.Profiles {
-		profile.Remote = os.ExpandEnv(profile.Remote)
-		profile.Path = os.ExpandEnv(profile.Path)
+		err := profile.Initialize()
+		if err != nil {
+			return nil, err
+		}
 	}
-	return c
+	return c, nil
 }
 
 // NewConfig returns a new config.
@@ -109,17 +128,20 @@ func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
 // config struct.
 func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
 	path = os.ExpandEnv(path)
-	config := &Config{}
+	c := &Config{}
 
 	data, err := fsutil.ReadFile(fs, path)
 	if err != nil {
 		return nil, errors.Wrap(err, ErrOpenConfigFile)
 	}
-
-	_, err = toml.Decode(string(data), config)
+	_, err = toml.Decode(string(data), c)
 	if err != nil {
 		return nil, errors.Wrap(err, ErrEncodeConfig)
 	}
 
-	return New(config), nil
+	c, err = New(c)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrInitialzeConfig)
+	}
+	return c, nil
 }
