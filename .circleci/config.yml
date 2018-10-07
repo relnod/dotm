@@ -12,6 +12,7 @@ jobs:
             GO111MODULE=off go get golang.org/x/tools/cmd/goimports
             GO111MODULE=off go get golang.org/x/lint/golint
             make verify
+
   test:
     docker:
       - image: circleci/golang:1.11.1
@@ -23,9 +24,25 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make test
+
+  push-image-to-dockerhub:
+    docker:
+      - image: circleci/golang:1.11.1
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make push-docker
 workflows:
   version: 2
   verify_and_test:
     jobs:
       - verify
       - test
+      - push-image-to-dockerhub:
+          requires:
+              - test
+              - verify
+          filters:
+            branches:
+              only: master
