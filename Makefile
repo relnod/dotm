@@ -91,7 +91,8 @@ build-docker:
 # Builds and pushes the image to dockerhub
 .PHONY: push-docker
 push-docker: build-docker
-	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	echo "docker login"
+	@echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
 	docker push relnod/dotm:latest
 
 export RULE ?= help
