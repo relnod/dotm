@@ -10,13 +10,7 @@ import (
 )
 
 var (
-	configPath string
-	profile    string
-	force      bool
-	dry        bool
-	testRoot   string
-	excludes   []string
-	includes   []string
+	testRoot string
 )
 
 func newFS() (fs fsa.FileSystem) {
@@ -27,8 +21,9 @@ func newFS() (fs fsa.FileSystem) {
 	return fs
 }
 
-func loadConfig(fs fsa.FileSystem) (*config.Config, error) {
+func loadConfig() (*config.Config, error) {
 	var err error
+	fs := newFS()
 	if configPath == "" {
 		configPath, err = config.Find(fs)
 		if err != nil {
@@ -42,6 +37,14 @@ func loadConfig(fs fsa.FileSystem) (*config.Config, error) {
 
 	c.FS = fs
 	return c, nil
+}
+
+func loadOrCreateConfig() *config.Config {
+	c, err := loadConfig()
+	if err != nil {
+		c = config.NewConfig(newFS())
+	}
+	return c
 }
 
 var rootCmd = &cobra.Command{
