@@ -17,7 +17,7 @@ go get github.com/relnod/dotm/cmd/dotm
 If you have a working docker environment, you can run dotm with the following alias:
 
 ```
-alias="docker run -v /home/$USER:/home/$USER --env USER=$USER reldod/dotm:latest"
+alias dotm="docker run -v /home/$USER:/home/$USER --env USER=$USER reldod/dotm:latest"
 ```
 NOTE: Hooks might not work, if they require additional programs. If you want to call extra programs, you can create a new container based on relnod/dotm:latest and add those.
 
