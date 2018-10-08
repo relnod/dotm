@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	testRoot string
+	genCompletions bool
+	testRoot       string
 )
 
 func newFS() (fs fsa.FileSystem) {
@@ -109,11 +110,20 @@ pre_update = [
     "nvim +PlugInstall +qall"
 ]
 	`,
+	Args: cobra.ExactArgs(0),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if genCompletions {
+			return cmd.GenBashCompletion(os.Stdout)
+		}
+		return cmd.Usage()
+	},
 }
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing puposes)")
 	rootCmd.PersistentFlags().MarkHidden("testRoot")
+
+	rootCmd.Flags().BoolVarP(&genCompletions, "genCompletions", "", false, "generate bash completions")
 }
 
 // Execute executes the root command.

@@ -37,6 +37,7 @@ var uninstallCmd = &cobra.Command{
 		cmd.Println(msgUnistallSuccess)
 		return nil
 	},
+	ValidArgs: []string{"$(dotm list)"},
 }
 
 func init() {

@@ -38,6 +38,7 @@ var updateCmd = &cobra.Command{
 		cmd.Println(msgUpdateSuccess)
 		return err
 	},
+	ValidArgs: []string{"$(dotm list)"},
 }
 
 func init() {
