@@ -14,7 +14,7 @@ var (
 )
 
 func addConfigFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles.toml", "config location")
+	cmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles/dotm.toml", "config location")
 }
 
 func addIncludeExcludeFlags(cmd *cobra.Command) {
@@ -31,7 +31,7 @@ func addDryFlag(cmd *cobra.Command) {
 }
 
 func addProfileFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&profile, "profile", "p", "Default", "Profile name")
+	cmd.Flags().StringVarP(&profile, "profile", "p", "default", "Profile name")
 }
 
 func addBaseFlags(cmd *cobra.Command) {

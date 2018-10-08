@@ -26,7 +26,7 @@ NOTE: Hooks might not work, if they require additional programs. If you want to 
 `dotm` works by symlinking the files from the dotfile folder to its corresponding place under the home directory of the user.
 
 ### Configuration file
-The configuration file is located at `$HOME/.dotfiles.toml` (can be changed with the --config flag). It can hold multiple profiles. Each profile consists of a path to the local dotfile location and an optional remote path to a git repository.
+The configuration file is located at `$HOME/.dotfiles/dotm.toml` (can be changed with the --config flag). It can hold multiple profiles. Each profile consists of a path to the local dotfile location and an optional remote path to a git repository.
 
 
 Example:
@@ -38,7 +38,7 @@ Example:
 remote = "github.com/relnod/dotm"
 
 # Path to local git repository
-path = ".dotfiles/"
+path = ".dotfiles/default/"
 
 # Configs to be included
 includes = [

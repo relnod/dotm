@@ -1,6 +1,6 @@
 Executes pre update hook from hooks.toml
 ---
-/home/$USER/.dotfiles.toml#[profiles.default]\npath="/dotfiles"
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\npath="/dotfiles"
 /dotfiles/tmux/hooks.toml#pre_update=["touch $BASE/a"]
 /dotfiles/tmux/.tmux.conf
 ---

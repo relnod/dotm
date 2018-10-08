@@ -4,5 +4,5 @@ Don't link when --dry was set
 ---
 dotm init /dotfiles --dry
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf:deleted

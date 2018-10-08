@@ -4,5 +4,5 @@ Simple test case for init command
 ---
 dotm init /dotfiles
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf:ln
