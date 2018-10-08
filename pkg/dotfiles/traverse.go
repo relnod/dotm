@@ -3,6 +3,7 @@ package dotfiles
 import (
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/relnod/fsa"
@@ -86,7 +87,11 @@ func (t traverseVisitor) Visit(dir, file string) {
 }
 
 // isExcluded checks if the directory should be excluded.
+// Also excludes all directories prefixed with a "_".
 func isExcluded(excludes []string, dir string) bool {
+	if strings.HasPrefix(dir, "_") {
+		return true
+	}
 	excludes = append(excludes, defaultExcluded...)
 	for _, exclude := range excludes {
 		if dir == exclude {
