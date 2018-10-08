@@ -14,17 +14,15 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all profiles",
 	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		c, err := loadConfig()
 		if err != nil {
-			cmd.Println(msgUnistallFail)
-			return err
+			return
 		}
 
 		for name := range c.Profiles {
 			fmt.Println(name)
 		}
-		return nil
 	},
 }
 

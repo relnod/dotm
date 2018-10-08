@@ -5,6 +5,6 @@ Includes all in includes flag
 ---
 dotm init /dotfiles --includes=bash
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf:deleted
 /home/$USER/.bashrc:ln

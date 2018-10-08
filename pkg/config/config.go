@@ -21,6 +21,7 @@ var (
 // Error wrappers
 const (
 	ErrCreateConfigFile = "failed to create config file"
+	ErrCreateConfigDir  = "failed to create config directory"
 	ErrOpenConfigFile   = "failed to open config file"
 	ErrEncodeConfig     = "failed to encode config"
 	ErrDecodeConfig     = "failed to decode config"
@@ -65,13 +66,15 @@ type Profile struct {
 func (c *Profile) Initialize() error {
 	var err error
 
-	c.Path, err = filepath.Abs(c.Path)
-	if err != nil {
-		return err
-	}
-
 	c.Remote = os.ExpandEnv(c.Remote)
 	c.Path = os.ExpandEnv(c.Path)
+
+	if !filepath.IsAbs(c.Path) {
+		c.Path, err = filepath.Abs(c.Path)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -108,6 +111,11 @@ func NewConfig(fs fsa.FileSystem) *Config {
 
 // WriteFile writes a new config file in the toml format to a given path.
 func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
+	err := fs.MkdirAll(filepath.Dir(path), os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, ErrCreateConfigDir)
+	}
+
 	path = os.ExpandEnv(path)
 	f, err := fs.Create(path)
 	if err != nil {

@@ -5,5 +5,5 @@ Doesn't overwrite file
 ---
 dotm init /dotfiles
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf#a

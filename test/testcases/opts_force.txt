@@ -5,6 +5,6 @@ Overwrite when --force was set
 ---
 dotm init /dotfiles --force
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf#b
 /home/$USER/.tmux.conf.backup#a

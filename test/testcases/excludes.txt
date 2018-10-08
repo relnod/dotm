@@ -5,6 +5,6 @@ Excludes all in exclude flag
 ---
 dotm init /dotfiles --excludes=bash
 ---
-/home/$USER/.dotfiles.toml
+/home/$USER/.dotfiles/dotm.toml
 /home/$USER/.tmux.conf:ln
 /home/$USER/.bashrc:deleted
