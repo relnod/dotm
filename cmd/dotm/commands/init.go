@@ -23,13 +23,12 @@ var initCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := loadOrCreateConfig()
-		c.Profiles[profile] = &config.Profile{
+		err := c.AddProfile(profile, &config.Profile{
 			Remote:   remote,
 			Path:     args[0],
 			Excludes: excludes,
 			Includes: includes,
-		}
-		err := c.Profiles[profile].Initialize()
+		})
 		if err != nil {
 			cmd.Println(fmt.Sprintf(msgInitFail, args[0]))
 			return err

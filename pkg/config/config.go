@@ -13,9 +13,10 @@ import (
 
 // Errors
 var (
-	ErrEmptyRemote     = errors.New("empty remote url")
-	ErrEmptyPath       = errors.New("empty path")
-	ErrProfileNotFound = errors.New("profile not found")
+	ErrEmptyRemote          = errors.New("empty remote url")
+	ErrEmptyPath            = errors.New("empty path")
+	ErrProfileAlreadyExists = errors.New("profile already exists")
+	ErrProfileNotFound      = errors.New("profile not found")
 )
 
 // Error wrappers
@@ -33,6 +34,23 @@ const (
 type Config struct {
 	FS       fsa.FileSystem      `toml:"-"`
 	Profiles map[string]*Profile `toml:"profiles"`
+}
+
+// AddProfile adds a new profile to the config. Returns an error if the profile
+// already exists, or if one happens during profile initialization.
+func (c *Config) AddProfile(name string, p *Profile) error {
+	if _, exists := c.Profiles[name]; exists {
+		return ErrProfileAlreadyExists
+	}
+
+	err := p.Initialize()
+	if err != nil {
+		return err
+	}
+
+	c.Profiles[name] = p
+
+	return nil
 }
 
 // FindProfiles tries to find profiles matching a list of profiles.
