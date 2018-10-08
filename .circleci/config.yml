@@ -25,7 +25,7 @@ jobs:
           docker_layer_caching: true
       - run: make test
 
-  push-image-to-dockerhub:
+  push-latest-image-to-dockerhub:
     docker:
       - image: circleci/golang:1.11.1
     steps:
@@ -33,16 +33,76 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make push-docker
+
+  version:
+    docker:
+      - image: circleci/golang:1.11.1
+    steps:
+      - checkout
+      - run:
+          command: |
+            make build
+            VERSION=$(./build/dotm --version | grep -oP "v\K(\d+\.\d+\.\d+)")
+            mkdir -p /tmp/version
+            echo ${VERSION} > /tmp/version/VERSION
+      - persist_to_workspace:
+          root: /tmp/version
+          paths: VERSION
+
+  push-release-image-to-dockerhub:
+    docker:
+      - image: circleci/golang:1.11.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/version
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          command: |
+            cat /tmp/version/VERSION
+            TAG=$(cat /tmp/version/VERSION) make push-docker
+
+  publish-github-release:
+    docker:
+      - image: circleci/golang:1.11.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/version
+      - run:
+          command: |
+            GO111MODULE=off go get github.com/tcnksm/ghr
+            VERSION=v$(cat /tmp/version/VERSION) COMMIT=${CIRCLE_SHA1} make release
+
 workflows:
   version: 2
-  verify_and_test:
+  test_verify:
     jobs:
       - verify
       - test
-      - push-image-to-dockerhub:
+      - push-latest-image-to-dockerhub:
           requires:
-              - test
-              - verify
+            - test
+            - verify
           filters:
             branches:
               only: master
+  release:
+    jobs:
+      - version:
+         filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+      - approve:
+          type: approval
+          requires:
+            - version
+      - push-release-image-to-dockerhub:
+          requires:
+            - approve
+      - publish-github-release:
+          requires:
+            - approve

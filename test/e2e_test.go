@@ -71,7 +71,7 @@ func runTests(t *testing.T, cmd string) {
 }
 
 func TestNormal(t *testing.T) {
-	runTests(t, os.ExpandEnv("$ROOT")+"dotm")
+	runTests(t, os.ExpandEnv("$ROOT")+"build/dotm")
 }
 
 func TestDocker(t *testing.T) {

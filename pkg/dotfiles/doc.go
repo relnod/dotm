@@ -1,4 +1,3 @@
-// Package dotfiles provides an abstraction layer around the dotfiles
-// directories. It provides a traversal method aswell as actions to perfome
-// during the traversal.
+// Package dotfiles provides the main dotm library for interacting with the
+// dotfiles.
 package dotfiles

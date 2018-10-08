@@ -14,6 +14,11 @@ export BASE_PACKAGE ?= github.com/relnod/dotm
 GOARCH ?= amd64
 TARGET ?= linux
 
+TAG ?= latest
+
+$(mkdir -p ./build)
+$(mkdir -p ./artifacts)
+
 # === all ===
 # Runs all tests and verify scripts
 .PHONY: all
@@ -79,13 +84,13 @@ install:
 # Builds the dotm binary
 .PHONY: build
 build:
-	GO111MODULE=on CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build -mod=vendor ./cmd/dotm
+	GO111MODULE=on CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build -mod=vendor  -o ./build/dotm ./cmd/dotm
 
 # === build-docker ===
 # Builds the latest docker container
 .PHONY: build-docker
 build-docker:
-	docker build . --tag=relnod/dotm:latest
+	docker build . --tag=relnod/dotm:${TAG}
 
 # === push-docker ===
 # Builds and pushes the image to dockerhub
@@ -93,7 +98,20 @@ build-docker:
 push-docker: build-docker
 	echo "docker login"
 	@echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
-	docker push relnod/dotm:latest
+	docker push relnod/dotm:${TAG}
+
+# === release ===
+# Creates a new release on github
+.PHONY: release
+release: release-artifacts
+	echo "push release to github"
+	@ghr -t ${GITHUB_TOKEN} -u relnod -r dotm -c ${COMMIT} -delete ${VERSION} ./artifacts/
+
+# === release-artifacts ===
+# Creates the release artifacts (in ./artifacts)
+.PHONY: release-artifacts
+release-artifacts:
+	./scripts/make-rules/release-artifacts.sh
 
 export RULE ?= help
 
