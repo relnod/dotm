@@ -103,7 +103,7 @@ From a remote git repository:
 dotm install <url-to-remote-repository>
 
 Hooks
-Update hooks can be applied at profile level (via global config) and per top level directory with a hooks.toml in the top level directory. Note: this file won't be symlinked.
+Update hooks can be applied via global config, at profile root and per top level directory. For hooks at profile root and top level directory you can create a hooks.toml. Note: This file won't be symlinked.
 
 Example:
 pre_update = [

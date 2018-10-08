@@ -107,34 +107,55 @@ type hook struct {
 	PostUpdate []string `toml:"post_update"`
 }
 
-func getHooks(fs fsa.FileSystem, dir string) ([]hook, error) {
+func getHooks(fs fsa.FileSystem, dir string) ([]*hook, error) {
+	var hooks []*hook
+
+	h, err := findHook(fs, dir)
+	if err != nil {
+		return nil, err
+	}
+	if h != nil {
+		hooks = append(hooks, h)
+	}
+
 	files, err := fsutil.ReadDir(fs, dir)
 	if err != nil {
 		return nil, err
 	}
 
-	var hooks []hook
 	for _, file := range files {
 		if !file.IsDir() {
 			continue
 		}
 
-		path := filepath.Join(dir, file.Name(), "hooks.toml")
-		if !testutil.FileExists(fs, path) {
-			continue
-		}
-
-		data, err := fsutil.ReadFile(fs, path)
+		h, err := findHook(fs, filepath.Join(dir, file.Name()))
 		if err != nil {
-			return nil, errors.Wrapf(err, ErrOpenHooksFile, path)
+			return nil, err
 		}
-
-		var h hook
-		_, err = toml.Decode(string(data), &h)
-		if err != nil {
-			return nil, errors.Wrapf(err, ErrDecodeHooksFile, path)
+		if h != nil {
+			hooks = append(hooks, h)
 		}
-		hooks = append(hooks, h)
 	}
 	return hooks, nil
+}
+
+func findHook(fs fsa.FileSystem, dir string) (*hook, error) {
+
+	path := filepath.Join(dir, "hooks.toml")
+	if !testutil.FileExists(fs, path) {
+		return nil, nil
+	}
+
+	data, err := fsutil.ReadFile(fs, path)
+	if err != nil {
+		return nil, errors.Wrapf(err, ErrOpenHooksFile, path)
+	}
+
+	var h hook
+	_, err = toml.Decode(string(data), &h)
+	if err != nil {
+		return nil, errors.Wrapf(err, ErrDecodeHooksFile, path)
+	}
+
+	return &h, nil
 }
