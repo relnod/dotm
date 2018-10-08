@@ -1,4 +1,4 @@
-package dotfiles_test
+package profile_test
 
 import (
 	"path/filepath"
@@ -8,7 +8,7 @@ import (
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 func TestActionLink(t *testing.T) {
@@ -42,7 +42,7 @@ func TestActionLink(t *testing.T) {
 
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
-			action := dotfiles.NewLinkAction(fs, nil)
+			action := profile.NewLinkAction(fs, nil)
 			assert.NoError(tt, action.Run(
 				test.source,
 				test.dest,
@@ -84,7 +84,7 @@ func TestActionUnlink(t *testing.T) {
 
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
-			action := dotfiles.NewUnlinkAction(fs, nil)
+			action := profile.NewUnlinkAction(fs, nil)
 			assert.NoError(tt, action.Run(
 				test.source,
 				test.dest,

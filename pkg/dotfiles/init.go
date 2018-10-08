@@ -2,7 +2,7 @@ package dotfiles
 
 import (
 	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/remote"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 // Init initializes a set of dotfiles.
@@ -18,16 +18,16 @@ func Init(c *config.Config, names []string, configPath string, opts *InitOptions
 
 	// TODO: check if dotfiles are already installed
 
-	for _, profile := range profiles {
-		err = LinkProfile(c.FS, profile, opts)
+	for _, p := range profiles {
+		err = profile.Link(c.FS, p, opts)
 		if err != nil {
 			return err
 		}
 
-		if profile.Remote == "" {
+		if p.Remote == "" {
 			// Ignore error since remote detection is optional.
-			remoteURL, _ := remote.Detect(profile.Path)
-			profile.Remote = remoteURL
+			remoteURL, _ := profile.DetectRemote(c.FS, p)
+			p.Remote = remoteURL
 		}
 	}
 

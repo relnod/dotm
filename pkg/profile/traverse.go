@@ -1,4 +1,4 @@
-package dotfiles
+package profile
 
 import (
 	"os/user"
@@ -9,7 +9,6 @@ import (
 	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/fsutil"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/fileutil"
 )
 
@@ -30,7 +29,7 @@ type Action interface {
 
 // Traverse traverses the dotfiles directory for a profile. Calls action.Run()
 // for each passed file.
-func Traverse(fs fsa.FileSystem, p *config.Profile, action Action) error {
+func Traverse(fs fsa.FileSystem, p *Profile, action Action) error {
 	usr, err := user.Current()
 	if err != nil {
 		return err

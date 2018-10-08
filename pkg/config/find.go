@@ -14,7 +14,7 @@ func Find(fs fsa.FileSystem) (string, error) {
 		return "", err
 	}
 
-	path := usr.HomeDir + ".dotfiles.toml"
+	path := usr.HomeDir + ".dotfiles/dotm.toml"
 	if _, err := fs.Stat(path); os.IsNotExist(err) {
 		return "", nil
 	}

@@ -1,4 +1,4 @@
-package dotfiles_test
+package profile_test
 
 import (
 	"os"
@@ -10,9 +10,8 @@ import (
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/dotfiles"
-	"github.com/relnod/dotm/pkg/mock"
+	"github.com/relnod/dotm/mock"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 func TestTraverse(t *testing.T) {
@@ -21,20 +20,20 @@ func TestTraverse(t *testing.T) {
 	var tests = []struct {
 		desc        string
 		files       string
-		p           *config.Profile
+		p           *profile.Profile
 		actionCalls [][]string
 	}{
 		{
 			"No action calls for empty directories",
 			`a/
 			 b/`,
-			&config.Profile{Path: ""},
+			&profile.Profile{Path: ""},
 			nil,
 		},
 		{
 			"Simple action call",
 			"a/a",
-			&config.Profile{Path: ""},
+			&profile.Profile{Path: ""},
 			[][]string{
 				{"a", "", "a"},
 			},
@@ -44,7 +43,7 @@ func TestTraverse(t *testing.T) {
 			`a/a
 			 a/b/c
 			 b/d`,
-			&config.Profile{Path: ""},
+			&profile.Profile{Path: ""},
 			[][]string{
 				{"a", "", "a"},
 				{"a/b", "b", "c"},
@@ -56,7 +55,7 @@ func TestTraverse(t *testing.T) {
 			`a/a,
 			 a/b/c
 			 b/d`,
-			&config.Profile{Path: "", Excludes: []string{"a"}},
+			&profile.Profile{Path: "", Excludes: []string{"a"}},
 			[][]string{
 				{"b", "", "d"},
 			},
@@ -68,7 +67,7 @@ func TestTraverse(t *testing.T) {
 		// 	`a/a,
 		// 	 a/b/c
 		// 	 b/d`,
-		//   &config.Profile{Path: "", Includes: []string{"a"}},
+		//   &profile.Profile{Path: "", Includes: []string{"a"}},
 		// 	[][]string{
 		// 		{"a", "", "a"},
 		// 		{"a/b", "b", "c"},
@@ -79,7 +78,7 @@ func TestTraverse(t *testing.T) {
 		// 	`a/a,
 		// 	 b/b/c
 		// 	 c/d`,
-		//   &config.Profile{Path: "", Includes: []string{"a", "b"}, Excludes: []string{"a"}},
+		//   &profile.Profile{Path: "", Includes: []string{"a", "b"}, Excludes: []string{"a"}},
 		// 	[][]string{
 		// 		{"a", "", "a"},
 		// 	},
@@ -94,7 +93,7 @@ func TestTraverse(t *testing.T) {
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
 			action := mock.NewMockAction()
-			assert.NoError(tt, dotfiles.Traverse(fs, test.p, action))
+			assert.NoError(tt, profile.Traverse(fs, test.p, action))
 
 			action.VerifyWasCalled(Times(len(test.actionCalls))).Run(AnyString(), AnyString(), AnyString())
 

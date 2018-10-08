@@ -120,7 +120,7 @@ pre_update = [
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing puposes)")
+	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing purposes)")
 	rootCmd.PersistentFlags().MarkHidden("testRoot")
 
 	rootCmd.Flags().BoolVarP(&genCompletions, "genCompletions", "", false, "generate bash completions")

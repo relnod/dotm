@@ -5,11 +5,11 @@ set -o nounset
 set -o pipefail
 
 mocks=(
-    "pkg/dotfiles Action"
+    "pkg/profile Action"
     "pkg/fileutil Visitor"
 )
 
-mock_package="pkg/mock"
+mock_package="mock"
 
 function dotm::mock::generate() {
     cd "$1/$mock_package"
