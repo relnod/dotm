@@ -85,7 +85,7 @@ post_update = [
 ]
 
 Dotfiles folder
-A Dotfile folder consists of multiple top level directories to group similar configuration files (e.g. "vim" or "tmux"). The file structure below those top level directories are directly mapped to $HOME.
+A dotfile folder consists of multiple top level directories to group similar configuration files (e.g. "vim" or "tmux"). Includes and excludes of those top level directories can be defined in the config file or with flags (--exclude, --includes). Also all top level directories with the prefix "_" will be excluded. The file structure below those top level directories is directly mapped to $HOME.
 
 Example:
 tmux/.tmux.conf             -> $HOME/.tmux.conf
