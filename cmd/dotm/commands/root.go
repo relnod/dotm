@@ -110,7 +110,8 @@ pre_update = [
     "nvim +PlugInstall +qall"
 ]
 	`,
-	Args: cobra.ExactArgs(0),
+	Version: "v0.1.0",
+	Args:    cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if genCompletions {
 			return cmd.GenBashCompletion(os.Stdout)

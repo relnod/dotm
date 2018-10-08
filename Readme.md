@@ -3,9 +3,12 @@
 [![CircleCI](https://circleci.com/gh/relnod/dotm.svg?style=svg)](https://circleci.com/gh/relnod/dotm)
 [![Godoc](https://godoc.org/github.com/relnod/dotm?status.svg)](https://godoc.org/github.com/relnod/dotm)
 
-This Project is still WIP!
-
 ## Installation
+
+### Using installer
+```
+curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh | sh
+```
 
 ### Using Go
 If you have a working go environment, you can simply install it via `go get`.
