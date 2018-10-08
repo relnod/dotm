@@ -29,6 +29,8 @@ var updateCmd = &cobra.Command{
 
 		err = dotfiles.Update(c, args, &dotfiles.UpdateOptions{
 			UpdateFromRemote: updateFromRemote,
+			Force:            force,
+			Dry:              dry,
 		})
 		if err != nil {
 			cmd.Println(msgUpdateFail)

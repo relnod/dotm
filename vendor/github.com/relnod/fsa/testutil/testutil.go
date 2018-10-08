@@ -6,7 +6,7 @@ import (
 
 // IsSymlink checks if the given path is a symlink.
 func IsSymlink(fs fsa.FileSystem, path string) bool {
-	_, err := fs.Stat(path)
+	_, err := fs.Lstat(path)
 	if err != nil {
 		return false
 	}
@@ -19,7 +19,7 @@ func IsSymlink(fs fsa.FileSystem, path string) bool {
 
 // FileExists checks if the given file exists.
 func FileExists(fs fsa.FileSystem, path string) bool {
-	_, err := fs.Stat(path)
+	_, err := fs.Lstat(path)
 	if err != nil {
 		return false
 	}

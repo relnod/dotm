@@ -1,0 +1,9 @@
+Overwrite symlink when --force was set
+---
+/dotfiles/tmux/.tmux.conf#b
+/home/$USER/.tmux.conf:ln
+---
+dotm init /dotfiles --force
+---
+/home/$USER/.dotfiles/dotm.toml
+/home/$USER/.tmux.conf#

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/relnod/fsa"
+	"github.com/relnod/fsa/testutil"
 
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/fileutil"
@@ -78,17 +79,17 @@ func (l *LinkAction) Run(source, dest, name string) error {
 	sourceFile := filepath.Join(source, name)
 	destFile := filepath.Join(dest, name)
 
-	f, err := l.fs.Stat(destFile)
-	if err == nil {
-		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
+	if testutil.FileExists(l.fs, destFile) {
+		if !l.opts.OptForce() {
 			return nil
 		}
+		if testutil.IsSymlink(l.fs, destFile) {
+			fileutil.Unlink(l.fs, destFile, l.opts.OptDry())
 
-		if l.opts.OptForce() {
+		} else {
 			fileutil.Backup(l.fs, destFile, l.opts.OptDry())
+
 		}
-	} else if !os.IsNotExist(err) {
-		return ErrReadingFileStats
 	}
 
 	return fileutil.Link(l.fs, sourceFile, destFile, l.opts.OptDry())
