@@ -2,12 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 var (
@@ -23,7 +22,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := loadOrCreateConfig()
-		err := c.AddProfile(profile, &config.Profile{
+		err := c.AddProfile(profileName, &profile.Profile{
 			Remote:   remote,
 			Path:     args[0],
 			Excludes: excludes,
@@ -34,7 +33,7 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		err = dotfiles.Init(c, []string{profile}, os.ExpandEnv(configPath), &dotfiles.InitOptions{
+		err = dotfiles.Init(c, []string{profileName}, configPath, &dotfiles.InitOptions{
 			Dry:   dry,
 			Force: force,
 		})

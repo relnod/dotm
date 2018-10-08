@@ -5,16 +5,20 @@ package commands
 import "github.com/spf13/cobra"
 
 var (
-	configPath string
-	profile    string
-	force      bool
-	dry        bool
-	excludes   []string
-	includes   []string
+	configPath  string
+	profileName string
+	force       bool
+	dry         bool
+	excludes    []string
+	includes    []string
 )
 
 func addConfigFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&configPath, "config", "c", "$HOME/.dotfiles/dotm.toml", "config location")
+}
+
+func addPathFlag(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&path, "path", "$HOME/.dotfiles/<PROFILE>/", "local git path")
 }
 
 func addIncludeExcludeFlags(cmd *cobra.Command) {
@@ -31,7 +35,7 @@ func addDryFlag(cmd *cobra.Command) {
 }
 
 func addProfileFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&profile, "profile", "p", "default", "Profile name")
+	cmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Profile name")
 }
 
 func addBaseFlags(cmd *cobra.Command) {

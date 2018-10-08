@@ -8,8 +8,8 @@ import (
 	"github.com/relnod/fsa/testutil"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/relnod/dotm/mock"
 	"github.com/relnod/dotm/pkg/fileutil"
-	"github.com/relnod/dotm/pkg/mock"
 )
 
 func TestRecTraverseDir(t *testing.T) {

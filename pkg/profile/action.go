@@ -1,4 +1,4 @@
-package dotfiles
+package profile
 
 import (
 	"errors"
@@ -8,7 +8,6 @@ import (
 	"github.com/relnod/fsa"
 	"github.com/relnod/fsa/testutil"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/fileutil"
 )
 
@@ -18,8 +17,8 @@ var (
 	ErrReadingFileStats    = errors.New("Could not read file stats")
 )
 
-// LinkProfile recursively links all files from one profile.
-func LinkProfile(fs fsa.FileSystem, p *config.Profile, opts LinkOptions) error {
+// Link recursively links all files from one profile.
+func Link(fs fsa.FileSystem, p *Profile, opts LinkOptions) error {
 	err := Traverse(fs, p, NewLinkAction(fs, opts))
 	if err != nil {
 		return err
@@ -27,8 +26,8 @@ func LinkProfile(fs fsa.FileSystem, p *config.Profile, opts LinkOptions) error {
 	return nil
 }
 
-// UnlinkProfile recursively removes the symlinks for one profile.
-func UnlinkProfile(fs fsa.FileSystem, p *config.Profile, opts UnlinkOptions) error {
+// Unlink recursively removes the symlinks for one profile.
+func Unlink(fs fsa.FileSystem, p *Profile, opts UnlinkOptions) error {
 	err := Traverse(fs, p, NewUnlinkAction(fs, opts))
 	if err != nil {
 		return err

@@ -2,13 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 var (
@@ -24,9 +22,9 @@ var installCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := loadOrCreateConfig()
-		err := c.AddProfile(profile, &config.Profile{
+		err := c.AddProfile(profileName, &profile.Profile{
 			Remote:   args[0],
-			Path:     strings.Replace(path, "<PROFILE>", profile, 1),
+			Path:     path,
 			Excludes: excludes,
 			Includes: includes,
 		})
@@ -35,7 +33,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		err = dotfiles.Install(c, []string{profile}, os.ExpandEnv(configPath), &dotfiles.InstallOptions{
+		err = dotfiles.Install(c, []string{profileName}, configPath, &dotfiles.InstallOptions{
 			Dry:   dry,
 			Force: force,
 		})
@@ -50,8 +48,7 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	installCmd.Flags().StringVar(&path, "path", "$HOME/.dotfiles/<PROFILE>/", "local git path")
-
+	addPathFlag(installCmd)
 	addForceFlag(installCmd)
 	addBaseFlags(installCmd)
 

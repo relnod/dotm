@@ -12,7 +12,7 @@ import (
 	"github.com/relnod/fsa/testutil"
 
 	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/remote"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 // Errors
@@ -51,13 +51,13 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 		}
 
 		if opts.UpdateFromRemote {
-			err = remote.PullProfile(c.FS, p)
+			err = profile.PullRemote(c.FS, p)
 			if err != nil {
 				return err
 			}
 		}
 
-		err = LinkProfile(c.FS, p, opts)
+		err = profile.Link(c.FS, p, opts)
 		if err != nil {
 			return err
 		}

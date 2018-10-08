@@ -2,6 +2,7 @@ package dotfiles
 
 import (
 	"github.com/relnod/dotm/pkg/config"
+	"github.com/relnod/dotm/pkg/profile"
 )
 
 // Uninstall uninstalles the dotfiles.
@@ -12,7 +13,7 @@ func Uninstall(c *config.Config, names []string, opts *UninstallOptions) error {
 	}
 
 	for _, p := range profiles {
-		err = UnlinkProfile(c.FS, p, opts)
+		err = profile.Unlink(c.FS, p, opts)
 		if err != nil {
 			return err
 		}
