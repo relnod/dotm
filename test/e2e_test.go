@@ -11,42 +11,60 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const createGitRepoCommand = `
-cd $ROOT/test/testdata/remote && \
-    git init && \
-    git config --local user.email "you@example.com" && \
-    git config --local user.name "Your Name" && \
-    git add . && \
-    git commit -m "initial commit"
-`
-
-const removeRepoCommand = "rm -rf $ROOT/test/testdata/remote/.git"
+var coverage bool
 
 func preTest() error {
 	if os.Getenv("ROOT") == "" {
 		return fmt.Errorf("$ROOT should be set, but is empty")
 	}
 
-	out, err := execCommand(createGitRepoCommand)
+	out, err := execCommand(`
+cd $ROOT/test/testdata/remote && \
+    git init && \
+    git config --local user.email "you@example.com" && \
+    git config --local user.name "Your Name" && \
+    git add . && \
+    git commit -m "initial commit"
+`)
 	if err != nil {
 		fmt.Println(out)
 		return err
+	}
+
+	if coverage {
+		out, err = execCommand("rm $ROOT/coverage-e2e-*")
+		if err != nil {
+			fmt.Println(out)
+			// return err
+		}
 	}
 	return nil
 }
 
 func postTest() error {
-	out, err := execCommand(removeRepoCommand)
+	out, err := execCommand("rm -rf $ROOT/test/testdata/remote/.git")
 	if err != nil {
 		fmt.Println(out)
 		return err
+	}
+
+	if coverage {
+		out, err = execCommand("gocovmerge $ROOT/coverage-e2e-* > $ROOT/coverage-e2e.out")
+		if err != nil {
+			fmt.Println(out)
+			// return err
+		}
+		out, err = execCommand("rm $ROOT/coverage-e2e-*")
+		if err != nil {
+			fmt.Println(out)
+			// return err
+		}
 	}
 	return nil
 }
 
 func runTests(t *testing.T, cmd string) {
-	err := preTest()
-	if err != nil {
+	if err := preTest(); err != nil {
 		t.Fatal(err)
 	}
 	defer postTest()
@@ -56,7 +74,7 @@ func runTests(t *testing.T, cmd string) {
 		t.Fatal(err)
 	}
 
-	for _, c := range testcases {
+	for i, c := range testcases {
 		t.Run(c.name, func(tt *testing.T) {
 			fs := fsa.NewTempFs(fsa.NewOsFs())
 			defer fs.Cleanup()
@@ -64,7 +82,7 @@ func runTests(t *testing.T, cmd string) {
 			c.given = strings.Replace(c.given, "$BASE", fs.Base(), -1)
 			assert.NoError(tt, testutil.CreateFiles(fs, c.given))
 			assert.NoError(tt, testutil.AddFiles(fs, "./testdata", "/"))
-			assert.NoError(tt, c.exec(cmd, fs.Base()))
+			assert.NoError(tt, c.exec(cmd, fs.Base(), i))
 			assert.NoError(tt, testutil.CheckFiles(fs, c.expected))
 		})
 	}
@@ -72,6 +90,11 @@ func runTests(t *testing.T, cmd string) {
 
 func TestNormal(t *testing.T) {
 	runTests(t, os.ExpandEnv("$ROOT")+"build/dotm")
+}
+
+func TestCoverage(t *testing.T) {
+	coverage = true
+	runTests(t, os.ExpandEnv("$ROOT")+"build/dotm.test -test.run='^TestRunMain'")
 }
 
 func TestDocker(t *testing.T) {

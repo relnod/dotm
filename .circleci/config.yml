@@ -1,5 +1,9 @@
 version: 2
 jobs:
+
+  #
+  # Job: verify
+  #
   verify:
     docker:
       - image: circleci/golang:1.11.1
@@ -13,6 +17,9 @@ jobs:
             GO111MODULE=off go get golang.org/x/lint/golint
             make verify
 
+  #
+  # Job: test
+  #
   test:
     docker:
       - image: circleci/golang:1.11.1
@@ -25,6 +32,27 @@ jobs:
           docker_layer_caching: true
       - run: make test
 
+  #
+  # Job: coverage
+  #
+  coverage:
+    docker:
+      - image: circleci/golang:1.11.1
+        environment:
+          USER: circleci
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          command: |
+            GO111MODULE=off go get github.com/wadey/gocovmerge
+            make coverage
+            bash <(curl -s https://codecov.io/bash)
+
+  #
+  # Job: push-latest-image-to-dockerhub
+  #
   push-latest-image-to-dockerhub:
     docker:
       - image: circleci/golang:1.11.1
@@ -34,6 +62,9 @@ jobs:
           docker_layer_caching: true
       - run: make push-docker
 
+  #
+  # Job: version
+  #
   version:
     docker:
       - image: circleci/golang:1.11.1
@@ -49,6 +80,9 @@ jobs:
           root: /tmp/version
           paths: VERSION
 
+  #
+  # Job: push-release-image-to-dockerhub
+  #
   push-release-image-to-dockerhub:
     docker:
       - image: circleci/golang:1.11.1
@@ -63,6 +97,9 @@ jobs:
             cat /tmp/version/VERSION
             TAG=$(cat /tmp/version/VERSION) make push-docker
 
+  #
+  # Job: publish-github-release
+  #
   publish-github-release:
     docker:
       - image: circleci/golang:1.11.1
@@ -81,6 +118,10 @@ workflows:
     jobs:
       - verify
       - test
+      - coverage:
+          requires:
+            - test
+            - verify
       - push-latest-image-to-dockerhub:
           requires:
             - test
@@ -88,6 +129,7 @@ workflows:
           filters:
             branches:
               only: master
+
   release:
     jobs:
       - version:
