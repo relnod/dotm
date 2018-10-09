@@ -1,6 +1,7 @@
 package dotfiles
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -92,8 +93,10 @@ var defaultUpdateOptions = &UpdateOptions{
 
 func executeHook(cmds []string) error {
 	for _, cmdRaw := range cmds {
-		args := strings.Split(cmdRaw, " ")
+		args := strings.Split(os.ExpandEnv(cmdRaw), " ")
 		cmd := exec.Command(args[0], args[1:]...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		err := cmd.Run()
 		if err != nil {
 			return errors.Wrapf(err, ErrExecuteHook, cmdRaw)
