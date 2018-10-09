@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -16,7 +17,11 @@ type testcase struct {
 	expected string
 }
 
-func (t *testcase) exec(cmd, dir string) error {
+func (t *testcase) exec(cmd, dir string, index int) error {
+	if coverage {
+		cmd += " -test.coverprofile=$ROOT/coverage-e2e-" + strconv.Itoa(index) + ".out"
+	}
+
 	cmd = strings.Replace(t.cmd, "dotm", cmd, 1) + " --testRoot=" + dir
 	out, err := execCommand(cmd)
 	if err != nil {

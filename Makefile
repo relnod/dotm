@@ -56,6 +56,25 @@ test-e2e-docker: build-docker
 	GO111MODULE=on go test -mod=vendor -v ${ROOT}/test -run=Docker
 	@echo ""
 
+# === coverage ===
+# Generates a coverage report for unit and e2e tests
+.PHONY: coverage
+coverage: coverage-unit coverage-e2e
+	gocovmerge coverage-* > coverage.txt
+	@rm coverage-*
+
+# === coverage-unit ===
+# Generates a coverage report for unit tests
+.PHONY: coverage-unit
+coverage-unit:
+	GO111MODULE=on go test -coverprofile=coverage-unit.out -mod=vendor `go list ./... | grep -v /test`
+
+# === coverage-e2e ===
+# Generates a coverage report for e2e tests
+.PHONY: coverage-e2e
+coverage-e2e: build-test
+	GO111MODULE=on go test -mod=vendor ${ROOT}/test -run=Coverage
+
 # === update ===
 # Updates all generated files
 .PHONY: update
@@ -85,6 +104,10 @@ install:
 .PHONY: build
 build:
 	GO111MODULE=on CGO_ENABLED=0 GOOS="${TARGET}" GOARCH="${GOARCH}" go build -mod=vendor  -o ./build/dotm ./cmd/dotm
+
+build-test:
+	GO111MODULE=on go test -cover -coverpkg=./... -mod=vendor -tags=testmain -o ./build/dotm.test ./cmd/dotm
+	
 
 # === build-docker ===
 # Builds the latest docker container
