@@ -1,8 +1,4 @@
-#!/bin/bash
-
-set -o errexit
-set -o nounset
-set -o pipefail
+#!/bin/sh
 
 get_latest_release() {
   curl --silent "https://api.github.com/repos/relnod/dotm/releases/latest" |
@@ -10,7 +6,6 @@ get_latest_release() {
     sed -E 's/.*"([^"]+)".*/\1/'
 }
 
-version="0.1.0"
 target=""
 goarch=""
 
