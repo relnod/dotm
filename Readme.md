@@ -7,7 +7,7 @@
 
 ### Using installer
 ```
-curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh | sh
+curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh | bash
 ```
 
 ### Using Go
