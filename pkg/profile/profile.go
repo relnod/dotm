@@ -4,16 +4,17 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/relnod/dotm/pkg/hook"
 )
 
 // Profile defines one set of dotfiles.
 type Profile struct {
-	Remote     string   `toml:"remote"`
-	Path       string   `toml:"path"`
-	Includes   []string `toml:"includes"`
-	Excludes   []string `toml:"excludes"`
-	PreUpdate  []string `toml:"pre_update"`
-	PostUpdate []string `toml:"post_update"`
+	Remote   string   `toml:"remote"`
+	Path     string   `toml:"path"`
+	Includes []string `toml:"includes"`
+	Excludes []string `toml:"excludes"`
+	hook.Hooks
 }
 
 // Initialize sets the profile up

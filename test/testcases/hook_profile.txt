@@ -1,4 +1,4 @@
-Executes pre update hook from hooks.toml
+Executes pre update hook from profile hooks.toml
 ---
 /home/$USER/.dotfiles/dotm.toml#[profiles.default]\npath="/dotfiles"
 /dotfiles/hooks.toml#pre_update=["touch $BASE/a"]
