@@ -85,9 +85,9 @@ func runTests(t *testing.T, cmd string) {
 			out, err := c.exec(cmd, fs.Base(), i)
 			assert.NoError(tt, err)
 			if !coverage && c.cmdOutput != "" {
-				assert.Equal(tt, out, c.cmdOutput)
+				assert.Equal(tt, out, c.cmdOutput, out)
 			}
-			assert.NoError(tt, testutil.CheckFiles(fs, c.expected))
+			assert.NoError(tt, testutil.CheckFiles(fs, c.expected), out)
 		})
 	}
 }

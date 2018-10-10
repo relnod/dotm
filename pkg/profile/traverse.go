@@ -36,6 +36,21 @@ func Traverse(fs fsa.FileSystem, p *Profile, action Action) error {
 	}
 	dest := usr.HomeDir
 
+	traverseTopLevelDirs(fs, p, func(dir string) error {
+		tv := traverseVisitor{
+			action: action,
+			source: p.Path,
+			dest:   dest,
+			name:   dir,
+		}
+
+		return fileutil.RecTraverseDir(fs, filepath.Join(p.Path, dir), "", tv)
+	})
+
+	return nil
+}
+
+func traverseTopLevelDirs(fs fsa.FileSystem, p *Profile, fn func(string) error) error {
 	files, err := fsutil.ReadDir(fs, p.Path)
 	if err != nil {
 		return errors.Wrap(err, ErrReadDirPath)
@@ -52,14 +67,7 @@ func Traverse(fs fsa.FileSystem, p *Profile, action Action) error {
 			continue
 		}
 
-		tv := traverseVisitor{
-			action: action,
-			source: p.Path,
-			dest:   dest,
-			name:   f.Name(),
-		}
-
-		err := fileutil.RecTraverseDir(fs, filepath.Join(p.Path, f.Name()), "", tv)
+		err := fn(f.Name())
 		if err != nil {
 			return err
 		}
