@@ -8,4 +8,4 @@ useradd $USER
 su - $USER
 export HOME=/home/$USER
 
-/repo/dotm $@
+/repo/build/dotm $@
