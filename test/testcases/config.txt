@@ -1,0 +1,41 @@
+Config remote
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\nremote="my-remote"
+---
+dotm config default --remote:my-remote\n
+---
+===
+Config path
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\npath="/dotfiles"
+---
+dotm config default --path:/dotfiles\n
+---
+===
+Config includes
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\nincludes=["a"]
+---
+dotm config default --includes:a\n
+---
+===
+Config excludes
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\nexcludes=["b"]
+---
+dotm config default --excludes:b\n
+---
+===
+Config pre updates
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\npre_update=["c"]
+---
+dotm config default --pre-updates:c\n
+---
+===
+Config post updates
+---
+/home/$USER/.dotfiles/dotm.toml#[profiles.default]\npost_update=["d"]
+---
+dotm config default --post-updates:d\n
+---
