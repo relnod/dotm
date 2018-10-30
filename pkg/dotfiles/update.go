@@ -35,15 +35,20 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 	}
 
 	for _, p := range profiles {
-		hooks, err := getHooks(c.FS, p.Path)
-		if err != nil {
-			return err
-		}
-		preUpdate := p.PreUpdate
-		postUpdate := p.PostUpdate
-		for _, h := range hooks {
-			preUpdate = append(preUpdate, h.PreUpdate...)
-			postUpdate = append(postUpdate, h.PostUpdate...)
+		var preUpdate []string
+		var postUpdate []string
+		if opts.Hooks {
+			hooks, err := getHooks(c.FS, p.Path)
+			if err != nil {
+				return err
+			}
+			preUpdate = p.PreUpdate
+			postUpdate = p.PostUpdate
+			for _, h := range hooks {
+				preUpdate = append(preUpdate, h.PreUpdate...)
+				postUpdate = append(postUpdate, h.PostUpdate...)
+			}
+
 		}
 
 		err = executeHook(preUpdate)
@@ -77,6 +82,7 @@ type UpdateOptions struct {
 	UpdateFromRemote bool
 	Force            bool
 	Dry              bool
+	Hooks            bool
 }
 
 // OptDry implementation
@@ -89,6 +95,7 @@ var defaultUpdateOptions = &UpdateOptions{
 	UpdateFromRemote: false,
 	Force:            false,
 	Dry:              false,
+	Hooks:            true,
 }
 
 func executeHook(cmds []string) error {
