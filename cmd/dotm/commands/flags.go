@@ -11,6 +11,7 @@ var (
 	dry         bool
 	excludes    []string
 	includes    []string
+	noHooks     bool
 )
 
 func addConfigFlag(cmd *cobra.Command) {
@@ -38,10 +39,15 @@ func addProfileFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Profile name")
 }
 
+func addNoHooksFlag(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&noHooks, "no-hooks", false, "don't execute hooks")
+}
+
 func addBaseFlags(cmd *cobra.Command) {
 	addConfigFlag(cmd)
 	addProfileFlag(cmd)
 
 	addDryFlag(cmd)
 	addIncludeExcludeFlags(cmd)
+	addNoHooksFlag(cmd)
 }

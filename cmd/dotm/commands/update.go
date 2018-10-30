@@ -31,6 +31,7 @@ var updateCmd = &cobra.Command{
 			UpdateFromRemote: updateFromRemote,
 			Force:            force,
 			Dry:              dry,
+			Hooks:            !noHooks,
 		})
 		if err != nil {
 			cmd.Println(msgUpdateFail)
