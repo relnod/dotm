@@ -82,7 +82,11 @@ func runTests(t *testing.T, cmd string) {
 			c.given = strings.Replace(c.given, "$BASE", fs.Base(), -1)
 			assert.NoError(tt, testutil.CreateFiles(fs, c.given))
 			assert.NoError(tt, testutil.AddFiles(fs, "./testdata", "/"))
-			assert.NoError(tt, c.exec(cmd, fs.Base(), i))
+			out, err := c.exec(cmd, fs.Base(), i)
+			assert.NoError(tt, err)
+			if !coverage && c.cmdOutput != "" {
+				assert.Equal(tt, out, c.cmdOutput)
+			}
 			assert.NoError(tt, testutil.CheckFiles(fs, c.expected))
 		})
 	}
