@@ -42,12 +42,6 @@ func newFS() (fs fsa.FileSystem) {
 func loadConfig() (*config.Config, error) {
 	var err error
 	fs := newFS()
-	if configPath == "" {
-		configPath, err = config.Find(fs)
-		if err != nil {
-			return nil, err
-		}
-	}
 	c, err := config.NewFromFile(fs, configPath)
 	if err != nil {
 		return nil, err
