@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/relnod/fsa"
@@ -9,9 +10,25 @@ import (
 	"github.com/relnod/dotm/pkg/config"
 )
 
+const bashChangeDirectory = `
+function dcd {
+    cd "$(dotm config "$1" --path)" || exit
+}
+
+_dcd_completions()
+{
+    if [ "${#COMP_WORDS[@]}" != "2" ]; then
+        return
+    fi
+    COMPREPLY=($(compgen -W "$(dotm list)" "${COMP_WORDS[1]}"))
+}
+complete -F _dcd_completions dcd
+`
+
 var (
-	genCompletions bool
-	testRoot       string
+	genCompletions     bool
+	genChangeDirectory bool
+	testRoot           string
 )
 
 func newFS() (fs fsa.FileSystem) {
@@ -116,6 +133,10 @@ pre_update = [
 		if genCompletions {
 			return cmd.GenBashCompletion(os.Stdout)
 		}
+		if genChangeDirectory {
+			fmt.Println(bashChangeDirectory)
+			return nil
+		}
 		return cmd.Usage()
 	},
 }
@@ -125,6 +146,7 @@ func init() {
 	rootCmd.PersistentFlags().MarkHidden("testRoot")
 
 	rootCmd.Flags().BoolVarP(&genCompletions, "genCompletions", "", false, "generate bash completions")
+	rootCmd.Flags().BoolVarP(&genChangeDirectory, "genChangeDirectory", "", false, "generate bash change directory command")
 }
 
 // Execute executes the root command.

@@ -55,6 +55,15 @@ func (c *Config) AddProfile(name string, p *profile.Profile) error {
 	return nil
 }
 
+// FindProfile tries to find a profile with a given name.
+func (c *Config) FindProfile(name string) (*profile.Profile, error) {
+	p, ok := c.Profiles[name]
+	if !ok {
+		return nil, ErrProfileNotFound
+	}
+	return p, nil
+}
+
 // FindProfiles tries to find profiles matching a list of profiles.
 // If only one name was given and the name is "all", return all profiles.
 func (c *Config) FindProfiles(names ...string) (map[string]*profile.Profile, error) {
@@ -63,9 +72,9 @@ func (c *Config) FindProfiles(names ...string) (map[string]*profile.Profile, err
 	}
 	profiles := make(map[string]*profile.Profile, 1)
 	for _, name := range names {
-		p, ok := c.Profiles[name]
-		if !ok {
-			return nil, ErrProfileNotFound
+		p, err := c.FindProfile(name)
+		if err != nil {
+			return nil, err
 		}
 		profiles[name] = p
 	}
