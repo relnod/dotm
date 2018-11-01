@@ -31,7 +31,7 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 			}
 		}
 
-		if opts.UpdateFromRemote {
+		if opts.UpdateFromRemote && p.Remote != "" {
 			err = profile.PullRemote(c.FS, p)
 			if err != nil {
 				return err
