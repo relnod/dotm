@@ -6,7 +6,6 @@ import (
 	"github.com/relnod/fsa/testutil"
 
 	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/profile"
 )
 
 // Errors
@@ -32,18 +31,18 @@ func Install(c *config.Config, names []string, configPath string, opts *InstallO
 			return ErrPathExists
 		}
 
-		err = profile.CloneRemote(c.FS, p)
+		err = p.CloneRemote()
 		if err != nil {
 			return err
 		}
 
-		err = profile.Link(c.FS, p, opts)
+		err = p.Link(opts)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = config.WriteFile(c.FS, configPath, c)
+	err = c.WriteFile(configPath)
 	if err != nil {
 		return err
 	}

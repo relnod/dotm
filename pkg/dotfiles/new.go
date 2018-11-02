@@ -2,7 +2,6 @@ package dotfiles
 
 import (
 	"github.com/relnod/dotm/pkg/config"
-	"github.com/relnod/dotm/pkg/profile"
 )
 
 // New creates a set of new dotfile profiles.
@@ -13,13 +12,13 @@ func New(c *config.Config, names []string, configPath string) error {
 	}
 
 	for _, p := range profiles {
-		err = profile.Create(c.FS, p)
+		err = p.Create()
 		if err != nil {
 			return err
 		}
 	}
 
-	err = config.WriteFile(c.FS, configPath, c)
+	err = c.WriteFile(configPath)
 	if err != nil {
 		return err
 	}

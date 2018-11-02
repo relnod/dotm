@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/relnod/fsa"
+
 	"github.com/relnod/dotm/pkg/hook"
 )
 
@@ -15,13 +17,19 @@ type Profile struct {
 	Includes []string `toml:"includes"`
 	Excludes []string `toml:"excludes"`
 	hook.Hooks
+
+	fs fsa.FileSystem
 }
 
-// Initialize sets the profile up
-func (c *Profile) Initialize(name string) (err error) {
-	c.Remote = os.ExpandEnv(c.Remote)
-	c.Path, err = expandPath(c.Path, name)
+// SetFS sets the file system.
+func (p *Profile) SetFS(fs fsa.FileSystem) {
+	p.fs = fs
+}
 
+// ExpandEnvs expands several variables with environment variables.
+func (p *Profile) ExpandEnvs(name string) (err error) {
+	p.Remote = os.ExpandEnv(p.Remote)
+	p.Path, err = expandPath(p.Path, name)
 	return err
 }
 

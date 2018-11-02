@@ -18,8 +18,8 @@ var (
 )
 
 // Link recursively links all files from one profile.
-func Link(fs fsa.FileSystem, p *Profile, opts LinkOptions) error {
-	err := Traverse(fs, p, NewLinkAction(fs, opts))
+func (p *Profile) Link(opts LinkOptions) error {
+	err := p.Traverse(NewLinkAction(p.fs, opts))
 	if err != nil {
 		return err
 	}
@@ -27,8 +27,8 @@ func Link(fs fsa.FileSystem, p *Profile, opts LinkOptions) error {
 }
 
 // Unlink recursively removes the symlinks for one profile.
-func Unlink(fs fsa.FileSystem, p *Profile, opts UnlinkOptions) error {
-	err := Traverse(fs, p, NewUnlinkAction(fs, opts))
+func (p *Profile) Unlink(opts UnlinkOptions) error {
+	err := p.Traverse(NewUnlinkAction(p.fs, opts))
 	if err != nil {
 		return err
 	}

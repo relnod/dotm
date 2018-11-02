@@ -38,6 +38,49 @@ type Config struct {
 	Profiles map[string]*profile.Profile `toml:"profiles"`
 }
 
+// NewConfig returns a new config.
+func NewConfig(fs fsa.FileSystem) *Config {
+	return &Config{
+		FS:       fs,
+		Profiles: make(map[string]*profile.Profile, 1),
+	}
+}
+
+// NewFromFile reads the file at the given path and decodes it into a new
+// config struct.
+func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
+	path = os.ExpandEnv(path)
+	c := &Config{}
+
+	data, err := fsutil.ReadFile(fs, path)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrOpenConfigFile)
+	}
+	_, err = toml.Decode(string(data), c)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrEncodeConfig)
+	}
+
+	c.FS = fs
+	err = c.InitializeProfiles()
+	if err != nil {
+		return nil, errors.Wrap(err, ErrInitialzeConfig)
+	}
+	return c, nil
+}
+
+// InitializeProfiles initializes the profiles.
+func (c *Config) InitializeProfiles() error {
+	for name, p := range c.Profiles {
+		p.SetFS(c.FS)
+		err := p.ExpandEnvs(name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // AddProfile adds a new profile to the config. Returns an error if the profile
 // already exists, or if one happens during profile initialization.
 func (c *Config) AddProfile(name string, p *profile.Profile) error {
@@ -45,7 +88,8 @@ func (c *Config) AddProfile(name string, p *profile.Profile) error {
 		return ErrProfileAlreadyExists
 	}
 
-	err := p.Initialize(name)
+	p.SetFS(c.FS)
+	err := p.ExpandEnvs(name)
 	if err != nil {
 		return err
 	}
@@ -81,34 +125,15 @@ func (c *Config) FindProfiles(names ...string) (map[string]*profile.Profile, err
 	return profiles, nil
 }
 
-// New takes the given config and intiailizes some values on it.
-func New(c *Config) (*Config, error) {
-	for name, p := range c.Profiles {
-		err := p.Initialize(name)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return c, nil
-}
-
-// NewConfig returns a new config.
-func NewConfig(fs fsa.FileSystem) *Config {
-	return &Config{
-		FS:       fs,
-		Profiles: make(map[string]*profile.Profile, 1),
-	}
-}
-
 // WriteFile writes a new config file in the toml format to a given path.
-func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
+func (c *Config) WriteFile(path string) error {
 	path = os.ExpandEnv(path)
-	err := fs.MkdirAll(filepath.Dir(path), os.ModePerm)
+	err := c.FS.MkdirAll(filepath.Dir(path), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, ErrCreateConfigDir)
 	}
 
-	f, err := fs.Create(path)
+	f, err := c.FS.Create(path)
 	if err != nil {
 		return errors.Wrap(err, ErrCreateConfigFile)
 	}
@@ -121,26 +146,4 @@ func WriteFile(fs fsa.FileSystem, path string, c *Config) error {
 	}
 
 	return nil
-}
-
-// NewFromFile reads the file at the given path and decodes it into a new
-// config struct.
-func NewFromFile(fs fsa.FileSystem, path string) (*Config, error) {
-	path = os.ExpandEnv(path)
-	c := &Config{}
-
-	data, err := fsutil.ReadFile(fs, path)
-	if err != nil {
-		return nil, errors.Wrap(err, ErrOpenConfigFile)
-	}
-	_, err = toml.Decode(string(data), c)
-	if err != nil {
-		return nil, errors.Wrap(err, ErrEncodeConfig)
-	}
-
-	c, err = New(c)
-	if err != nil {
-		return nil, errors.Wrap(err, ErrInitialzeConfig)
-	}
-	return c, nil
 }
