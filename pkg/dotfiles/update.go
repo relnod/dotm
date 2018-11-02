@@ -3,7 +3,6 @@ package dotfiles
 import (
 	"github.com/relnod/dotm/pkg/config"
 	"github.com/relnod/dotm/pkg/hook"
-	"github.com/relnod/dotm/pkg/profile"
 )
 
 // Update updates the dotfiles for a given configuration.
@@ -20,7 +19,7 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 	for _, p := range profiles {
 		var hooks *hook.Hooks
 		if opts.Hooks {
-			hooks, err = profile.FindHooks(c.FS, p)
+			hooks, err = p.FindHooks()
 			if err != nil {
 				return err
 			}
@@ -32,13 +31,13 @@ func Update(c *config.Config, names []string, opts *UpdateOptions) error {
 		}
 
 		if opts.UpdateFromRemote && p.Remote != "" {
-			err = profile.PullRemote(c.FS, p)
+			err = p.PullRemote()
 			if err != nil {
 				return err
 			}
 		}
 
-		err = profile.Link(c.FS, p, opts)
+		err = p.Link(opts)
 		if err != nil {
 			return err
 		}

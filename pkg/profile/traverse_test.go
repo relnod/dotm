@@ -93,7 +93,8 @@ func TestTraverse(t *testing.T) {
 			assert.NoError(tt, testutil.CreateFiles(fs, test.files))
 
 			action := mock.NewMockAction()
-			assert.NoError(tt, profile.Traverse(fs, test.p, action))
+			test.p.SetFS(fs)
+			assert.NoError(tt, test.p.Traverse(action))
 
 			action.VerifyWasCalled(Times(len(test.actionCalls))).Run(AnyString(), AnyString(), AnyString())
 

@@ -29,14 +29,14 @@ type Action interface {
 
 // Traverse traverses the dotfiles directory for a profile. Calls action.Run()
 // for each passed file.
-func Traverse(fs fsa.FileSystem, p *Profile, action Action) error {
+func (p *Profile) Traverse(action Action) error {
 	usr, err := user.Current()
 	if err != nil {
 		return err
 	}
 	dest := usr.HomeDir
 
-	traverseTopLevelDirs(fs, p, func(dir string) error {
+	traverseTopLevelDirs(p.fs, p, func(dir string) error {
 		tv := traverseVisitor{
 			action: action,
 			source: p.Path,
@@ -44,7 +44,7 @@ func Traverse(fs fsa.FileSystem, p *Profile, action Action) error {
 			name:   dir,
 		}
 
-		return fileutil.RecTraverseDir(fs, filepath.Join(p.Path, dir), "", tv)
+		return fileutil.RecTraverseDir(p.fs, filepath.Join(p.Path, dir), "", tv)
 	})
 
 	return nil

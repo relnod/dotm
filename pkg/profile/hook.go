@@ -14,12 +14,12 @@ import (
 // - ~/.dotfiles/dotm.toml
 // - ~/.dotfiles/<profile>/hooks.toml
 // - ~/.dotfiles/<profile>/<top-level-dir>/hooks.toml
-func FindHooks(fs fsa.FileSystem, p *Profile) (*hook.Hooks, error) {
+func (p *Profile) FindHooks() (*hook.Hooks, error) {
 	var hooks []*hook.Hooks
 
 	hooks = append(hooks, &p.Hooks)
 
-	h, err := findHook(fs, p.Path)
+	h, err := findHook(p.fs, p.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +27,8 @@ func FindHooks(fs fsa.FileSystem, p *Profile) (*hook.Hooks, error) {
 		hooks = append(hooks, h)
 	}
 
-	traverseTopLevelDirs(fs, p, func(dir string) error {
-		h, err := findHook(fs, filepath.Join(p.Path, dir))
+	traverseTopLevelDirs(p.fs, p, func(dir string) error {
+		h, err := findHook(p.fs, filepath.Join(p.Path, dir))
 		if err != nil {
 			return err
 		}

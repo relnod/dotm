@@ -18,10 +18,10 @@ const (
 )
 
 // CloneRemote clones the remote repository for a profile..
-func CloneRemote(fs fsa.FileSystem, p *Profile) error {
-	remoteURL, path := sanitizePaths(fs, p.Remote, p.Path)
+func (p *Profile) CloneRemote() error {
+	remoteURL, path := sanitizePaths(p.fs, p.Remote, p.Path)
 
-	err := fs.MkdirAll(p.Path, os.ModePerm)
+	err := p.fs.MkdirAll(p.Path, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, ErrMkdirDestination)
 	}
@@ -38,8 +38,8 @@ func CloneRemote(fs fsa.FileSystem, p *Profile) error {
 }
 
 // PullRemote pulles the remote repository for a profile.
-func PullRemote(fs fsa.FileSystem, p *Profile) error {
-	_, path := sanitizePaths(fs, p.Remote, p.Path)
+func (p *Profile) PullRemote() error {
+	_, path := sanitizePaths(p.fs, p.Remote, p.Path)
 
 	r, err := git.PlainOpen(path)
 	if err != nil {
@@ -60,8 +60,8 @@ func PullRemote(fs fsa.FileSystem, p *Profile) error {
 }
 
 // DetectRemote tries to detect the remote for a profile.
-func DetectRemote(fs fsa.FileSystem, p *Profile) (string, error) {
-	_, path := sanitizePaths(fs, p.Remote, p.Path)
+func (p *Profile) DetectRemote() (string, error) {
+	_, path := sanitizePaths(p.fs, p.Remote, p.Path)
 
 	r, err := git.PlainOpen(path)
 	if err != nil {
