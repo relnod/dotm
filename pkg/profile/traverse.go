@@ -36,7 +36,7 @@ func (p *Profile) Traverse(action Action) error {
 	}
 	dest := usr.HomeDir
 
-	traverseTopLevelDirs(p.fs, p, func(dir string) error {
+	return traverseTopLevelDirs(p.fs, p, func(dir string) error {
 		tv := traverseVisitor{
 			action: action,
 			source: p.Path,
@@ -46,8 +46,6 @@ func (p *Profile) Traverse(action Action) error {
 
 		return fileutil.RecTraverseDir(p.fs, filepath.Join(p.Path, dir), "", tv)
 	})
-
-	return nil
 }
 
 func traverseTopLevelDirs(fs fsa.FileSystem, p *Profile, fn func(string) error) error {
@@ -85,8 +83,8 @@ type traverseVisitor struct {
 }
 
 // Visit calls the traversal action.
-func (t traverseVisitor) Visit(dir, file string) {
-	t.action.Run(
+func (t traverseVisitor) Visit(dir, file string) error {
+	return t.action.Run(
 		filepath.Join(t.source, t.name, dir),
 		filepath.Join(t.dest, dir),
 		file,

@@ -19,7 +19,7 @@ var (
 // Visitor defines a visitor.
 type Visitor interface {
 	// Visit gets called for each file being traversed.
-	Visit(dir string, file string)
+	Visit(dir string, file string) error
 }
 
 // RecTraverseDir recursively traverses all directories starting at dir.
@@ -38,7 +38,10 @@ func RecTraverseDir(fs fsa.FileSystem, dir string, relDir string, visitor Visito
 				return err
 			}
 		} else {
-			visitor.Visit(relDir, f.Name())
+			err := visitor.Visit(relDir, f.Name())
+			if err != nil {
+				return err
+			}
 		}
 	}
 

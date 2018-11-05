@@ -27,7 +27,7 @@ func (p *Profile) FindHooks() (*hook.Hooks, error) {
 		hooks = append(hooks, h)
 	}
 
-	traverseTopLevelDirs(p.fs, p, func(dir string) error {
+	err = traverseTopLevelDirs(p.fs, p, func(dir string) error {
 		h, err := findHook(p.fs, filepath.Join(p.Path, dir))
 		if err != nil {
 			return err
@@ -37,6 +37,9 @@ func (p *Profile) FindHooks() (*hook.Hooks, error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return hook.Merge(hooks...), nil
 }

@@ -83,11 +83,15 @@ func (l *LinkAction) Run(source, dest, name string) error {
 			return nil
 		}
 		if testutil.IsSymlink(l.fs, destFile) {
-			fileutil.Unlink(l.fs, destFile, l.opts.OptDry())
-
+			err := fileutil.Unlink(l.fs, destFile, l.opts.OptDry())
+			if err != nil {
+				return err
+			}
 		} else {
-			fileutil.Backup(l.fs, destFile, l.opts.OptDry())
-
+			err := fileutil.Backup(l.fs, destFile, l.opts.OptDry())
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -6,6 +6,10 @@ import (
 
 // Uninstall uninstalles the dotfiles.
 func Uninstall(c *config.Config, names []string, opts *UninstallOptions) error {
+	if opts == nil {
+		opts = defaultUninstallOptions
+	}
+
 	profiles, err := c.FindProfiles(names...)
 	if err != nil {
 		return err
@@ -35,7 +39,7 @@ type UninstallOptions struct {
 // OptDry implementation
 func (i *UninstallOptions) OptDry() bool { return i.Dry }
 
-var defaultUninstallOptions = &InstallOptions{
+var defaultUninstallOptions = &UninstallOptions{
 	Force: false,
 	Dry:   false,
 }
