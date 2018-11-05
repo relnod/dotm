@@ -17,12 +17,19 @@ func NewMockVisitor() *MockVisitor {
 	return &MockVisitor{fail: pegomock.GlobalFailHandler}
 }
 
-func (mock *MockVisitor) Visit(_param0 string, _param1 string) {
+func (mock *MockVisitor) Visit(_param0 string, _param1 string) error {
 	if mock == nil {
 		panic("mock must not be nil. Use myMock := NewMockVisitor().")
 	}
 	params := []pegomock.Param{_param0, _param1}
-	pegomock.GetGenericMockFrom(mock).Invoke("Visit", params, []reflect.Type{})
+	result := pegomock.GetGenericMockFrom(mock).Invoke("Visit", params, []reflect.Type{reflect.TypeOf((*error)(nil)).Elem()})
+	var ret0 error
+	if len(result) != 0 {
+		if result[0] != nil {
+			ret0 = result[0].(error)
+		}
+	}
+	return ret0
 }
 
 func (mock *MockVisitor) VerifyWasCalledOnce() *VerifierVisitor {

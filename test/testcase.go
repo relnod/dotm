@@ -31,11 +31,6 @@ func (t *testcase) exec(cmd, dir string, index int) (string, error) {
 	return out, err
 }
 
-type file struct {
-	path    string
-	content string
-}
-
 func parseDir(dirname string) ([]*testcase, error) {
 	files, err := ioutil.ReadDir(dirname)
 	if err != nil {

@@ -137,7 +137,10 @@ pre_update = [
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&testRoot, "testRoot", "", "", "root location (used for testing purposes)")
-	rootCmd.PersistentFlags().MarkHidden("testRoot")
+	err := rootCmd.PersistentFlags().MarkHidden("testRoot")
+	if err != nil {
+		panic("testRoot flag should exist")
+	}
 
 	rootCmd.Flags().BoolVarP(&genCompletions, "genCompletions", "", false, "generate bash completions")
 	rootCmd.Flags().BoolVarP(&genChangeDirectory, "genChangeDirectory", "", false, "generate bash change directory command")
