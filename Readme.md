@@ -7,9 +7,13 @@
 ## Installation
 
 ### Using installer
+The installer.sh will automatically install the latest binary from the release
+artifacts.
 ```
-curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh | sh
+sh <(curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh)
 ```
+By adding the `--user` flag the install directory will be `$HOME/.local/bin`
+instead of `/usr/local/bin`.
 
 ### Using Go
 If you have a working go environment, you can simply install it via `go get`.
