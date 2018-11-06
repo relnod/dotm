@@ -33,10 +33,10 @@ echo "Downloading dotm binary at version ${version}"
 curl --silent -L "https://github.com/relnod/dotm/releases/download/${version}/${name}" -o "/tmp/${name}"
 
 install_dir="/usr/local/bin"
-bash_completion_dir="/etc/bash_completion.d/dotm"
+bash_completion_dir="/etc/bash_completion.d"
 if [ "$1" = "--user" ]; then
     install_dir="$HOME/.local/bin"
-    bash_completion_dir="$HOME/.bash_completion.d/dotm"
+    bash_completion_dir="$HOME/.bash_completion.d"
 fi
 if [ ! -d "$install_dir" ]; then
     mkdir -p "$install_dir"
@@ -52,4 +52,4 @@ fi
 tar -C "$install_dir" -xzf "/tmp/${name}"
 
 echo "Generating bash completions at $bash_completion_dir"
-dotm --genCompletions > "$bash_completion_dir"
+dotm --genCompletions > "$bash_completion_dir/dotm"
