@@ -32,9 +32,13 @@ name="dotm_${version}_${target}_${goarch}.tar.gz"
 echo "Downloading dotm binary at version ${version}"
 curl --silent -L "https://github.com/relnod/dotm/releases/download/${version}/${name}" -o "/tmp/${name}"
 
-echo "Installing dotm to /usr/local/bin"
-rm -f /usr/local/bin/dotm
-tar -C /usr/local/bin -xzf "/tmp/${name}"
+install_dir="/usr/local/bin"
+if [ "$1" = "--user" ]; then
+    install_dir="$HOME/.local/bin"
+fi
+echo "Installing dotm to $install_dir"
+rm -f "$install_dir/dotm"
+tar -C "$install_dir" -xzf "/tmp/${name}"
 
 echo "Generating bash completions"
 dotm --genCompletions > /etc/bash_completion.d/dotm
