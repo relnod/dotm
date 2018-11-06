@@ -121,7 +121,7 @@ pre_update = [
     "nvim +PlugInstall +qall"
 ]
 	`,
-	Version: "v0.1.0",
+	Version: "v0.2.0",
 	Args:    cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if genCompletions {
