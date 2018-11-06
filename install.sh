@@ -37,7 +37,12 @@ if [ "$1" = "--user" ]; then
     install_dir="$HOME/.local/bin"
 fi
 echo "Installing dotm to $install_dir"
-rm -f "$install_dir/dotm"
+if [ ! -d "$install_dir" ]; then
+    mkdir -p "$install_dir"
+fi
+if [ -f "$install_dir/dotm" ]; then
+    rm -f "$install_dir/dotm"
+fi
 tar -C "$install_dir" -xzf "/tmp/${name}"
 
 echo "Generating bash completions"
