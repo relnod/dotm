@@ -133,25 +133,33 @@ workflows:
   release:
     jobs:
       - version:
-         filters:
+          filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /.*/
+            branches:
+              ignore: /.*/
       - approve:
           type: approval
           requires:
             - version
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /.*/
+            branches:
+              ignore: /.*/
       - push-release-image-to-dockerhub:
           requires:
             - approve
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /.*/
+            branches:
+              ignore: /.*/
       - publish-github-release:
           requires:
             - approve
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /.*/
+            branches:
+              ignore: /.*/
