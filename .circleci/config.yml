@@ -134,17 +134,24 @@ workflows:
     jobs:
       - version:
          filters:
-            branches:
-              ignore: /.*/
             tags:
               only: /^\d+\.\d+\.\d+$/
       - approve:
           type: approval
           requires:
             - version
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
       - push-release-image-to-dockerhub:
           requires:
             - approve
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
       - publish-github-release:
           requires:
             - approve
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
