@@ -102,5 +102,4 @@ pre_update = [
 ```
 
 ## Development
-
 There is a Makefile to help development. You can run `make watch` to start a file watcher, that runs tests on file change plus some other helpfull stuff. Type `make help` for a list of all commands.
