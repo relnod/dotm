@@ -128,7 +128,7 @@ push-docker: build-docker
 .PHONY: release
 release: release-artifacts
 	echo "push release to github"
-	@ghr -t ${GITHUB_TOKEN} -u relnod -r dotm -c ${COMMIT} -delete ${VERSION} ./artifacts/
+	@ghr -t ${GITHUB_TOKEN} -u relnod -r dotm -c master -delete ${VERSION} ./artifacts/
 
 # === release-artifacts ===
 # Creates the release artifacts (in ./artifacts)
