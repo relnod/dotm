@@ -25,44 +25,7 @@ _dcd_completions()
 complete -F _dcd_completions dcd
 `
 
-var (
-	genCompletions     bool
-	genChangeDirectory bool
-	testRoot           string
-)
-
-func newFS() (fs fsa.FileSystem) {
-	fs = fsa.NewOsFs()
-	if testRoot != "" {
-		fs = fsa.NewBaseFs(fs, testRoot)
-	}
-	return fs
-}
-
-func loadConfig() (*config.Config, error) {
-	var err error
-	fs := newFS()
-	c, err := config.NewFromFile(fs, configPath)
-	if err != nil {
-		return nil, err
-	}
-
-	c.FS = fs
-	return c, nil
-}
-
-func loadOrCreateConfig() *config.Config {
-	c, err := loadConfig()
-	if err != nil {
-		c = config.NewConfig(newFS())
-	}
-	return c
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "dotm",
-	Short: "Dotm is a dotfile manager",
-	Long: `Dotm is a dotfile manager. It works by symlinking the files from the dotfile folder to its corresponding place under the home directory of the user.
+var usage = `Dotm is a dotfile manager. It works by symlinking the files from the dotfile folder to its corresponding place under the home directory of the user.
 
 Configuration file
 The configuration file is located at $HOME/.dotfiles/dotm.toml (can be changed with the --config flag). It can hold multiple profiles. Each profile consists of a path to the local dotfile location and an optional remote path to a git repository.
@@ -119,8 +82,46 @@ Update hooks can be applied via global config, at profile root and per top level
 Example:
 pre_update = [
     "nvim +PlugInstall +qall"
-]
-	`,
+]`
+
+var (
+	genCompletions     bool
+	genChangeDirectory bool
+	testRoot           string
+)
+
+func newFS() (fs fsa.FileSystem) {
+	fs = fsa.NewOsFs()
+	if testRoot != "" {
+		fs = fsa.NewBaseFs(fs, testRoot)
+	}
+	return fs
+}
+
+func loadConfig() (*config.Config, error) {
+	var err error
+	fs := newFS()
+	c, err := config.NewFromFile(fs, configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	c.FS = fs
+	return c, nil
+}
+
+func loadOrCreateConfig() *config.Config {
+	c, err := loadConfig()
+	if err != nil {
+		c = config.NewConfig(newFS())
+	}
+	return c
+}
+
+var rootCmd = &cobra.Command{
+	Use:     "dotm",
+	Short:   "Dotm is a dotfile manager",
+	Long:    usage,
 	Version: "v0.2.0",
 	Args:    cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
