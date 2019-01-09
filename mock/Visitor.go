@@ -5,6 +5,7 @@ package mock
 
 import (
 	"reflect"
+	"time"
 
 	pegomock "github.com/petergtz/pegomock"
 )
@@ -33,26 +34,45 @@ func (mock *MockVisitor) Visit(_param0 string, _param1 string) error {
 }
 
 func (mock *MockVisitor) VerifyWasCalledOnce() *VerifierVisitor {
-	return &VerifierVisitor{mock, pegomock.Times(1), nil}
+	return &VerifierVisitor{
+		mock:                   mock,
+		invocationCountMatcher: pegomock.Times(1),
+	}
 }
 
 func (mock *MockVisitor) VerifyWasCalled(invocationCountMatcher pegomock.Matcher) *VerifierVisitor {
-	return &VerifierVisitor{mock, invocationCountMatcher, nil}
+	return &VerifierVisitor{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+	}
 }
 
 func (mock *MockVisitor) VerifyWasCalledInOrder(invocationCountMatcher pegomock.Matcher, inOrderContext *pegomock.InOrderContext) *VerifierVisitor {
-	return &VerifierVisitor{mock, invocationCountMatcher, inOrderContext}
+	return &VerifierVisitor{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+		inOrderContext:         inOrderContext,
+	}
+}
+
+func (mock *MockVisitor) VerifyWasCalledEventually(invocationCountMatcher pegomock.Matcher, timeout time.Duration) *VerifierVisitor {
+	return &VerifierVisitor{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+		timeout:                timeout,
+	}
 }
 
 type VerifierVisitor struct {
 	mock                   *MockVisitor
 	invocationCountMatcher pegomock.Matcher
 	inOrderContext         *pegomock.InOrderContext
+	timeout                time.Duration
 }
 
 func (verifier *VerifierVisitor) Visit(_param0 string, _param1 string) *Visitor_Visit_OngoingVerification {
 	params := []pegomock.Param{_param0, _param1}
-	methodInvocations := pegomock.GetGenericMockFrom(verifier.mock).Verify(verifier.inOrderContext, verifier.invocationCountMatcher, "Visit", params)
+	methodInvocations := pegomock.GetGenericMockFrom(verifier.mock).Verify(verifier.inOrderContext, verifier.invocationCountMatcher, "Visit", params, verifier.timeout)
 	return &Visitor_Visit_OngoingVerification{mock: verifier.mock, methodInvocations: methodInvocations}
 }
 

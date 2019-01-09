@@ -12,9 +12,9 @@ jobs:
       - run:
           command: |
             sudo apt install rsync
-            GO111MODULE=off go get github.com/petergtz/pegomock/pegomock
-            GO111MODULE=off go get golang.org/x/tools/cmd/goimports
-            GO111MODULE=off go get golang.org/x/lint/golint
+            GO111MODULE=off go get -u github.com/petergtz/pegomock/pegomock
+            GO111MODULE=off go get -u golang.org/x/tools/cmd/goimports
+            GO111MODULE=off go get -u golang.org/x/lint/golint
             make verify
 
   #

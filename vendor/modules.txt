@@ -21,7 +21,7 @@ github.com/mitchellh/go-homedir
 github.com/onsi/gomega/format
 # github.com/pelletier/go-buffruneio v0.2.0
 github.com/pelletier/go-buffruneio
-# github.com/petergtz/pegomock v0.0.0-20180725144810-278dd9bee025
+# github.com/petergtz/pegomock v0.0.0-20181206220228-b113d17a7e81
 github.com/petergtz/pegomock
 github.com/petergtz/pegomock/internal/verify
 # github.com/pkg/errors v0.8.0

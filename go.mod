@@ -14,7 +14,7 @@ require (
 	github.com/mitchellh/go-homedir v1.0.0 // indirect
 	github.com/onsi/gomega v1.4.2 // indirect
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
-	github.com/petergtz/pegomock v0.0.0-20180725144810-278dd9bee025
+	github.com/petergtz/pegomock v0.0.0-20181206220228-b113d17a7e81
 	github.com/pkg/errors v0.8.0
 	github.com/relnod/fsa v0.0.0-20181008183847-2fa004f2e26e
 	github.com/sergi/go-diff v1.0.0 // indirect
