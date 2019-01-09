@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 get_latest_release() {
   curl --silent "https://api.github.com/repos/relnod/dotm/releases/latest" |
     grep '"tag_name":' |
@@ -28,6 +30,7 @@ case $(uname -m) in
 version=$(get_latest_release)
 if [ -x "$(command -v dotm)" ] && [ "$version" = "$(dotm --version | cut -d ' ' -f3)" ]; then
     echo "dotm is already installed at the latest version ($version)"
+    exit
 fi
 
 name="dotm_${version}_${target}_${goarch}.tar.gz"
