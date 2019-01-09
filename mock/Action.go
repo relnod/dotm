@@ -5,6 +5,7 @@ package mock
 
 import (
 	"reflect"
+	"time"
 
 	pegomock "github.com/petergtz/pegomock"
 )
@@ -33,26 +34,45 @@ func (mock *MockAction) Run(_param0 string, _param1 string, _param2 string) erro
 }
 
 func (mock *MockAction) VerifyWasCalledOnce() *VerifierAction {
-	return &VerifierAction{mock, pegomock.Times(1), nil}
+	return &VerifierAction{
+		mock:                   mock,
+		invocationCountMatcher: pegomock.Times(1),
+	}
 }
 
 func (mock *MockAction) VerifyWasCalled(invocationCountMatcher pegomock.Matcher) *VerifierAction {
-	return &VerifierAction{mock, invocationCountMatcher, nil}
+	return &VerifierAction{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+	}
 }
 
 func (mock *MockAction) VerifyWasCalledInOrder(invocationCountMatcher pegomock.Matcher, inOrderContext *pegomock.InOrderContext) *VerifierAction {
-	return &VerifierAction{mock, invocationCountMatcher, inOrderContext}
+	return &VerifierAction{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+		inOrderContext:         inOrderContext,
+	}
+}
+
+func (mock *MockAction) VerifyWasCalledEventually(invocationCountMatcher pegomock.Matcher, timeout time.Duration) *VerifierAction {
+	return &VerifierAction{
+		mock:                   mock,
+		invocationCountMatcher: invocationCountMatcher,
+		timeout:                timeout,
+	}
 }
 
 type VerifierAction struct {
 	mock                   *MockAction
 	invocationCountMatcher pegomock.Matcher
 	inOrderContext         *pegomock.InOrderContext
+	timeout                time.Duration
 }
 
 func (verifier *VerifierAction) Run(_param0 string, _param1 string, _param2 string) *Action_Run_OngoingVerification {
 	params := []pegomock.Param{_param0, _param1, _param2}
-	methodInvocations := pegomock.GetGenericMockFrom(verifier.mock).Verify(verifier.inOrderContext, verifier.invocationCountMatcher, "Run", params)
+	methodInvocations := pegomock.GetGenericMockFrom(verifier.mock).Verify(verifier.inOrderContext, verifier.invocationCountMatcher, "Run", params, verifier.timeout)
 	return &Action_Run_OngoingVerification{mock: verifier.mock, methodInvocations: methodInvocations}
 }
 

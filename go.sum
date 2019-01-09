@@ -41,6 +41,8 @@ github.com/pelletier/go-buffruneio v0.2.0 h1:U4t4R6YkofJ5xHm3dJzuRpPZ0mr5MMCoAWo
 github.com/pelletier/go-buffruneio v0.2.0/go.mod h1:JkE26KsDizTr40EUHkXVtNPvgGtbSNq5BcowyYOWdKo=
 github.com/petergtz/pegomock v0.0.0-20180725144810-278dd9bee025 h1:HdQ49I8p0I6RB+sX7ZMJN9Fu03UZETdwTmVoWOqrGk4=
 github.com/petergtz/pegomock v0.0.0-20180725144810-278dd9bee025/go.mod h1:nuBLWZpVyv/fLo56qTwt/AUau7jgouO1h7bEvZCq82o=
+github.com/petergtz/pegomock v0.0.0-20181206220228-b113d17a7e81 h1:MhSbvsIs4KvpPYr4taOvb6j+r9VNbj/08AfjsKi+Ui0=
+github.com/petergtz/pegomock v0.0.0-20181206220228-b113d17a7e81/go.mod h1:nuBLWZpVyv/fLo56qTwt/AUau7jgouO1h7bEvZCq82o=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
