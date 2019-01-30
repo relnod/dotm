@@ -14,9 +14,16 @@ type MockAction struct {
 	fail func(message string, callerSkip ...int)
 }
 
-func NewMockAction() *MockAction {
-	return &MockAction{fail: pegomock.GlobalFailHandler}
+func NewMockAction(options ...pegomock.Option) *MockAction {
+	mock := &MockAction{}
+	for _, option := range options {
+		option.Apply(mock)
+	}
+	return mock
 }
+
+func (mock *MockAction) SetFailHandler(fh pegomock.FailHandler) { mock.fail = fh }
+func (mock *MockAction) FailHandler() pegomock.FailHandler      { return mock.fail }
 
 func (mock *MockAction) Run(_param0 string, _param1 string, _param2 string) error {
 	if mock == nil {

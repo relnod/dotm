@@ -14,9 +14,16 @@ type MockVisitor struct {
 	fail func(message string, callerSkip ...int)
 }
 
-func NewMockVisitor() *MockVisitor {
-	return &MockVisitor{fail: pegomock.GlobalFailHandler}
+func NewMockVisitor(options ...pegomock.Option) *MockVisitor {
+	mock := &MockVisitor{}
+	for _, option := range options {
+		option.Apply(mock)
+	}
+	return mock
 }
+
+func (mock *MockVisitor) SetFailHandler(fh pegomock.FailHandler) { mock.fail = fh }
+func (mock *MockVisitor) FailHandler() pegomock.FailHandler      { return mock.fail }
 
 func (mock *MockVisitor) Visit(_param0 string, _param1 string) error {
 	if mock == nil {
