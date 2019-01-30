@@ -10,7 +10,7 @@
 The installer.sh will automatically install the latest binary from the release
 artifacts.
 ```
-sh <(curl https://raw.githubusercontent.com/relnod/dotm/master/install.sh)
+sh <(curl -s https://raw.githubusercontent.com/relnod/dotm/master/install.sh)
 ```
 By adding the `--user` flag the install directory will be `$HOME/.local/bin`
 instead of `/usr/local/bin`.
