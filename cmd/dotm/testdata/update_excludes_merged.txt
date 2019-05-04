@@ -1,0 +1,20 @@
+# Merges excludes from flag and profile config
+
+dotm update --excludes=bash myprofile
+
+! islink $HOME/.bashrc
+! islink $HOME/.tmux.conf
+islink $HOME/.vimrc
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+    excludes = [
+        "tmux"
+    ]
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/tmux/.tmux.conf --
+-- home/testuser/.config/dotm/profiles/myprofile/vim/.vimrc --

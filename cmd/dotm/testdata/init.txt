@@ -1,0 +1,16 @@
+# Simple test case for init command without customization.
+# It should create a new default profile and link .bashrc
+
+dotm init $HOME/dotfiles
+
+islink $HOME/.bashrc
+# TODO: fix
+# cmpenv config.toml.golden $HOME/.config/dotm/config.toml
+
+-- config.toml.golden --
+[profiles]
+  [profiles.myprofile]
+    path = "$WORK/home/testuser/dotfiles"
+    remote = ""
+
+-- home/testuser/dotfiles/bash/.bashrc --

@@ -3,52 +3,42 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm"
 )
 
-var (
-	updateFromRemote bool
-	msgUpdateSuccess = "Dotfiles were updated successfully"
-	msgUpdateFail    = "Failed to update dotfiles"
-)
+const updateHelp = `Updates the symlinks for a given profile.
+When the --fromRemote flag was set it first pulls from the remote git repository.
+Unless the --no-hooks flag was set, pre and post update hooks are executed.
+
+Example:
+dotm update myprofile`
 
 var updateCmd = &cobra.Command{
-	Use:   "update [profiles]",
-	Short: "Update the profiles",
-	Long:  `Updates all symlinks for the given profiles. When profile "all" is set, all profiles will get updated.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := loadConfig()
-		if err != nil {
-			cmd.Println(msgUpdateFail)
-			return err
-		}
-
-		if len(args) == 0 {
-			args = []string{"all"}
-		}
-
-		err = dotfiles.Update(c, args, &dotfiles.UpdateOptions{
-			UpdateFromRemote: updateFromRemote,
-			Force:            force,
-			Dry:              dry,
-			Hooks:            !noHooks,
-		})
-		if err != nil {
-			cmd.Println(msgUpdateFail)
-			return err
-		}
-
-		cmd.Println(msgUpdateSuccess)
-		return err
-	},
+	Use:       "update profile",
+	Short:     "Updates the symlinks for a given profile.",
+	Long:      updateHelp,
+	Args:      cobra.ExactArgs(1),
 	ValidArgs: []string{"$(dotm list)"},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dotm.Update(
+			args[0],
+			&dotm.UpdateOptions{
+				FromRemote:  fromRemote,
+				ExecHooks:   !noHooks,
+				LinkOptions: linkOptionsFromFlags(),
+			},
+		)
+	},
 }
 
+var (
+	fromRemote bool
+	noHooks    bool
+)
+
 func init() {
-	updateCmd.Flags().BoolVar(&updateFromRemote, "fromRemote", false, "update from remote")
-
-	addForceFlag(updateCmd)
-	addBaseFlags(updateCmd)
-
+	updateCmd.Flags().BoolVar(&fromRemote, "fromRemote", false, "pull updates from remote")
+	updateCmd.Flags().BoolVar(&noHooks, "no-hooks", false, "doesn't exec hooks")
+	addLinkFlags(updateCmd)
 	rootCmd.AddCommand(updateCmd)
 }

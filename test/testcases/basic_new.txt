@@ -1,8 +1,0 @@
-Simple test case for new command
----
----
-dotm new blablub
----
-/home/$USER/.dotfiles/dotm.toml
-/home/$USER/.dotfiles/blablub/
-/home/$USER/.dotfiles/blablub/.git/

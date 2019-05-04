@@ -1,0 +1,17 @@
+# Tests init dry run
+
+dotm init --dry $HOME/dotfiles
+# TODO: fix
+# stdout 'Creating symlink: $WORK/home/testuser/.bashrc'
+
+! islink $HOME/.bashrc
+# TODO: fix
+# cmpenv config.toml.golden $HOME/.config/dotm/config.toml
+
+-- config.toml.golden --
+[profiles]
+  [profiles.myprofile]
+    path = "$WORK/home/testuser/dotfiles"
+    remote = ""
+
+-- home/testuser/dotfiles/bash/.bashrc --

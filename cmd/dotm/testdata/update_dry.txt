@@ -1,0 +1,25 @@
+# Tests update dry run
+
+dotm update --dry myprofile
+exists $HOME/.bashrc
+! islink $HOME/.tmux.conf
+# TODO: fix
+# stdout 'Creating symlink: $WORK/home/testuser/.tmux.conf'
+
+dotm update --dry --force myprofile
+exists $HOME/.bashrc
+! islink $HOME/.tmux.conf
+# TODO: fix
+# stdout 'Creating backup: $WORK/home/testuser/.bashrc'
+# stdout 'Creating symlink: $WORK/home/testuser/.bashrc'
+# stdout 'Creating symlink: $WORK/home/testuser/.tmux.conf'
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/tmux/.tmux.conf --
+-- home/testuser/.bashrc --

@@ -1,0 +1,17 @@
+# Tests force update overrides existing file after creating a backup
+
+dotm update myprofile --force
+
+islink $HOME/.bashrc
+islink $HOME/.bashrc.local
+exists $HOME/.bashrc.local.backup
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc.local --
+-- home/testuser/.bashrc.local --

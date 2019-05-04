@@ -1,8 +1,0 @@
-Don't link when --dry was set
----
-/dotfiles/tmux/.tmux.conf
----
-dotm init /dotfiles --dry
----
-/home/$USER/.dotfiles/dotm.toml
-/home/$USER/.tmux.conf:deleted

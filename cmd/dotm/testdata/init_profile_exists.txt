@@ -1,0 +1,9 @@
+# Init should fail, when the profile already exists.
+
+! dotm init --profile=myprofile $HOME/dotfiles
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$WORK/home/testuser/dotfiles"
+    remote = ""

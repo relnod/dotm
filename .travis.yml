@@ -1,0 +1,19 @@
+language: go
+
+go:
+- 1.12.x
+- master
+
+before_script:
+- go get golang.org/x/lint/golint
+
+branches:
+  only:
+    - master
+
+deploy:
+  - provider: script
+    script:  test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash
+    skip_cleanup: true
+    on:
+      tags: true
