@@ -1,8 +1,0 @@
-Simple test case for update command
----
-/home/$USER/.dotfiles/dotm.toml#[profiles.default]\npath="/dotfiles"
-/dotfiles/tmux/.tmux.conf
----
-dotm update default
----
-/home/$USER/.tmux.conf:ln

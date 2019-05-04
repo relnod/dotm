@@ -1,6 +1,0 @@
-List profiles
----
-/home/$USER/.dotfiles/dotm.toml#[profiles.a]\n[profiles.b]
----
-dotm list:a\nb\n
----

@@ -1,0 +1,19 @@
+# Tests unistall dry run
+
+symlink $HOME/.bashrc -> $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
+
+dotm uninstall --dry myprofile
+islink $HOME/.bashrc
+exists $HOME/.bashrc.backup
+# TODO: fix
+# stdout 'Removing symlink: $WORK/home/testuser/.bashrc'
+# stdout 'Restoring backup: $HOME/.bashrc'
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.bashrc.backup --

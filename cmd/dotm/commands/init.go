@@ -1,57 +1,34 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/dotfiles"
-	"github.com/relnod/dotm/pkg/profile"
+	"github.com/relnod/dotm"
 )
 
-var (
-	remote         = ""
-	msgInitSuccess = "Dotfiles where initialized successfully"
-	msgInitFail    = "Failed to initialize dotfiles at '%s'"
-)
+const initHelp = `Initializes a new dotfile profile from the given path.
+If no profile was set, the profile name will be "default"
+
+Example:
+dotm init --profile=myprofile $HOME/dotfiles`
 
 var initCmd = &cobra.Command{
 	Use:   "init path",
-	Short: "Initialize the dotfiles",
-	Long:  `Initializes the dotfiles from the given path. If no profile was specified, the profile name will be "default"`,
+	Short: "Initialize a new dotfile profile from the given path.",
+	Long:  initHelp,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c := loadOrCreateConfig()
-		err := c.AddProfile(profileName, &profile.Profile{
-			Remote:   remote,
-			Path:     args[0],
-			Excludes: excludes,
-			Includes: includes,
-		})
-		if err != nil {
-			cmd.Println(fmt.Sprintf(msgInitFail, args[0]))
-			return err
-		}
-
-		err = dotfiles.Init(c, []string{profileName}, configPath, &dotfiles.InitOptions{
-			Dry:   dry,
-			Force: force,
-		})
-		if err != nil {
-			cmd.Println(fmt.Sprintf(msgInitFail, args[0]))
-			return err
-		}
-
-		cmd.Println(msgInitSuccess)
-		return nil
+		return dotm.Init(
+			&dotm.Profile{Name: profile, Path: args[0]},
+			&dotm.InitOptions{
+				LinkOptions: linkOptionsFromFlags(),
+			},
+		)
 	},
 }
 
 func init() {
-	initCmd.Flags().StringVarP(&remote, "remote", "r", "", "remote git location")
-
-	addForceFlag(initCmd)
-	addBaseFlags(initCmd)
-
+	addProfileFlag(initCmd)
+	addLinkFlags(initCmd)
 	rootCmd.AddCommand(initCmd)
 }

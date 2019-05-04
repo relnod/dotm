@@ -1,7 +1,0 @@
-Excludes directories with underscore prefix
----
-/dotfiles/_tmux/.tmux.conf
----
-dotm init /dotfiles
----
-/home/$USER/.tmux.conf:deleted

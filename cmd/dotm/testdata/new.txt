@@ -1,0 +1,12 @@
+# Simple test case for new command without customization.
+
+dotm new myprofile
+
+exists $HOME/.config/dotm/profiles/myprofile/.git
+cmp expectedConfig $HOME/.config/dotm/config.toml
+
+-- expectedConfig --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""

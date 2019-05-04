@@ -1,0 +1,15 @@
+# Tests customization for the install command.
+# Should create a custom profile name and a custom path.
+
+dotm install github.com/relnod/dotfiles --profile=custom --path=$HOME/custompath
+
+exists $HOME/custompath/bash/.bashrc
+islink $HOME/.bashrc
+# TODO: fix
+# cmpenv config.toml.golden $HOME/.config/dotm/config.toml
+
+-- config.toml.golden --
+[profiles]
+  [profiles.custom]
+    path = "$WORK/home/testuser/custompath"
+    remote = "https://github.com/relnod/dotfiles.git"

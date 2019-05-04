@@ -3,45 +3,36 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/relnod/dotm/pkg/dotfiles"
+	"github.com/relnod/dotm"
 )
 
-var (
-	msgUnistallSuccess = "Dotfiles where uninstalled successfully"
-	msgUnistallFail    = "Failed to uninstall dotfiles"
-)
+const uninstallHelp = `Removes all symlinks for the given profile.
+Tries to restore backup files.
+
+Example:
+dotm uninstall default
+`
 
 var uninstallCmd = &cobra.Command{
-	Use:   "uninstall [profiles]",
-	Short: "Uninstall the profiles",
-	Long:  `Removes all symlinks for the given profiles. When profile "all" is set, all profiles will get uninstalled.`,
+	Use:       "uninstall [profiles]",
+	Short:     "Uninstall the profiles",
+	Long:      uninstallHelp,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := loadConfig()
-		if err != nil {
-			cmd.Println(msgUnistallFail)
-			return err
-		}
-
-		if len(args) == 0 {
-			args = []string{"all"}
-		}
-
-		err = dotfiles.Uninstall(c, args, &dotfiles.UninstallOptions{
+		err := dotm.Uninstall(args[0], &dotm.UninstallOptions{
 			Dry: dry,
 		})
 		if err != nil {
-			cmd.Println(msgUnistallFail)
 			return err
 		}
 
-		cmd.Println(msgUnistallSuccess)
 		return nil
 	},
-	ValidArgs: []string{"$(dotm list)"},
 }
 
 func init() {
-	addBaseFlags(uninstallCmd)
+	uninstallCmd.Flags().BoolVar(&dry, "dry", false, "perfomes a dry run")
 
 	rootCmd.AddCommand(uninstallCmd)
 }

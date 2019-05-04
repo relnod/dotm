@@ -1,9 +1,0 @@
-Doesn't overwrite file
----
-/dotfiles/tmux/.tmux.conf#b
-/home/$USER/.tmux.conf#a
----
-dotm init /dotfiles
----
-/home/$USER/.dotfiles/dotm.toml
-/home/$USER/.tmux.conf#a

@@ -1,0 +1,15 @@
+# Update excludes all top level dirs prefixed with "_"
+
+dotm update myprofile
+
+islink $HOME/.bashrc
+! islink $HOME/test
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/_data/test --

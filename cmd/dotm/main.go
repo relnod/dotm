@@ -1,7 +1,13 @@
 package main
 
-import "github.com/relnod/dotm/cmd/dotm/commands"
+import (
+	"os"
+
+	"github.com/relnod/dotm/cmd/dotm/commands"
+)
 
 func main() {
-	commands.Execute()
+	if err := commands.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

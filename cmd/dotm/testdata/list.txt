@@ -1,0 +1,14 @@
+# Simple test case for list command.
+
+dotm list
+stdout profile1
+stdout profile2
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.profile1]
+    path = "$HOME/.config/dotm/profiles/profile1/"
+    remote = ""
+  [profiles.profile2]
+    path = "$HOME/.config/dotm/profiles/profile2/"
+    remote = ""

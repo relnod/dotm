@@ -1,0 +1,18 @@
+# Tests unistall command works
+
+symlink $HOME/.bashrc -> $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
+
+dotm uninstall myprofile
+
+exists $HOME/.bashrc
+# TODO: fix
+# ! exists $HOME/.bashrc.backup
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.bashrc.backup --

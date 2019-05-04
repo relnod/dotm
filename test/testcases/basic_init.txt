@@ -1,8 +1,0 @@
-Simple test case for init command
----
-/dotfiles/tmux/.tmux.conf
----
-dotm init /dotfiles
----
-/home/$USER/.dotfiles/dotm.toml
-/home/$USER/.tmux.conf:ln

@@ -3,21 +3,16 @@ package commands
 import (
 	"fmt"
 
+	"github.com/relnod/dotm"
 	"github.com/spf13/cobra"
-)
-
-var (
-	msgListFail = "Failed to list profiles"
 )
 
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all profiles",
-	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := loadConfig()
+		c, err := dotm.LoadConfig()
 		if err != nil {
-			fmt.Println(msgInitFail)
 			return err
 		}
 
@@ -25,7 +20,7 @@ var listCmd = &cobra.Command{
 			fmt.Println(name)
 		}
 
-		return err
+		return nil
 	},
 }
 
