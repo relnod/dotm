@@ -7,9 +7,9 @@ import (
 
 // FindHooks finds all hooks of a given profile.
 // Hooks can be found at:
-// - ~/.dotfiles/dotm.toml
-// - ~/.dotfiles/<profile>/hooks.toml
-// - ~/.dotfiles/<profile>/<top-level-dir>/hooks.toml
+// - ~/.config/dotm/config.toml
+// - ~/.config/dotm/profiles/<profile>/hooks.toml
+// - ~/.config/dotm/profiles/<profile>/<top-level-dir>/hooks.toml
 func (p *Profile) findHooks(opts *TraversalOptions) (*Hooks, error) {
 	var hooks []*Hooks
 

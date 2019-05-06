@@ -5,6 +5,12 @@ dotm update myprofile
 exists $HOME/pre_update
 exists $HOME/post_update
 
+exists $HOME/pre_update2
+exists $HOME/post_update2
+
+exists $HOME/pre_update3
+exists $HOME/post_update3
+
 -- home/testuser/.config/dotm/config.toml --
 [profiles]
   [profiles.myprofile]
@@ -17,4 +23,18 @@ exists $HOME/post_update
         "touch $HOME/post_update"
     ]
 
--- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/hooks.toml --
+pre_update = [
+    "touch $HOME/pre_update2"
+]
+post_update = [
+    "touch $HOME/post_update2"
+]
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/hooks.toml --
+pre_update = [
+    "touch $HOME/pre_update3"
+]
+post_update = [
+    "touch $HOME/post_update3"
+]

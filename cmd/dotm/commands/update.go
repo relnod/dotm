@@ -20,7 +20,8 @@ var updateCmd = &cobra.Command{
 	Args:      cobra.ExactArgs(1),
 	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return dotm.Update(
+		return dotm.UpdateWithContext(
+			interruptContext(),
 			args[0],
 			&dotm.UpdateOptions{
 				FromRemote:  fromRemote,

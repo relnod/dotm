@@ -1,6 +1,7 @@
 package dotm
 
 import (
+	"context"
 	"errors"
 	"os"
 
@@ -18,13 +19,13 @@ var (
 )
 
 // cloneRemote clones the remote repository to the local path.
-func (p *Profile) cloneRemote() error {
+func (p *Profile) cloneRemote(ctx context.Context) error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
 		return xerrors.Errorf("clone: %v", ErrCreateLocalPath)
 	}
 
-	_, err = git.PlainClone(p.expandedPath, false, &git.CloneOptions{
+	_, err = git.PlainCloneContext(ctx, p.expandedPath, false, &git.CloneOptions{
 		URL: p.Remote,
 	})
 	if err != nil {
@@ -42,7 +43,7 @@ var (
 )
 
 // pullRemote pulls updates from the remote repository.
-func (p *Profile) pullRemote() error {
+func (p *Profile) pullRemote(ctx context.Context) error {
 	r, err := git.PlainOpen(p.expandedPath)
 	if err != nil {
 		return ErrOpenRepo
@@ -53,7 +54,7 @@ func (p *Profile) pullRemote() error {
 		return ErrOpenRepo
 	}
 
-	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
+	err = w.PullContext(ctx, &git.PullOptions{RemoteName: "origin"})
 	if err != nil && err != git.NoErrAlreadyUpToDate {
 		return ErrPullRemote
 	}

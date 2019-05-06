@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"golang.org/x/xerrors"
 )
 
 // Hooks represents all hooks.
@@ -21,7 +22,7 @@ type Hooks struct {
 type Hook []string
 
 // ErrExecHook indicates failure during hook exection.
-var ErrExecHook = errors.New("failed to execute hook")
+var ErrExecHook = errors.New("failed exec hook")
 
 // Exec executes a hook.
 func (h Hook) Exec(ctx context.Context) error {
@@ -32,7 +33,7 @@ func (h Hook) Exec(ctx context.Context) error {
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
 		if err != nil {
-			return ErrExecHook
+			return xerrors.Errorf("%v: '%s': %w", ErrExecHook, os.ExpandEnv(cmdRaw), err)
 		}
 	}
 	return nil
@@ -49,10 +50,10 @@ func mergeHooks(hooks ...*Hooks) *Hooks {
 }
 
 // ErrOpenHooksFile indicates a failure while opening a hooks file.
-var ErrOpenHooksFile = errors.New("failed to open hooks file")
+var ErrOpenHooksFile = errors.New("failed open hooks file")
 
 // ErrDecodeHooksFile indicates that the hooks file has a syntax error.
-var ErrDecodeHooksFile = errors.New("failed to decode hooks file")
+var ErrDecodeHooksFile = errors.New("failed decode hooks file")
 
 // LoadHooksFromFile reads a hook file from a given file path.
 func LoadHooksFromFile(path string) (*Hooks, error) {
