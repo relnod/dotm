@@ -1,0 +1,18 @@
+# Tests that a pre/post update hook can be interrupted
+
+! dotminterrupt update myprofile
+
+! islink $HOME/.bashrc
+! exists $HOME/pre_update
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+    pre_update = [
+        "sleep 5s",
+        "touch $HOME/pre_update"
+    ]
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --

@@ -12,8 +12,16 @@ type UpdateOptions struct {
 	LinkOptions
 }
 
-// Update updates the symlinks for the given profile.
+// Update calls UpdateWithContext with the background context.
 func Update(profile string, opts *UpdateOptions) error {
+	return UpdateWithContext(context.Background(), profile, opts)
+}
+
+// UpdateWithContext updates the symlinks for the given profile. When
+// opts.FromRemote is set to true it first pull updates from the remote
+// repository. This operation can be canceled with the passed context.
+// When opts.ExecHooks is passed, pre and post update hooks get executed.
+func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions) error {
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return err
@@ -35,14 +43,14 @@ func Update(profile string, opts *UpdateOptions) error {
 			return err
 		}
 
-		err = hooks.PreUpdate.Exec(context.Background())
+		err = hooks.PreUpdate.Exec(ctx)
 		if err != nil {
 			return err
 		}
 	}
 
 	if opts.FromRemote {
-		err = p.pullRemote()
+		err = p.pullRemote(ctx)
 		if err != nil {
 			return err
 		}
@@ -54,7 +62,7 @@ func Update(profile string, opts *UpdateOptions) error {
 	}
 
 	if opts.ExecHooks {
-		err = hooks.PostUpdate.Exec(context.Background())
+		err = hooks.PostUpdate.Exec(ctx)
 		if err != nil {
 			return err
 		}

@@ -1,6 +1,7 @@
 package dotm
 
 import (
+	"context"
 	"errors"
 	"os"
 )
@@ -16,9 +17,15 @@ var ErrProfileExists = errors.New("profile already exists")
 // ErrProfilePathExists indicates, that the profile path already exists.
 var ErrProfilePathExists = errors.New("profile path already exists")
 
-// Install installs a new dotfile profile by cloning the remote repository to
-// the local path.
+// Install calls InstallWithContext with the background context.
 func Install(p *Profile, opts *InstallOptions) error {
+	return InstallWithContext(context.Background(), p, opts)
+}
+
+// InstallWithContext installs a new dotfile profile by cloning the remote
+// repository to the local path. The clone operation can be canceled with the
+// passed context.
+func InstallWithContext(ctx context.Context, p *Profile, opts *InstallOptions) error {
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return err
@@ -36,7 +43,7 @@ func Install(p *Profile, opts *InstallOptions) error {
 		return ErrProfilePathExists
 	}
 
-	err = p.cloneRemote()
+	err = p.cloneRemote(ctx)
 	if err != nil {
 		return err
 	}
