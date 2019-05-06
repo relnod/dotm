@@ -17,7 +17,7 @@ func Uninstall(profile string, opts *UninstallOptions) error {
 		return err
 	}
 
-	err = p.expandVars()
+	err = p.expandEnv()
 	if err != nil {
 		return err
 	}

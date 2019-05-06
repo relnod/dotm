@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/relnod/dotm"
 	"github.com/spf13/cobra"
 )
@@ -9,6 +11,12 @@ var path string
 
 func addPathFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&path, "path", "$HOME/.config/dotm/profiles/<PROFILE>/", "path to local dotfiles profile")
+}
+
+// sanitizePath replaces "<PROFILE>" inside path with the given profile. This
+// might come from the default path.
+func sanitizePath(path, profile string) string {
+	return strings.Replace(path, "<PROFILE>", profile, 1)
 }
 
 var profile string

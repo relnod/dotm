@@ -55,7 +55,7 @@ func LoadConfig() (*Config, error) {
 
 	for name, p := range c.Profiles {
 		p.Name = name
-		err := p.expandVars()
+		err := p.expandEnv()
 		if err != nil {
 			return nil, err
 		}
