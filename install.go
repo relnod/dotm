@@ -26,15 +26,16 @@ func Install(p *Profile, opts *InstallOptions) error {
 // repository to the local path. The clone operation can be canceled with the
 // passed context.
 func InstallWithContext(ctx context.Context, p *Profile, opts *InstallOptions) error {
+	p.sanitize()
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return err
 	}
-	if _, ok := c.Profiles[p.Name]; ok {
+	if _, err = c.Profile(p.Name); err == nil {
 		return ErrProfileExists
 	}
 
-	err = p.expandVars()
+	err = p.expandEnv()
 	if err != nil {
 		return err
 	}

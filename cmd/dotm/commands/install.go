@@ -20,7 +20,11 @@ var installCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.InstallWithContext(
 			interruptContext(),
-			&dotm.Profile{Name: profile, Remote: args[0], Path: path},
+			&dotm.Profile{
+				Name:   profile,
+				Remote: args[0],
+				Path:   sanitizePath(path, profile),
+			},
 			&dotm.InstallOptions{
 				LinkOptions: linkOptionsFromFlags(),
 			},

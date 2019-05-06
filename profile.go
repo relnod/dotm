@@ -15,21 +15,37 @@ type Profile struct {
 	Excludes []string `toml:"excludes"`
 	Hooks
 
+	// expandedPath contains the Path after it was expanded.
 	expandedPath string `toml:"-"`
 }
 
-// expandVars expands several variables with environment variables.
-func (p *Profile) expandVars() (err error) {
-	p.Path = strings.Replace(p.Path, "<PROFILE>", p.Name, 1)
+// sanitize changes public fields in the profile. Therfore this changes the
+// profile.
+func (p *Profile) sanitize() {
+	p.Remote = sanitizeRemote(p.Remote)
+}
+
+// sanitizeRemote checks if the remote is a valid git remote. If not it assumes
+// the remote is of the form "domain/user/repo" and converts this to a valid
+// https remote.
+func sanitizeRemote(remote string) string {
+	if strings.HasPrefix(remote, "git@") || strings.HasPrefix(remote, "https://") || remote == "" {
+		return remote
+	}
+	return "https://" + remote + ".git"
+}
+
+// expandEnv expands several variables with environment variables.
+func (p *Profile) expandEnv() (err error) {
 	p.expandedPath, err = expandPath(p.Path)
 	if err != nil {
 		return err
 	}
-	p.Remote = os.ExpandEnv(p.Remote)
-	p.Remote = expandRemote(p.Remote)
 	return err
 }
 
+// expandPath expands the given path with environment variables and converts it
+// to an absolute path, if the path is relative.
 func expandPath(path string) (string, error) {
 	path = os.ExpandEnv(path)
 
@@ -42,11 +58,4 @@ func expandPath(path string) (string, error) {
 	}
 
 	return path, nil
-}
-
-func expandRemote(remote string) string {
-	if strings.HasPrefix(remote, "git@") || strings.HasPrefix(remote, "https://") || remote == "" {
-		return remote
-	}
-	return "https://" + remote + ".git"
 }

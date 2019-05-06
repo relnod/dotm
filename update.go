@@ -31,7 +31,7 @@ func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions)
 		return err
 	}
 
-	err = p.expandVars()
+	err = p.expandEnv()
 	if err != nil {
 		return err
 	}
