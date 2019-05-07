@@ -1,0 +1,45 @@
+# Simple test case for list command.
+
+dotm config profile1 --path
+stdout mypath
+
+dotm config profile1 --remote
+stdout myremote
+
+dotm config profile1 --includes
+stdout a
+stdout b
+
+dotm config profile1 --excludes
+stdout c
+stdout d
+
+dotm config profile1 --pre-updates
+stdout e
+stdout f
+
+dotm config profile1 --post-updates
+stdout g
+stdout h
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.profile1]
+    path = "mypath"
+    remote = "myremote"
+    includes = [
+        "a",
+        "b"
+    ]
+    excludes = [
+        "c",
+        "d"
+    ]
+    pre_update = [
+        "e",
+        "f"
+    ]
+    post_update = [
+        "g",
+        "h"
+    ]
