@@ -17,17 +17,11 @@ func Uninstall(profile string, opts *UninstallOptions) error {
 		return err
 	}
 
-	err = p.expandEnv()
-	if err != nil {
-		return err
-	}
-
 	err = p.unlink(opts.Dry)
 	if err != nil {
 		return err
 	}
 
-	c.Profiles[p.Name] = p
 	c.Write()
 
 	return nil

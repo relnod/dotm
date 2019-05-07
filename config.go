@@ -24,12 +24,18 @@ type Config struct {
 // the config file.
 var ErrProfileNotExists = errors.New("profile does not exist")
 
-// Profile returns the profile with the corresponding name. If no profile with
-// the given name exists an error get returned.
+// Profile returns the profile with the corresponding name. The returned profile
+// has expanded vars.
+//
+// If no profile with the given name exists an error get returned.
 func (c *Config) Profile(name string) (*Profile, error) {
 	p, ok := c.Profiles[name]
 	if !ok {
 		return nil, ErrProfileNotExists
+	}
+	err := p.expandEnv()
+	if err != nil {
+		return nil, err
 	}
 	return p, nil
 }
@@ -37,27 +43,50 @@ func (c *Config) Profile(name string) (*Profile, error) {
 // ErrProfilePathExists indicates, that the profile path already exists.
 var ErrProfilePathExists = errors.New("profile path already exists")
 
-// AddProfile adds a new profile. If a profile with the same name exists, it
-// returns an error. If the profile path already exists, it returns an error.
-func (c *Config) AddProfile(p *Profile) error {
-	if _, err := os.Stat(p.expandedPath); err == nil {
-		return ErrProfilePathExists
-	}
-	return c.AddProfileFromExistingPath(p)
-}
-
 // ErrProfileExists indicates, a profile with the same name already exists
 var ErrProfileExists = errors.New("profile already exists")
 
-// AddProfileFromExistingPath adds a new profile. If a profile with the same
-// name exists, it returns an error.
-func (c *Config) AddProfileFromExistingPath(p *Profile) error {
+// AddProfile adds a new profile. If a profile with the same name exists, it
+// returns an error.
+//
+// It sanitizes and expands vars.
+//
+// If the profile path already exists, it returns an error.
+// If a profile with the same name exists, it returns an error.
+func (c *Config) AddProfile(p *Profile) (*Profile, error) {
+	p.sanitize()
+	if err := p.expandEnv(); err != nil {
+		return nil, err
+	}
+
+	if _, err := os.Stat(p.expandedPath); err == nil {
+		return nil, ErrProfilePathExists
+	}
 	if _, err := c.Profile(p.Name); err == nil {
-		return ErrProfileExists
+		return nil, ErrProfileExists
 	}
 
 	c.Profiles[p.Name] = p
-	return nil
+	return p, nil
+}
+
+// AddProfileFromExistingPath adds a new profile.
+//
+// It sanitizes and expands vars.
+//
+// If a profile with the same name exists, it returns an error.
+func (c *Config) AddProfileFromExistingPath(p *Profile) (*Profile, error) {
+	p.sanitize()
+	if err := p.expandEnv(); err != nil {
+		return nil, err
+	}
+
+	if _, err := c.Profile(p.Name); err == nil {
+		return nil, ErrProfileExists
+	}
+
+	c.Profiles[p.Name] = p
+	return p, nil
 }
 
 // ErrOpenConfig indicates that the config file doesn't exist.
