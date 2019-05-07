@@ -7,16 +7,17 @@ type InitOptions struct {
 
 // Init initializes a new dotfile profile from an existing local path.
 func Init(p *Profile, opts *InitOptions) error {
-	p.sanitize()
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return err
 	}
-	if _, err = c.Profile(p.Name); err == nil {
-		return ErrProfileExists
-	}
 
+	p.sanitize()
 	err = p.expandEnv()
+	if err != nil {
+		return err
+	}
+	err = c.AddProfileFromExistingPath(p)
 	if err != nil {
 		return err
 	}
@@ -30,7 +31,6 @@ func Init(p *Profile, opts *InitOptions) error {
 	remoteURL, _ := p.detectRemote()
 	p.Remote = remoteURL
 
-	c.Profiles[p.Name] = p
 	c.Write()
 
 	return nil
