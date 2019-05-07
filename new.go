@@ -7,12 +7,7 @@ func New(p *Profile) error {
 		return err
 	}
 
-	p.sanitize()
-	err = p.expandEnv()
-	if err != nil {
-		return err
-	}
-	err = c.AddProfile(p)
+	p, err = c.AddProfile(p)
 	if err != nil {
 		return err
 	}

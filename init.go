@@ -12,12 +12,7 @@ func Init(p *Profile, opts *InitOptions) error {
 		return err
 	}
 
-	p.sanitize()
-	err = p.expandEnv()
-	if err != nil {
-		return err
-	}
-	err = c.AddProfileFromExistingPath(p)
+	p, err = c.AddProfileFromExistingPath(p)
 	if err != nil {
 		return err
 	}

@@ -22,16 +22,11 @@ func Update(profile string, opts *UpdateOptions) error {
 // repository. This operation can be canceled with the passed context.
 // When opts.ExecHooks is passed, pre and post update hooks get executed.
 func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions) error {
-	c, err := LoadOrCreateConfig()
+	c, err := LoadConfig()
 	if err != nil {
 		return err
 	}
 	p, err := c.Profile(profile)
-	if err != nil {
-		return err
-	}
-
-	err = p.expandEnv()
 	if err != nil {
 		return err
 	}
