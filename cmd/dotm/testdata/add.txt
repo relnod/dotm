@@ -1,0 +1,20 @@
+# Simple test case for add command.
+
+# TODO: fix test
+# dotm add myprofile nvim .config/nvim/init.vim
+# exists $HOME/.config/dotm/profiles/myprofile/nvim/.config/nvim/init.vim
+# islink $HOME/.config/nvim/init.vim
+
+dotm add myprofile bash .bashrc
+exists $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
+islink $HOME/.bashrc
+exists $HOME/.bashrc.backup
+
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.bashrc --
