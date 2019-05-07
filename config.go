@@ -34,6 +34,32 @@ func (c *Config) Profile(name string) (*Profile, error) {
 	return p, nil
 }
 
+// ErrProfilePathExists indicates, that the profile path already exists.
+var ErrProfilePathExists = errors.New("profile path already exists")
+
+// AddProfile adds a new profile. If a profile with the same name exists, it
+// returns an error. If the profile path already exists, it returns an error.
+func (c *Config) AddProfile(p *Profile) error {
+	if _, err := os.Stat(p.expandedPath); err == nil {
+		return ErrProfilePathExists
+	}
+	return c.AddProfileFromExistingPath(p)
+}
+
+// ErrProfileExists indicates, a profile with the same name already exists
+var ErrProfileExists = errors.New("profile already exists")
+
+// AddProfileFromExistingPath adds a new profile. If a profile with the same
+// name exists, it returns an error.
+func (c *Config) AddProfileFromExistingPath(p *Profile) error {
+	if _, err := c.Profile(p.Name); err == nil {
+		return ErrProfileExists
+	}
+
+	c.Profiles[p.Name] = p
+	return nil
+}
+
 // ErrOpenConfig indicates that the config file doesn't exist.
 var ErrOpenConfig = xerrors.Errorf("failed to open config")
 

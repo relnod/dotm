@@ -2,20 +2,12 @@ package dotm
 
 import (
 	"context"
-	"errors"
-	"os"
 )
 
 // InstallOptions are the options used to install a dotfile profile.
 type InstallOptions struct {
 	LinkOptions
 }
-
-// ErrProfileExists indicates, that the profile already exists.
-var ErrProfileExists = errors.New("profile already exists")
-
-// ErrProfilePathExists indicates, that the profile path already exists.
-var ErrProfilePathExists = errors.New("profile path already exists")
 
 // Install calls InstallWithContext with the background context.
 func Install(p *Profile, opts *InstallOptions) error {
@@ -26,22 +18,19 @@ func Install(p *Profile, opts *InstallOptions) error {
 // repository to the local path. The clone operation can be canceled with the
 // passed context.
 func InstallWithContext(ctx context.Context, p *Profile, opts *InstallOptions) error {
-	p.sanitize()
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return err
 	}
-	if _, err = c.Profile(p.Name); err == nil {
-		return ErrProfileExists
-	}
 
+	p.sanitize()
 	err = p.expandEnv()
 	if err != nil {
 		return err
 	}
-
-	if _, err := os.Stat(p.expandedPath); err == nil {
-		return ErrProfilePathExists
+	err = c.AddProfile(p)
+	if err != nil {
+		return err
 	}
 
 	err = p.cloneRemote(ctx)
@@ -54,7 +43,6 @@ func InstallWithContext(ctx context.Context, p *Profile, opts *InstallOptions) e
 		return err
 	}
 
-	c.Profiles[p.Name] = p
 	c.Write()
 
 	return nil
