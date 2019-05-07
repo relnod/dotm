@@ -1,8 +1,8 @@
 package file
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -16,7 +16,7 @@ func backupPath(path string) string {
 // perfomers a dry run, by printing the performed action.
 func Backup(file string, dry bool) error {
 	if dry {
-		fmt.Printf("Creating backup: %s\n", file)
+		log.Printf("Creating backup: %s\n", file)
 		return nil
 	}
 	return moveFile(file, backupPath(file))
@@ -29,7 +29,7 @@ func RestoreBackup(file string, dry bool) error {
 		return nil
 	}
 	if dry {
-		fmt.Printf("Restoring backup: %s\n", file)
+		log.Printf("Restoring backup: %s\n", file)
 		return nil
 	}
 	return moveFile(backupPath(file), file)

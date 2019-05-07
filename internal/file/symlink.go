@@ -1,8 +1,7 @@
 package file
 
 import (
-	"errors"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -19,20 +18,17 @@ func IsSymlink(path string) bool {
 	return true
 }
 
-// ErrCreatingSymlink indicates a failure during symlink creation.
-var ErrCreatingSymlink = errors.New("failed to create symlink")
-
 // Link creates a symbolik link from source to dest. When dry is true only
 // perfomers a dry run, by printing the perfomed action.
 func Link(source string, dest string, dry bool) error {
 	if dry {
-		fmt.Printf("Creating symlink: %s -> %s\n", source, dest)
+		log.Printf("Creating symlink: %s -> %s\n", source, dest)
 		return nil
 	}
 
 	err := os.Symlink(source, dest)
 	if err != nil {
-		return ErrCreatingSymlink
+		return err
 	}
 
 	return nil
@@ -42,7 +38,7 @@ func Link(source string, dest string, dry bool) error {
 // perfomers a dry run, by printing the performed action.
 func Unlink(filepath string, dry bool) error {
 	if dry {
-		fmt.Printf("Removing symlink: %s\n", filepath)
+		log.Printf("Removing symlink: %s\n", filepath)
 		return nil
 	}
 	err := os.Remove(filepath)
