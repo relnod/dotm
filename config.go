@@ -3,12 +3,12 @@ package dotm
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"golang.org/x/xerrors"
 )
 
 // configPath is the path to the configuration file
@@ -90,10 +90,10 @@ func (c *Config) AddProfileFromExistingPath(p *Profile) (*Profile, error) {
 }
 
 // ErrOpenConfig indicates that the config file doesn't exist.
-var ErrOpenConfig = xerrors.Errorf("failed to open config")
+var ErrOpenConfig = errors.New("failed to open config")
 
 // ErrDecodeConfig indicates that there is a syntax error in the config file.
-var ErrDecodeConfig = xerrors.Errorf("failed to decode config")
+var ErrDecodeConfig = errors.New("failed to decode config")
 
 // LoadConfig loads the config file.
 func LoadConfig() (*Config, error) {
@@ -132,13 +132,13 @@ func LoadOrCreateConfig() (*Config, error) {
 }
 
 // ErrCreateConfigDir indicates a failure during the creation of the config dir.
-var ErrCreateConfigDir = xerrors.Errorf("failed to create config dir (%s)", filepath.Dir(configPath))
+var ErrCreateConfigDir = fmt.Errorf("failed to create config dir (%s)", filepath.Dir(configPath))
 
 // ErrCreateConfigFile indicates a failure during the creation file.
-var ErrCreateConfigFile = xerrors.Errorf("failed to create config file (%s)", configPath)
+var ErrCreateConfigFile = fmt.Errorf("failed to create config file (%s)", configPath)
 
 // ErrEncodeConfig indicates a failure during the encoding of the config file.
-var ErrEncodeConfig = xerrors.Errorf("failed to encode config")
+var ErrEncodeConfig = errors.New("failed to encode config")
 
 // Write writes the config file.
 func (c *Config) Write() error {

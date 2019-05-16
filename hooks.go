@@ -3,13 +3,13 @@ package dotm
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"golang.org/x/xerrors"
 )
 
 // Hooks represents all hooks.
@@ -33,7 +33,7 @@ func (h Hook) Exec(ctx context.Context) error {
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
 		if err != nil {
-			return xerrors.Errorf("%v: '%s': %w", ErrExecHook, os.ExpandEnv(cmdRaw), err)
+			return fmt.Errorf("%v: '%s': %s", ErrExecHook, os.ExpandEnv(cmdRaw), err)
 		}
 	}
 	return nil
