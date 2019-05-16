@@ -6,6 +6,8 @@ exists $HOME/.config/dotm/profiles/myprofile/.git
 cmp expectedConfig $HOME/.config/dotm/config.toml
 
 -- expectedConfig --
+ignore_prefix = "_"
+
 [profiles]
   [profiles.myprofile]
     path = "$HOME/.config/dotm/profiles/myprofile/"

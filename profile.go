@@ -349,18 +349,23 @@ func (p *Profile) detectRemote() (string, error) {
 
 // TraversalOptions are used during the dotfile traversal.
 type TraversalOptions struct {
-	Includes []string
-	Excludes []string
+	Includes     []string
+	Excludes     []string
+	IgnorePrefix string
 }
 
 func (p *Profile) traverse(visitor fileutil.Visitor, opts *TraversalOptions) error {
+	if opts == nil {
+		opts = &TraversalOptions{}
+	}
+
 	topLevelDirs, err := p.topLevelDirs(opts)
 	if err != nil {
 		return err
 	}
 
 	for _, d := range topLevelDirs {
-		err := fileutil.RecTraverseDir(filepath.Join(p.expandedPath, d), visitor)
+		err := fileutil.RecTraverseDir(filepath.Join(p.expandedPath, d), visitor, opts.IgnorePrefix)
 		if err != nil {
 			return err
 		}
@@ -369,17 +374,17 @@ func (p *Profile) traverse(visitor fileutil.Visitor, opts *TraversalOptions) err
 }
 
 func (p *Profile) topLevelDirs(opts *TraversalOptions) ([]string, error) {
+	if opts == nil {
+		opts = &TraversalOptions{}
+	}
+
 	files, err := ioutil.ReadDir(p.expandedPath)
 	if err != nil {
 		return nil, err
 	}
 
-	includes := p.Includes
-	excludes := p.Excludes
-	if opts != nil {
-		includes = append(includes, opts.Includes...)
-		excludes = append(excludes, opts.Excludes...)
-	}
+	includes := append(p.Includes, opts.Includes...)
+	excludes := append(p.Excludes, opts.Excludes...)
 
 	dirs := []string{}
 	for _, f := range files {
@@ -389,7 +394,7 @@ func (p *Profile) topLevelDirs(opts *TraversalOptions) ([]string, error) {
 		if !isIncluded(f.Name(), includes) {
 			continue
 		}
-		if isExcluded(f.Name(), excludes) {
+		if isExcluded(f.Name(), excludes, opts.IgnorePrefix) {
 			continue
 		}
 
@@ -403,9 +408,9 @@ func (p *Profile) topLevelDirs(opts *TraversalOptions) ([]string, error) {
 var alwaysExcluded = []string{".git"}
 
 // isExcluded checks if the dir should be excluded.
-// Also excludes all directories prefixed with a "_".
-func isExcluded(dir string, excludes []string) bool {
-	if strings.HasPrefix(dir, "_") {
+// Also excludes all directories prefixed with the ignorePrefix.
+func isExcluded(dir string, excludes []string, ignorePrefix string) bool {
+	if ignorePrefix != "" && strings.HasPrefix(dir, ignorePrefix) {
 		return true
 	}
 	excludes = append(excludes, alwaysExcluded...)

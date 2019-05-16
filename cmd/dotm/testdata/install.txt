@@ -8,6 +8,8 @@ islink $HOME/.bashrc
 cmp expectedConfig $HOME/.config/dotm/config.toml
 
 -- expectedConfig --
+ignore_prefix = "_"
+
 [profiles]
   [profiles.default]
     path = "$HOME/.config/dotm/profiles/default/"

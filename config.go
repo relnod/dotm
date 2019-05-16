@@ -17,6 +17,14 @@ var configPath = os.ExpandEnv("$HOME/.config/dotm/config.toml")
 // Config represents the configuration file for dotm.
 // A configuration file consists of multiple profiles.
 type Config struct {
+	// Ingoreprefix is a prefix to be ignored when traversing the dotfiles.
+	// Both directories and files get ignored if they have the prefix.
+	// For directories with the prefix, all sub directories get ignored aswell.
+	//
+	// The default value is "_".
+	IgnorePrefix string `toml:"ignore_prefix"`
+
+	// Profiles is the list of profiles.
 	Profiles map[string]*Profile `toml:"profiles"`
 }
 
@@ -124,7 +132,10 @@ func LoadOrCreateConfig() (*Config, error) {
 	c, err := LoadConfig()
 	if err != nil {
 		if err == ErrOpenConfig {
-			return &Config{make(map[string]*Profile)}, nil
+			return &Config{
+				IgnorePrefix: "_", // set default value for the ignored prefix.
+				Profiles:     make(map[string]*Profile),
+			}, nil
 		}
 		return nil, err
 	}
