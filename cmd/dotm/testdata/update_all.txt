@@ -1,0 +1,18 @@
+# Updates all dotfile profiles when no profile was given
+
+dotm update
+
+islink $HOME/.bashrc
+islink $HOME/.tmux.conf
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.profile1]
+    path = "$HOME/.config/dotm/profiles/profile1/"
+    remote = ""
+  [profiles.profile2]
+    path = "$HOME/.config/dotm/profiles/profile2/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/profile1/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/profile2/tmux/.tmux.conf --

@@ -123,20 +123,39 @@ func Update(profile string, opts *UpdateOptions) error {
 	return UpdateWithContext(context.Background(), profile, opts)
 }
 
-// UpdateWithContext updates the symlinks for the given profile. When
-// opts.FromRemote is set to true it first pull updates from the remote
-// repository. This operation can be canceled with the passed context.
-// When opts.ExecHooks is passed, pre and post update hooks get executed.
+// UpdateWithContext updates the symlinks for the given profile.
+//
+// When the given profile is empty all profiles get updated.
 func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions) error {
 	c, err := LoadConfig()
 	if err != nil {
 		return err
 	}
+
+	// When the profile name is empty update all profiles.
+	if profile == "" {
+		for _, p := range c.Profiles {
+			err = update(ctx, p, opts)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
 	p, err := c.Profile(profile)
 	if err != nil {
 		return err
 	}
+	return update(ctx, p, opts)
+}
 
+// update updates the symlinks for a given profile.
+//
+// When opts.FromRemote is set to true it first pull updates from the remote
+// repository. This operation can be canceled with the passed context.
+// When opts.ExecHooks is passed, pre and post update hooks get executed.
+func update(ctx context.Context, p *Profile, opts *UpdateOptions) (err error) {
 	var hooks *Hooks
 	if opts.ExecHooks {
 		hooks, err = p.findHooks(&opts.TraversalOptions)
