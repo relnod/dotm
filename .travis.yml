@@ -2,7 +2,6 @@ language: go
 
 go:
 - 1.12.x
-- master
 
 before_script:
 - go get golang.org/x/lint/golint
