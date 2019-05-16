@@ -1,6 +1,8 @@
 package dotm
 
-import "context"
+import (
+	"context"
+)
 
 // New creates a new dotfile profile.
 func New(p *Profile) error {
@@ -131,6 +133,8 @@ func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions)
 	if err != nil {
 		return err
 	}
+
+	opts.LinkOptions.TraversalOptions.IgnorePrefix = c.IgnorePrefix
 
 	// When the profile name is empty update all profiles.
 	if profile == "" {

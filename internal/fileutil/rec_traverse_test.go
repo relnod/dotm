@@ -29,7 +29,7 @@ func TestRecTraverseDir(t *testing.T) {
 	visitor := &testVisitor{
 		visits: []visit{},
 	}
-	err := fileutil.RecTraverseDir("./testdata", visitor)
+	err := fileutil.RecTraverseDir("./testdata", visitor, "_")
 	if err != nil {
 		t.Fatal(err)
 	}

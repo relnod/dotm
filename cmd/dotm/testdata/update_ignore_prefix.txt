@@ -1,0 +1,21 @@
+# Update excludes dirs and files prefixed with the ignore_prefix
+
+dotm update myprofile
+
+! islink $HOME/_bashrc
+! islink $HOME/_bar/foo
+! islink $HOME/test
+! islink $HOME/foo/bar
+
+-- home/testuser/.config/dotm/config.toml --
+ignore_prefix = "_"
+
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/data1/_bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/data1/_bar/foo --
+-- home/testuser/.config/dotm/profiles/myprofile/_data2/test --
+-- home/testuser/.config/dotm/profiles/myprofile/_data3/foo/bar --
