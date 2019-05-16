@@ -3,6 +3,7 @@ package dotm
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -101,7 +102,7 @@ func (p *Profile) link(opts LinkOptions) error {
 		dry:    opts.Dry,
 	}, &opts.TraversalOptions)
 	if err != nil {
-		return xerrors.Errorf("link: ", err)
+		return fmt.Errorf("link: %s", err)
 	}
 	return nil
 }
@@ -160,7 +161,7 @@ func (p *Profile) unlink(dry bool) error {
 		dry:  dry,
 	}, nil)
 	if err != nil {
-		return xerrors.Errorf("unlink: ", err)
+		return fmt.Errorf("unlink: %s", err)
 	}
 	return nil
 }
@@ -288,14 +289,14 @@ var (
 func (p *Profile) cloneRemote(ctx context.Context) error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
-		return xerrors.Errorf("clone: %v", ErrCreateLocalPath)
+		return fmt.Errorf("clone: %v", ErrCreateLocalPath)
 	}
 
 	_, err = git.PlainCloneContext(ctx, p.expandedPath, false, &git.CloneOptions{
 		URL: p.Remote,
 	})
 	if err != nil {
-		return xerrors.Errorf("clone: %v: %v", ErrCloneRemote, err)
+		return fmt.Errorf("clone: %v: %v", ErrCloneRemote, err)
 	}
 	return nil
 }
