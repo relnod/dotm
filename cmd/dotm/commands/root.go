@@ -114,7 +114,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dotm",
 	Short:        "Dotm is a dotfile manager",
 	Long:         rootHelp,
-	Version:      "v0.3.0",
+	Version:      "v0.4.0",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
