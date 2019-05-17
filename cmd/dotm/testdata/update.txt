@@ -1,9 +1,14 @@
 # Simple test case for update command.
 
+# Create a symlink. The symlink should be overriden, even without the --force
+# option!
+symlink $HOME/.tmux.conf -> $HOME/.tmux.conf-link
+
 dotm update myprofile
 
 islink $HOME/.bashrc $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
 ! islink $HOME/.bashrc.local
+islink $HOME/.tmux.conf $HOME/.config/dotm/profiles/myprofile/tmux/.tmux.conf
 
 -- home/testuser/.config/dotm/config.toml --
 [profiles]
@@ -13,4 +18,7 @@ islink $HOME/.bashrc $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
 
 -- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
 -- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc.local --
+-- home/testuser/.config/dotm/profiles/myprofile/tmux/.tmux.conf --
+
 -- home/testuser/.bashrc.local --
+-- home/testuser/.tmux.conf-link --

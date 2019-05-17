@@ -127,21 +127,23 @@ func (l *linker) Visit(path, relativePath string) error {
 
 	destFile := filepath.Join(l.dest, relativePath)
 
-	// Check if the destination file already exists.
-	if _, err := os.Stat(destFile); err == nil {
+	// Check if the file is a symlink. If so remove it, even if the force option
+	// is not set.
+	if file.IsSymlink(destFile) {
+		err = file.Unlink(destFile, l.dry)
+		if err != nil {
+			return err
+		}
+
+		// Check if the destination file already exists.
+		// If it exists create a backup file.
+	} else if _, err := os.Stat(destFile); err == nil {
 		if !l.force {
 			return nil
 		}
-		if file.IsSymlink(destFile) {
-			err = file.Unlink(destFile, l.dry)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = file.Backup(destFile, l.dry)
-			if err != nil {
-				return err
-			}
+		err = file.Backup(destFile, l.dry)
+		if err != nil {
+			return err
 		}
 	}
 
