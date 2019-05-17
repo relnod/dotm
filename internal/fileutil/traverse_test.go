@@ -22,9 +22,9 @@ func (v *testVisitor) Visit(path, name string) error {
 
 func TestRecTraverseDir(t *testing.T) {
 	expectedVisits := []visit{
-		visit{"a", "a"},
-		visit{"a", "b"},
-		visit{"c/a", "a"},
+		visit{"testdata/a/a", "a/a"},
+		visit{"testdata/a/b", "a/b"},
+		visit{"testdata/c/a/a", "c/a/a"},
 	}
 	visitor := &testVisitor{
 		visits: []visit{},

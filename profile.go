@@ -96,10 +96,9 @@ type LinkOptions struct {
 // link links all files to the home directory.
 func (p *Profile) link(opts LinkOptions) error {
 	err := p.traverse(&linker{
-		source: p.expandedPath,
-		dest:   os.Getenv("HOME"),
-		force:  opts.Force,
-		dry:    opts.Dry,
+		dest:  os.Getenv("HOME"),
+		force: opts.Force,
+		dry:   opts.Dry,
 	}, &opts.TraversalOptions)
 	if err != nil {
 		return fmt.Errorf("link: %s", err)
@@ -109,9 +108,6 @@ func (p *Profile) link(opts LinkOptions) error {
 
 // linker implements fileutil.Visitor
 type linker struct {
-	// source is the path from where to link from
-	source string
-
 	// dest is the path where the files get linked to
 	dest string
 
@@ -123,16 +119,13 @@ type linker struct {
 //destination dir
 var ErrCreatingDestination = errors.New("failed to created destination dir")
 
-func (l *linker) Visit(path, name string) error {
-	err := os.MkdirAll(filepath.Join(l.dest, path), os.ModePerm)
+func (l *linker) Visit(path, relativePath string) error {
+	err := os.MkdirAll(filepath.Join(l.dest, filepath.Dir(relativePath)), os.ModePerm)
 	if err != nil {
 		return ErrCreatingDestination
 	}
 
-	var (
-		sourceFile = filepath.Join(l.source, path, name)
-		destFile   = filepath.Join(l.dest, path, name)
-	)
+	destFile := filepath.Join(l.dest, relativePath)
 
 	// Check if the destination file already exists.
 	if _, err := os.Stat(destFile); err == nil {
@@ -152,7 +145,7 @@ func (l *linker) Visit(path, name string) error {
 		}
 	}
 
-	return file.Link(sourceFile, destFile, l.dry)
+	return file.Link(path, destFile, l.dry)
 }
 
 func (p *Profile) unlink(dry bool) error {
@@ -173,8 +166,8 @@ type unlinker struct {
 	dry bool
 }
 
-func (u *unlinker) Visit(path, name string) error {
-	filepath := filepath.Join(u.path, path, name)
+func (u *unlinker) Visit(path, relativePath string) error {
+	filepath := filepath.Join(u.path, relativePath)
 
 	// Check if the file file exists.
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
