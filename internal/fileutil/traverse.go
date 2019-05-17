@@ -10,7 +10,7 @@ import (
 type Visitor interface {
 	// Visit gets called for each file. The path is a relative path from the
 	// start of the traversal. The name is the file name beeing visited.
-	Visit(path string, name string) error
+	Visit(path, relativePath string) error
 }
 
 // RecTraverseDir recursively traverses all directories starting at dir.
@@ -21,7 +21,7 @@ func RecTraverseDir(dir string, visitor Visitor, ignorePrefix string) error {
 	return recTraverseDir(dir, "", visitor, ignorePrefix)
 }
 
-func recTraverseDir(dir, dirRelativeFromStart string, visitor Visitor, ignorePrefix string) error {
+func recTraverseDir(dir, relativeDir string, visitor Visitor, ignorePrefix string) error {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func recTraverseDir(dir, dirRelativeFromStart string, visitor Visitor, ignorePre
 		if f.IsDir() {
 			err := recTraverseDir(
 				filepath.Join(dir, f.Name()),
-				filepath.Join(dirRelativeFromStart, f.Name()),
+				filepath.Join(relativeDir, f.Name()),
 				visitor,
 				ignorePrefix,
 			)
@@ -42,7 +42,7 @@ func recTraverseDir(dir, dirRelativeFromStart string, visitor Visitor, ignorePre
 				return err
 			}
 		} else {
-			err := visitor.Visit(dirRelativeFromStart, f.Name())
+			err := visitor.Visit(filepath.Join(dir, f.Name()), filepath.Join(relativeDir, f.Name()))
 			if err != nil {
 				return err
 			}

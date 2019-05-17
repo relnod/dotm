@@ -84,13 +84,19 @@ func execdotminterrupt() int {
 	}
 }
 
+// execislink checks if os.Args[1] is a symlink.
+//
+// If os.Args[2] is given it checks if the symlink resolves to os.Args[2].
 func execislink() int {
 	_, err := os.Lstat(os.Args[1])
 	if err != nil {
 		return 1
 	}
-	_, err = os.Readlink(os.Args[1])
+	link, err := os.Readlink(os.Args[1])
 	if err != nil {
+		return 1
+	}
+	if len(os.Args) > 2 && link != os.Args[2] {
 		return 1
 	}
 	return 0

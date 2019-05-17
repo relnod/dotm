@@ -2,7 +2,7 @@
 
 dotm update myprofile
 
-islink $HOME/.bashrc
+islink $HOME/.bashrc $HOME/.config/dotm/profiles/myprofile/bash/.bashrc
 ! islink $HOME/.bashrc.local
 
 -- home/testuser/.config/dotm/config.toml --
