@@ -22,7 +22,7 @@ func sanitizePath(path, profile string) string {
 var profile string
 
 func addProfileFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&profile, "profile", "default", "dotfiles profile")
+	cmd.Flags().StringVarP(&profile, "profile", "p", "default", "dotfiles profile")
 }
 
 var (
@@ -33,7 +33,7 @@ var (
 )
 
 func addLinkFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(&force, "force", false, "overrides destination files")
+	cmd.Flags().BoolVarP(&force, "force", "f", false, "overrides destination files")
 	cmd.Flags().BoolVar(&dry, "dry", false, "perfomes a dry run")
 	cmd.Flags().StringSliceVar(&excludes, "excludes", nil, "directories to be excluded")
 	cmd.Flags().StringSliceVar(&includes, "includes", nil, "directories to be included")

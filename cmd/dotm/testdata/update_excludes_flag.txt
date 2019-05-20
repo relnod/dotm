@@ -1,9 +1,10 @@
 # Simple test case for update command.
 
-dotm update --excludes=tmux myprofile
+dotm update --excludes=tmux,vim myprofile
 
 islink $HOME/.bashrc
 ! islink $HOME/.tmux.conf
+! islink $HOME/.vimrc
 
 -- home/testuser/.config/dotm/config.toml --
 [profiles]
@@ -13,3 +14,4 @@ islink $HOME/.bashrc
 
 -- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
 -- home/testuser/.config/dotm/profiles/myprofile/tmux/.tmux.conf --
+-- home/testuser/.config/dotm/profiles/myprofile/vim/.vimrc --
