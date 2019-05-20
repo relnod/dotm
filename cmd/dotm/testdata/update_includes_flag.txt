@@ -1,8 +1,9 @@
 # Includes from flag
 
-dotm update --includes=bash myprofile
+dotm update --includes=bash,vim myprofile
 
 islink $HOME/.bashrc
+islink $HOME/.vimrc
 ! islink $HOME/.tmux.conf
 
 -- home/testuser/.config/dotm/config.toml --
@@ -12,4 +13,5 @@ islink $HOME/.bashrc
     remote = ""
 
 -- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/myprofile/vim/.vimrc --
 -- home/testuser/.config/dotm/profiles/myprofile/tmux/.tmux.conf --
