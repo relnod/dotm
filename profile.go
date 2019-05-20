@@ -73,6 +73,7 @@ func expandPath(path string) (string, error) {
 var ErrInitRepo = errors.New("failed to initialize git repo")
 
 // Create creates the path of the profile.
+// It also initializes a new git repository in the profile root.
 func (p *Profile) create() error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
@@ -93,7 +94,11 @@ type LinkOptions struct {
 	TraversalOptions
 }
 
-// link links all files to the home directory.
+// link symlinks all profile files to the home directory.
+//
+// Examples:
+//      <profilepath>/bash/.bashrc -> $HOME/.bashrc
+//      <profilepath>/nvim/.config/nvim/init.vim -> $HOME/.config/nvim/init.vim
 func (p *Profile) link(opts LinkOptions) error {
 	err := p.traverse(&linker{
 		dest:  os.Getenv("HOME"),
@@ -150,6 +155,7 @@ func (l *linker) Visit(path, relativePath string) error {
 	return file.Link(path, destFile, l.dry)
 }
 
+// unlink removes all symlinks created by the profile.
 func (p *Profile) unlink(dry bool) error {
 	err := p.traverse(&unlinker{
 		path: os.Getenv("HOME"),
@@ -187,6 +193,9 @@ func (u *unlinker) Visit(path, relativePath string) error {
 	return file.RestoreBackup(filepath, u.dry)
 }
 
+// addFile adds a file to the profile. The file gets added to the given top
+// level directory. If the file already exists under $HOME/path, the file gets
+// moved to its new location in the profile. Otherwise a new file gets created.
 func (p *Profile) addFile(dir, path string) error {
 	sourceFile := filepath.Join(os.Getenv("HOME"), path)
 	destFile := filepath.Join(p.expandedPath, dir, path)
@@ -235,7 +244,7 @@ func (p *Profile) findHooks(opts *TraversalOptions) (*Hooks, error) {
 
 	hooks = append(hooks, &p.Hooks)
 
-	h, err := findHook(p.expandedPath)
+	h, err := findAndLoadHook(p.expandedPath)
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +257,7 @@ func (p *Profile) findHooks(opts *TraversalOptions) (*Hooks, error) {
 		return nil, err
 	}
 	for _, dir := range topLevelDirs {
-		h, err := findHook(filepath.Join(p.expandedPath, dir))
+		h, err := findAndLoadHook(filepath.Join(p.expandedPath, dir))
 		if err != nil {
 			return nil, err
 		}
@@ -262,7 +271,9 @@ func (p *Profile) findHooks(opts *TraversalOptions) (*Hooks, error) {
 
 const hooksFileName = "hooks.toml"
 
-func findHook(dir string) (*Hooks, error) {
+// findAndLoadHook checks if a hooks file exists at the given directory.
+// If a hooks file exists, it gets loaded.
+func findAndLoadHook(dir string) (*Hooks, error) {
 	filepath := filepath.Join(dir, hooksFileName)
 	if _, err := os.Stat(filepath); err != nil {
 		return nil, nil
@@ -280,7 +291,7 @@ var (
 	ErrCloneRemote = errors.New("failed to clone remote")
 )
 
-// cloneRemote clones the remote repository to the local path.
+// cloneRemote clones the remote git repository to the local path.
 func (p *Profile) cloneRemote(ctx context.Context) error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
@@ -304,7 +315,7 @@ var (
 	ErrPullRemote = errors.New("failed to pull remote")
 )
 
-// pullRemote pulls updates from the remote repository.
+// pullRemote pulls updates from the remote git repository.
 func (p *Profile) pullRemote(ctx context.Context) error {
 	r, err := git.PlainOpen(p.expandedPath)
 	if err != nil {
@@ -323,6 +334,7 @@ func (p *Profile) pullRemote(ctx context.Context) error {
 	return nil
 }
 
+// detectRemote tries to detect the git remote path.
 func (p *Profile) detectRemote() (string, error) {
 	r, err := git.PlainOpen(p.expandedPath)
 	if err != nil {
@@ -349,6 +361,7 @@ type TraversalOptions struct {
 	IgnorePrefix string
 }
 
+// traverse traverses the files of the profile.
 func (p *Profile) traverse(visitor fileutil.Visitor, opts *TraversalOptions) error {
 	if opts == nil {
 		opts = &TraversalOptions{}
@@ -368,6 +381,13 @@ func (p *Profile) traverse(visitor fileutil.Visitor, opts *TraversalOptions) err
 	return nil
 }
 
+// topLevelDirs returns all top level directories of the profile.
+//
+// Top level directories can be limitd by the profile includes/excludes or by
+// specifying them in the TraversalOptions. Includes and excludes from both
+// sources get merged.
+//
+// Includes take precedence over excludes.
 func (p *Profile) topLevelDirs(opts *TraversalOptions) ([]string, error) {
 	if opts == nil {
 		opts = &TraversalOptions{}
