@@ -313,6 +313,9 @@ var (
 
 	// ErrPullRemote indicates an unsuccesful remote git pull.
 	ErrPullRemote = errors.New("failed to pull remote")
+
+	// ErrWorktreeNotClean indicates the git repository contains modified files.
+	ErrWorktreeNotClean = errors.New("worktree is not clean")
 )
 
 // pullRemote pulls updates from the remote git repository.
@@ -325,6 +328,14 @@ func (p *Profile) pullRemote(ctx context.Context) error {
 	w, err := r.Worktree()
 	if err != nil {
 		return ErrOpenRepo
+	}
+
+	status, err := w.Status()
+	if err != nil {
+		return err
+	}
+	if !status.IsClean() {
+		return ErrWorktreeNotClean
 	}
 
 	err = w.PullContext(ctx, &git.PullOptions{RemoteName: "origin"})
