@@ -16,6 +16,7 @@ exists $HOME/post_update3
   [profiles.myprofile]
     path = "$HOME/.config/dotm/profiles/myprofile/"
     remote = ""
+    hooks_enabled = true
     pre_update = [
         "touch $HOME/pre_update"
     ]

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
 
@@ -36,6 +37,9 @@ var configCmd = &cobra.Command{
 		if cfgPath {
 			printString(p.Path)
 		}
+		if cfgHooksEnabled {
+			printString(strconv.FormatBool(p.HooksEnabled))
+		}
 		if cfgIncludes {
 			printStringSlice(p.Includes)
 		}
@@ -54,17 +58,19 @@ var configCmd = &cobra.Command{
 }
 
 var (
-	cfgRemote      bool
-	cfgPath        bool
-	cfgIncludes    bool
-	cfgExcludes    bool
-	cfgPreUpdates  bool
-	cfgPostUpdates bool
+	cfgRemote       bool
+	cfgPath         bool
+	cfgHooksEnabled bool
+	cfgIncludes     bool
+	cfgExcludes     bool
+	cfgPreUpdates   bool
+	cfgPostUpdates  bool
 )
 
 func init() {
 	configCmd.Flags().BoolVarP(&cfgRemote, "remote", "", false, "show remote")
 	configCmd.Flags().BoolVarP(&cfgPath, "path", "", false, "show path")
+	configCmd.Flags().BoolVarP(&cfgHooksEnabled, "hooks-enabled", "", false, "show if hooks are enabled")
 	configCmd.Flags().BoolVarP(&cfgIncludes, "includes", "", false, "show includes")
 	configCmd.Flags().BoolVarP(&cfgExcludes, "excludes", "", false, "show excludes")
 	configCmd.Flags().BoolVarP(&cfgPreUpdates, "pre-updates", "", false, "show pre update hooks")

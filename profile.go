@@ -17,11 +17,12 @@ import (
 
 // Profile defines the data of a dotfile profile.
 type Profile struct {
-	Name     string   `toml:"-"`
-	Path     string   `toml:"path"`
-	Remote   string   `toml:"remote"`
-	Includes []string `toml:"includes"`
-	Excludes []string `toml:"excludes"`
+	Name         string   `toml:"-"`
+	Path         string   `toml:"path"`
+	Remote       string   `toml:"remote"`
+	HooksEnabled bool     `toml:"hooks_enabled"`
+	Includes     []string `toml:"includes"`
+	Excludes     []string `toml:"excludes"`
 	Hooks
 
 	// expandedPath contains the Path after it was expanded.

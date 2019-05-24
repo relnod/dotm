@@ -8,9 +8,12 @@ islink $HOME/.bashrc
 # cmpenv config.toml.golden $HOME/.config/dotm/config.toml
 
 -- config.toml.golden --
+ignore_prefix = "_"
+
 [profiles]
-  [profiles.myprofile]
+  [profiles.default]
     path = "$WORK/home/testuser/dotfiles"
     remote = ""
+    hooks_enabled = true
 
 -- home/testuser/dotfiles/bash/.bashrc --

@@ -24,6 +24,9 @@ var installCmd = &cobra.Command{
 				Name:   profile,
 				Remote: args[0],
 				Path:   sanitizePath(path, profile),
+				// When installing a dotfile profile, hooks are disabled by
+				// default.
+				HooksEnabled: false,
 			},
 			&dotm.InstallOptions{
 				LinkOptions: linkOptionsFromFlags(),
