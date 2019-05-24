@@ -12,9 +12,9 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-const rootHelp = `dotm is a dotfile manager. It works by symlinking the files from a
-version controlled dotfile folder to its corresponding place under the $HOME
-directory of the user.
+const rootHelp = `dotm is a dotfile manager. It works by symlinking the dotfiles
+from multiple profiles to the $HOME directory. It expects the dotfile profile
+to be under source controll by git. This makes it easy to share dotfiles.
 
 Configuration file
 The configuration file is located at $HOME/.config/dotm/config.toml. A dotm
@@ -25,11 +25,12 @@ can be declared pointing to a remote git repository.
 Example:
 # You can define multiple profiles
 [profiles.default]
-# Path to local git repository
-path = ".dotfiles/default/"
 
-# Remote git repository
+# Upstream git repository
 remote = "github.com/relnod/dotm"
+
+# Path to the local dotfile folder
+path = "$HOME/.config/dotm/profiles/default"
 
 # Top level folders to be included.
 includes = [

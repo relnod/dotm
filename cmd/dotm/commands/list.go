@@ -3,8 +3,9 @@ package commands
 import (
 	"fmt"
 
-	"github.com/relnod/dotm"
 	"github.com/spf13/cobra"
+
+	"github.com/relnod/dotm"
 )
 
 var listCmd = &cobra.Command{
