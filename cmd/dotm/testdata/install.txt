@@ -5,12 +5,13 @@ dotm install github.com/relnod/dotfiles
 
 exists $HOME/.config/dotm/profiles/default/bash/.bashrc
 islink $HOME/.bashrc
-cmp expectedConfig $HOME/.config/dotm/config.toml
+cmp config.toml.golden $HOME/.config/dotm/config.toml
 
--- expectedConfig --
+-- config.toml.golden --
 ignore_prefix = "_"
 
 [profiles]
   [profiles.default]
     path = "$HOME/.config/dotm/profiles/default/"
     remote = "https://github.com/relnod/dotfiles.git"
+    hooks_enabled = false

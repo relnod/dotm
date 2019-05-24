@@ -161,7 +161,7 @@ func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions)
 // When opts.ExecHooks is passed, pre and post update hooks get executed.
 func update(ctx context.Context, p *Profile, opts *UpdateOptions) (err error) {
 	var hooks *Hooks
-	if opts.ExecHooks {
+	if opts.ExecHooks && p.HooksEnabled {
 		hooks, err = p.findHooks(&opts.TraversalOptions)
 		if err != nil {
 			return err
@@ -185,7 +185,7 @@ func update(ctx context.Context, p *Profile, opts *UpdateOptions) (err error) {
 		return err
 	}
 
-	if opts.ExecHooks {
+	if opts.ExecHooks && p.HooksEnabled {
 		err = hooks.PostUpdate.Exec(ctx)
 		if err != nil {
 			return err

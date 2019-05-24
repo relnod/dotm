@@ -6,6 +6,9 @@ stdout mypath
 dotm config profile1 --remote
 stdout myremote
 
+dotm config profile1 --hooks-enabled
+stdout false
+
 dotm config profile1 --includes
 stdout a
 stdout b
@@ -27,6 +30,7 @@ stdout h
   [profiles.profile1]
     path = "mypath"
     remote = "myremote"
+    hooks_enabled = false
     includes = [
         "a",
         "b"

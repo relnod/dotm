@@ -20,7 +20,11 @@ var newCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.New(
-			&dotm.Profile{Name: args[0], Path: sanitizePath(path, args[0])},
+			&dotm.Profile{
+				Name:         args[0],
+				Path:         sanitizePath(path, args[0]),
+				HooksEnabled: true,
+			},
 		)
 	},
 }

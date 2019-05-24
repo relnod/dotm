@@ -1,19 +1,21 @@
-# Tests that a pre/post update hook can be interrupted
+# Tests hooks are ignored with when disabled in the profile config
 
-! dotminterrupt update myprofile
+dotm update myprofile
 
-! islink $HOME/.bashrc
 ! exists $HOME/pre_update
+! exists $HOME/post_update
 
 -- home/testuser/.config/dotm/config.toml --
 [profiles]
   [profiles.myprofile]
     path = "$HOME/.config/dotm/profiles/myprofile/"
     remote = ""
-    hooks_enabled = true
+    hooks_enabled = false
     pre_update = [
-        "sleep 5s",
         "touch $HOME/pre_update"
+    ]
+    post_update = [
+        "touch $HOME/post_update"
     ]
 
 -- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --

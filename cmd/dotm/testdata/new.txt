@@ -3,12 +3,13 @@
 dotm new myprofile
 
 exists $HOME/.config/dotm/profiles/myprofile/.git
-cmp expectedConfig $HOME/.config/dotm/config.toml
+cmp config.toml.golden $HOME/.config/dotm/config.toml
 
--- expectedConfig --
+-- config.toml.golden --
 ignore_prefix = "_"
 
 [profiles]
   [profiles.myprofile]
     path = "$HOME/.config/dotm/profiles/myprofile/"
     remote = ""
+    hooks_enabled = true

@@ -19,7 +19,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.Init(
-			&dotm.Profile{Name: profile, Path: args[0]},
+			&dotm.Profile{Name: profile, Path: args[0], HooksEnabled: true},
 			&dotm.InitOptions{
 				LinkOptions: linkOptionsFromFlags(),
 			},
