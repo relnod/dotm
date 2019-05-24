@@ -2,6 +2,9 @@ package dotm
 
 import (
 	"context"
+	"io/ioutil"
+
+	"github.com/BurntSushi/toml"
 )
 
 // New creates a new dotfile profile.
@@ -52,9 +55,7 @@ func Init(p *Profile, opts *InitOptions) error {
 	remoteURL, _ := p.detectRemote()
 	p.Remote = remoteURL
 
-	c.Write()
-
-	return nil
+	return c.Write()
 }
 
 // InstallOptions are the options used to install a dotfile profile.
@@ -91,9 +92,7 @@ func InstallWithContext(ctx context.Context, p *Profile, opts *InstallOptions) e
 		return err
 	}
 
-	c.Write()
-
-	return nil
+	return c.Write()
 }
 
 // Add adds the given file to the profile under the given top level dir.
@@ -217,7 +216,29 @@ func Uninstall(profile string, opts *UninstallOptions) error {
 		return err
 	}
 
-	c.Write()
+	return c.Write()
+}
 
-	return nil
+// Fix tries to fix the configuration file, after breaking changes were
+// introduced.
+//
+// List of things that get fixed:
+//  - set hooks_enabled to true, when not set
+func Fix() error {
+	c := &Config{}
+
+	data, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return ErrOpenConfig
+	}
+	meta, err := toml.Decode(string(data), c)
+	if err != nil {
+		return ErrDecodeConfig
+	}
+	for name, p := range c.Profiles {
+		if !meta.IsDefined("profiles." + name + ".hooks_enabled") {
+			p.HooksEnabled = true
+		}
+	}
+	return c.Write()
 }

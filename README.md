@@ -55,6 +55,7 @@ Usage:
 Available Commands:
   add         Add a new/existing file to the profile
   config      Prints information about a profile
+  fix         Tries to fix the configuration file
   help        Help about any command
   init        Initialize a new dotfile profile from the given path.
   install     Install dotfiles from a remote git repository
@@ -164,6 +165,18 @@ hooks.toml. Note: This file won't be symlinked.
 pre_update = [
     "nvim +PlugInstall +qall"
 ]
+```
+
+## Breaking Changes
+
+Although dotm is considered somewhat stable, some breaking changes are expected
+until a 1.0 release. When a breaking change is introduced try to run the fix
+command. This tries to restore the original behaviour by modifying the
+configuration file.
+
+```shell
+# Restore old behaviour by modifying the configuration file
+$ dotm fix
 ```
 
 ## Development

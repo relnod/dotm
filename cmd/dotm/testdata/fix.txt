@@ -1,0 +1,22 @@
+# Tests the fix command restores the original behaviour
+
+dotm fix
+cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
+
+
+-- home/testuser/.config/dotm/config.toml --
+ignore_prefix = ""
+
+[profiles]
+  [profiles.myprofile]
+    path = ""
+    remote = ""
+
+-- home/testuser/.config/dotm/config.toml.golden --
+ignore_prefix = ""
+
+[profiles]
+  [profiles.myprofile]
+    path = ""
+    remote = ""
+    hooks_enabled = true
