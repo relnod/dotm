@@ -1,0 +1,49 @@
+# Tests the config command sets the value when one is provided
+
+dotm config set profile1 --path=anotherpath
+dotm config set profile1 --remote=anotherremote
+dotm config set profile1 --hooks-enabled=true
+dotm config set profile1 --includes="c","d"
+dotm config set profile1 --excludes="a","b"
+dotm config set profile1 --pre-updates="g","h"
+dotm config set profile1 --post-updates="e","f"
+
+cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
+
+-- home/testuser/.config/dotm/config.toml --
+ignore_prefix = ""
+
+[profiles]
+  [profiles.profile1]
+    path = "mypath"
+    remote = "myremote"
+    hooks_enabled = false
+    includes = [
+        "a",
+        "b"
+    ]
+    excludes = [
+        "c",
+        "d"
+    ]
+    pre_update = [
+        "e",
+        "f"
+    ]
+    post_update = [
+        "g",
+        "h"
+    ]
+
+-- home/testuser/.config/dotm/config.toml.golden --
+ignore_prefix = ""
+
+[profiles]
+  [profiles.profile1]
+    path = "anotherpath"
+    remote = "anotherremote"
+    hooks_enabled = true
+    includes = ["c", "d"]
+    excludes = ["a", "b"]
+    pre_update = ["g", "h"]
+    post_update = ["e", "f"]

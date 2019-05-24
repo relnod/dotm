@@ -1,27 +1,27 @@
-# Simple test case for list command.
+# Tests the config command prints the correct configs
 
-dotm config profile1 --path
+dotm config get profile1 --path
 stdout mypath
 
-dotm config profile1 --remote
+dotm config get profile1 --remote
 stdout myremote
 
-dotm config profile1 --hooks-enabled
+dotm config get profile1 --hooks-enabled
 stdout false
 
-dotm config profile1 --includes
+dotm config get profile1 --includes
 stdout a
 stdout b
 
-dotm config profile1 --excludes
+dotm config get profile1 --excludes
 stdout c
 stdout d
 
-dotm config profile1 --pre-updates
+dotm config get profile1 --pre-updates
 stdout e
 stdout f
 
-dotm config profile1 --post-updates
+dotm config get profile1 --post-updates
 stdout g
 stdout h
 
