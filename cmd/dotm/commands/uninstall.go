@@ -14,20 +14,15 @@ dotm uninstall default
 `
 
 var uninstallCmd = &cobra.Command{
-	Use:       "uninstall [profiles]",
-	Short:     "Uninstall the profiles",
+	Use:       "uninstall profile",
+	Short:     "Uninstall the profile",
 	Long:      uninstallHelp,
 	Args:      cobra.ExactArgs(1),
 	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dotm.Uninstall(args[0], &dotm.UninstallOptions{
+		return dotm.Uninstall(args[0], &dotm.UninstallOptions{
 			Dry: dry,
 		})
-		if err != nil {
-			return err
-		}
-
-		return nil
 	},
 }
 
