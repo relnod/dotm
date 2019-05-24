@@ -1,0 +1,12 @@
+# Tests the --fromRemote flag for the update command
+
+dotm install --profile=myprofile github.com/relnod/dotfiles
+dotm update myprofile --fromRemote --no-hooks
+
+# copy the file to the profile path, so the file is modified
+cp $HOME/a $HOME/.config/dotm/profiles/myprofile/vim/.vimrc
+
+! dotm update myprofile --fromRemote --no-hooks
+stderr 'Error: worktree is not clean'
+
+-- home/testuser/a --
