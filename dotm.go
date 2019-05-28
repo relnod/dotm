@@ -2,9 +2,7 @@ package dotm
 
 import (
 	"context"
-	"io/ioutil"
-
-	"github.com/BurntSushi/toml"
+	"os"
 )
 
 // New creates a new dotfile profile.
@@ -219,22 +217,36 @@ func Uninstall(profile string, opts *UninstallOptions) error {
 	return c.Write()
 }
 
+var oldConfigPath = os.ExpandEnv("$HOME/.dotfiles/dotm.toml")
+
 // Fix tries to fix the configuration file, after breaking changes were
 // introduced.
 //
 // List of things that get fixed:
-//  - set hooks_enabled to true, when not set
+//  - [0.3.0] move config from olf location at $HOME/.dotfiles/dotm.toml
+//  - [0.3.0] set ignore_prefix to "_", when not set
+//  - [0.4.0] set hooks_enabled to true, when not set
 func Fix() error {
-	c := &Config{}
+	c, meta, err := loadConfigWithMetaData(configPath)
+	if err != nil {
+		// When the config file does not exist, try to load the old config file.
+		if err == ErrOpenConfig {
+			c, meta, err = loadConfigWithMetaData(oldConfigPath)
+			if err != nil {
+				return err
+			}
+			defer os.Remove(oldConfigPath)
+		} else {
+			return err
+		}
+	}
 
-	data, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return ErrOpenConfig
+	// Set missing ignore_prefix to "_".
+	if !meta.IsDefined("ignore_prefix") {
+		c.IgnorePrefix = "_"
 	}
-	meta, err := toml.Decode(string(data), c)
-	if err != nil {
-		return ErrDecodeConfig
-	}
+
+	// Set missing "hooks_enabled" to true for all profiles.
 	for name, p := range c.Profiles {
 		if !meta.IsDefined("profiles." + name + ".hooks_enabled") {
 			p.HooksEnabled = true

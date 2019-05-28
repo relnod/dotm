@@ -1,0 +1,20 @@
+# Tests the fix command adds the ignore_prefix="_" when not set
+
+dotm fix
+cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
+
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.myprofile]
+    path = ""
+    remote = ""
+
+-- home/testuser/.config/dotm/config.toml.golden --
+ignore_prefix = "_"
+
+[profiles]
+  [profiles.myprofile]
+    path = ""
+    remote = ""
+    hooks_enabled = true
