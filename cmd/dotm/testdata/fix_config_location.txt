@@ -1,16 +1,19 @@
-# Tests the fix command restores the original behaviour
+# Tests the fix command moves the config file from the old to the new location.
 
 dotm fix
 cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
+# Make sure the old configuration file was deleted
+! exists $HOME/.dotfiles/dotm.toml
 
 
--- home/testuser/.config/dotm/config.toml --
+-- home/testuser/.dotfiles/dotm.toml --
 ignore_prefix = ""
 
 [profiles]
   [profiles.myprofile]
     path = ""
     remote = ""
+    hooks_enabled = true
 
 -- home/testuser/.config/dotm/config.toml.golden --
 ignore_prefix = ""

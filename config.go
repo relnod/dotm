@@ -103,17 +103,26 @@ var ErrOpenConfig = errors.New("failed to open config")
 // ErrDecodeConfig indicates that there is a syntax error in the config file.
 var ErrDecodeConfig = errors.New("failed to decode config")
 
+// loadConfigWithMetaData tries to load the config file at the given path. Also
+// returns the toml metadata.
+func loadConfigWithMetaData(path string) (*Config, toml.MetaData, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, toml.MetaData{}, ErrOpenConfig
+	}
+	c := &Config{}
+	meta, err := toml.Decode(string(data), c)
+	if err != nil {
+		return nil, toml.MetaData{}, ErrDecodeConfig
+	}
+	return c, meta, nil
+}
+
 // LoadConfig loads the config file.
 func LoadConfig() (*Config, error) {
-	c := &Config{}
-
-	data, err := ioutil.ReadFile(configPath)
+	c, _, err := loadConfigWithMetaData(configPath)
 	if err != nil {
-		return nil, ErrOpenConfig
-	}
-	_, err = toml.Decode(string(data), c)
-	if err != nil {
-		return nil, ErrDecodeConfig
+		return nil, err
 	}
 
 	for name, p := range c.Profiles {

@@ -13,7 +13,9 @@ file.
 This should the reduce the friction when upgrading dotm.
 
 List of things that get fixed:
- - set hooks_enabled to true, when not set`
+  - [0.3.0] move config from olf location at $HOME/.dotfiles/dotm.toml
+  - [0.3.0] set ignore_prefix to "_", when not set
+  - [0.4.0] set hooks_enabled to true, when not set`
 
 var fixCmd = &cobra.Command{
 	Use:   "fix",
