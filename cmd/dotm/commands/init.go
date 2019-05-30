@@ -7,16 +7,17 @@ import (
 )
 
 const initHelp = `Initializes a new dotfile profile from the given path.
-If no profile was set, the profile name will be "default"
+If no profile was set, the profile name will be "default"`
 
-Example:
+const initExamples = `dotm init $HOME/dotfiles
 dotm init --profile=myprofile $HOME/dotfiles`
 
 var initCmd = &cobra.Command{
-	Use:   "init path",
-	Short: "Initialize a new dotfile profile from the given path.",
-	Long:  initHelp,
-	Args:  cobra.ExactArgs(1),
+	Use:     "init path",
+	Short:   "Initialize a new dotfile profile from the given path.",
+	Long:    initHelp,
+	Example: initExamples,
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.Init(
 			&dotm.Profile{Name: profile, Path: args[0], HooksEnabled: true},
