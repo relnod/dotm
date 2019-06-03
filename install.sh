@@ -37,7 +37,8 @@ case $(uname -m) in
     esac
 
 version=$(get_latest_release)
-if [ -x "$(command -v dotm)" ] && [ "$version" = "$(dotm --version | cut -d ' ' -f3)" ]; then
+current_version=$(dotm --version | cut -d ' ' -f3)
+if [ -x "$(command -v dotm)" ] && [ "$version" = "$current_version" ]; then
     echo "dotm is already installed at the latest version ($version)"
     exit
 fi
@@ -58,7 +59,12 @@ if [ -f "$install_dir/dotm" ]; then
     rm -f "$install_dir/dotm"
 fi
 
-tar -C "$install_dir" -xzvf "/tmp/${name}" dotm
+tar -C "$install_dir" -xzf "/tmp/${name}" dotm
 
 echo "Generating bash completions at $bash_completion_dir"
 dotm --genCompletions > "$bash_completion_dir/dotm"
+
+if [ ! -z "$current_version" ]; then
+    echo "Running 'dotm fix'"
+    dotm fix
+fi
