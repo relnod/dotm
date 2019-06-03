@@ -99,7 +99,7 @@ dotm update myprofile --fromRemote`
 
 const bashChangeDirectory = `
 function dcd {
-    cd "$(dotm config "$1" --path)" || exit
+    cd "$(dotm config profile."$1".path)" || exit
 }
 _dcd_completions()
 {
