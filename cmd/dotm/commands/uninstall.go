@@ -7,16 +7,15 @@ import (
 )
 
 const uninstallHelp = `Removes all symlinks for the given profile.
-Tries to restore backup files.
+Tries to restore backup files.`
 
-Example:
-dotm uninstall default
-`
+const uninstallExamples = `dotm uninstall default`
 
 var uninstallCmd = &cobra.Command{
 	Use:       "uninstall profile",
 	Short:     "Uninstall the profile",
 	Long:      uninstallHelp,
+	Example:   uninstallExamples,
 	Args:      cobra.ExactArgs(1),
 	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -10,16 +10,17 @@ const updateHelp = `Updates the symlinks for a given profile.
 When the --fromRemote flag was set it first pulls from the remote git repository.
 Unless the --no-hooks flag was set, pre and post update hooks are executed.
 
-When profile is empty, all profiles get updated.
+When profile is empty, all profiles get updated.`
 
-Example:
-dotm update
+const updateExamples = `dotm update
+dotm update --force myprofile
 dotm update --fromRemote myprofile`
 
 var updateCmd = &cobra.Command{
 	Use:       "update [profile]",
 	Short:     "Updates the symlinks for a given profile.",
 	Long:      updateHelp,
+	Example:   updateExamples,
 	Args:      cobra.MaximumNArgs(1),
 	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {

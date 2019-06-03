@@ -7,17 +7,16 @@ import (
 )
 
 const newHelp = `Creates a new dotfile profile.
-Tries to initialize a new git repository
+Tries to initialize a new git repository.`
 
-Example:
-dotm new myprofile
-`
+const newExamples = `dotm new myprofile`
 
 var newCmd = &cobra.Command{
-	Use:   "new profile",
-	Short: "Create a new dotfile profile",
-	Long:  newHelp,
-	Args:  cobra.ExactArgs(1),
+	Use:     "new profile",
+	Short:   "Create a new dotfile profile",
+	Long:    newHelp,
+	Example: newExamples,
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.New(
 			&dotm.Profile{
