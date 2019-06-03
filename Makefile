@@ -12,11 +12,16 @@ lint:
 install:
 	cd cmd/dotm && go install
 
-VERSION := $(dotm --version | cut -d ' ' -f 3)
+VERSION := $(shell dotm --version | cut -d ' ' -f 3)
 
 # Make sure the GITHUB_TOKEN is set before running make release.
 # After a release bump the version in cmd/dotm/commands/root.go.
 release:
-	git tag -a $(VERSION) -m "$(VERSION)"
+ifeq ($(GITHUB_TOKEN),)
+	@echo "GITHUB_TOKEN not set"
+	@exit
+else
+	git tag -a ${VERSION} -m "${VERSION}"
 	git push --tags
-	goreleaser
+	goreleaser --rm-dist
+endif
