@@ -14,8 +14,8 @@ import (
 
 // Hooks represents all hooks.
 type Hooks struct {
-	PreUpdate  Hook `toml:"pre_update"`
-	PostUpdate Hook `toml:"post_update"`
+	PreUpdate  Hook `toml:"pre_update" clic:"pre_update"`
+	PostUpdate Hook `toml:"post_update" clic:"post_update"`
 }
 
 // Hook represents one type of hook.

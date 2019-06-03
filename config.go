@@ -22,10 +22,10 @@ type Config struct {
 	// For directories with the prefix, all sub directories get ignored aswell.
 	//
 	// The default value is "_".
-	IgnorePrefix string `toml:"ignore_prefix"`
+	IgnorePrefix string `toml:"ignore_prefix" clic:"ignore_prefix"`
 
 	// Profiles is the list of profiles.
-	Profiles map[string]*Profile `toml:"profiles"`
+	Profiles map[string]*Profile `toml:"profiles" clic:"profile"`
 }
 
 // ErrProfileNotExists indicates, that the dotfile profile was not declared in

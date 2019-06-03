@@ -54,7 +54,7 @@ Usage:
 
 Available Commands:
   add         Add a new/existing file to the profile
-  config      Prints information about a profile
+  config      Sets/Gets values from the configuration file.
   fix         Tries to fix the configuration file
   help        Help about any command
   init        Initialize a new dotfile profile from the given path.
@@ -91,13 +91,20 @@ $ dotm install --profile=myprofile <url-to-remote-repository>
 $ dotm update myprofile
 $ dotm update myprofile --fromRemote
 $ dotm update myprofile --no-hooks
+
+# Get/Set a configuration value
+$ dotm config ignore_prefix "_"
+$ dotm config profile.default.path
+$ dotm config profile.default.path "/my/path"
 ```
 
 ### Configuration file
 
 The configuration file is located at `$HOME/.config/dotm/config.toml`. It can
 hold multiple profiles. Each profile consists of a path to the local dotfile
-location and an optional path to a remote git repository.
+location and an optional path to a remote git repository. It is also possible to
+specify top level directories, that get included/excluded or add pre/post update
+hooks.
 
 **Example**:
 

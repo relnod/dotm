@@ -2,78 +2,52 @@ package commands
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/relnod/dotm"
+	"github.com/relnod/dotm/internal/clic"
 )
 
+const configExamples = `dotm config ignore_prefix
+dotm config ignore_prefix "_"
+dotm config profile.default.path
+dotm config profile.default.path "mypath"`
+
 var configCmd = &cobra.Command{
-	Use:       "config profile",
-	Short:     "Prints information about a profile",
+	Use:       "config accessor [value]",
+	Short:     "Sets/Gets values from the configuration file.",
 	Long:      ``,
-	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"$(dotm list)"},
+	Example:   configExamples,
+	Args:      cobra.MaximumNArgs(2),
+	ValidArgs: []string{"dotm config --args"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := dotm.LoadConfig()
 		if err != nil {
 			return err
 		}
-		p, err := c.Profile(args[0])
-
-		printString := func(s string) {
-			fmt.Println(s)
-		}
-		printStringSlice := func(r []string) {
-			for _, s := range r {
-				printString(s)
+		if showArgs {
+			for _, a := range clic.Args(c) {
+				fmt.Println(a)
 			}
+			return nil
 		}
-
-		if cfgRemote {
-			printString(p.Remote)
+		out, err := clic.Run(strings.Join(args, " "), c)
+		if err != nil {
+			return err
 		}
-		if cfgPath {
-			printString(p.Path)
+		if out != "" {
+			fmt.Println(out)
+			return nil
 		}
-		if cfgHooksEnabled {
-			printString(strconv.FormatBool(p.HooksEnabled))
-		}
-		if cfgIncludes {
-			printStringSlice(p.Includes)
-		}
-		if cfgExcludes {
-			printStringSlice(p.Excludes)
-		}
-		if cfgPreUpdates {
-			printStringSlice(p.PreUpdate)
-		}
-		if cfgPostUpdates {
-			printStringSlice(p.PostUpdate)
-		}
-
-		return nil
+		return c.Write()
 	},
 }
 
-var (
-	cfgRemote       bool
-	cfgPath         bool
-	cfgHooksEnabled bool
-	cfgIncludes     bool
-	cfgExcludes     bool
-	cfgPreUpdates   bool
-	cfgPostUpdates  bool
-)
+var showArgs bool
 
 func init() {
-	configCmd.Flags().BoolVarP(&cfgRemote, "remote", "", false, "show remote")
-	configCmd.Flags().BoolVarP(&cfgPath, "path", "", false, "show path")
-	configCmd.Flags().BoolVarP(&cfgHooksEnabled, "hooks-enabled", "", false, "show if hooks are enabled")
-	configCmd.Flags().BoolVarP(&cfgIncludes, "includes", "", false, "show includes")
-	configCmd.Flags().BoolVarP(&cfgExcludes, "excludes", "", false, "show excludes")
-	configCmd.Flags().BoolVarP(&cfgPreUpdates, "pre-updates", "", false, "show pre update hooks")
-	configCmd.Flags().BoolVarP(&cfgPostUpdates, "post-updates", "", false, "show post update hooks")
+	configCmd.Flags().BoolVar(&showArgs, "args", false, "print all possible args")
 	rootCmd.AddCommand(configCmd)
 }
