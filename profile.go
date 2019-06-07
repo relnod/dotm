@@ -70,20 +70,17 @@ func expandPath(path string) (string, error) {
 	return path, nil
 }
 
-// ErrInitRepo indicates an unsuccesful git init
-var ErrInitRepo = errors.New("failed to initialize git repo")
-
 // Create creates the path of the profile.
 // It also initializes a new git repository in the profile root.
 func (p *Profile) create() error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
-		return ErrCreateLocalPath
+		return fmt.Errorf("create: %v", errCreateLocalPath)
 	}
 
 	_, err = git.PlainInit(p.expandedPath, false)
 	if err != nil {
-		return ErrInitRepo
+		return fmt.Errorf("create: failed to initialize git repo: %v", err)
 	}
 	return nil
 }
@@ -121,14 +118,10 @@ type linker struct {
 	dry   bool
 }
 
-//ErrCreatingDestination indicates failure during the creation of the
-//destination dir
-var ErrCreatingDestination = errors.New("failed to created destination dir")
-
 func (l *linker) Visit(path, relativePath string) error {
 	err := os.MkdirAll(filepath.Join(l.dest, filepath.Dir(relativePath)), os.ModePerm)
 	if err != nil {
-		return ErrCreatingDestination
+		return fmt.Errorf("failed to created destination dir: %v", err)
 	}
 
 	destFile := filepath.Join(l.dest, relativePath)
@@ -283,52 +276,39 @@ func findAndLoadHook(dir string) (*Hooks, error) {
 	return LoadHooksFromFile(filepath)
 }
 
-var (
-	// ErrCreateLocalPath indicates a failure during the creation of the local
-	// path.
-	ErrCreateLocalPath = errors.New("failed to create local path")
-
-	// ErrCloneRemote indicates an unsuccesful remote git clone.
-	ErrCloneRemote = errors.New("failed to clone remote")
-)
+// errCreateLocalPath indicates a failure during the creation of the local
+// path.
+var errCreateLocalPath = errors.New("failed to create local path")
 
 // cloneRemote clones the remote git repository to the local path.
 func (p *Profile) cloneRemote(ctx context.Context) error {
 	err := os.MkdirAll(p.expandedPath, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("clone: %v", ErrCreateLocalPath)
+		return fmt.Errorf("clone: %v", errCreateLocalPath)
 	}
 
 	_, err = git.PlainCloneContext(ctx, p.expandedPath, false, &git.CloneOptions{
 		URL: p.Remote,
 	})
 	if err != nil {
-		return fmt.Errorf("clone: %v: %v", ErrCloneRemote, err)
+		return fmt.Errorf("clone: failed to clone remote: %v", err)
 	}
 	return nil
 }
 
-var (
-	// ErrOpenRepo indicates a failure while opening a git repository.
-	ErrOpenRepo = errors.New("failed to open repository")
-
-	// ErrPullRemote indicates an unsuccesful remote git pull.
-	ErrPullRemote = errors.New("failed to pull remote")
-
-	// ErrWorktreeNotClean indicates the git repository contains modified files.
-	ErrWorktreeNotClean = errors.New("worktree is not clean")
-)
+// errOpenRepo indicates a failure while opening a git repository.
+var errOpenRepo = errors.New("failed to open repository")
 
 // pullRemote pulls updates from the remote git repository.
 func (p *Profile) pullRemote(ctx context.Context) error {
 	r, err := git.PlainOpen(p.expandedPath)
 	if err != nil {
-		return ErrOpenRepo
+		return fmt.Errorf("pull: %v: %v", errOpenRepo, err)
 	}
 
 	w, err := r.Worktree()
 	if err != nil {
-		return ErrOpenRepo
+		return fmt.Errorf("pull: %v: %v", errOpenRepo, err)
 	}
 
 	status, err := w.Status()
@@ -336,12 +316,12 @@ func (p *Profile) pullRemote(ctx context.Context) error {
 		return err
 	}
 	if !status.IsClean() {
-		return ErrWorktreeNotClean
+		return &HelpError{errors.New("pull: worktree is not clean"), "run `git status` to see changed files"}
 	}
 
 	err = w.PullContext(ctx, &git.PullOptions{RemoteName: "origin"})
 	if err != nil && err != git.NoErrAlreadyUpToDate {
-		return ErrPullRemote
+		return fmt.Errorf("pull: failed to pull remote: %v", err)
 	}
 	return nil
 }
@@ -350,7 +330,7 @@ func (p *Profile) pullRemote(ctx context.Context) error {
 func (p *Profile) detectRemote() (string, error) {
 	r, err := git.PlainOpen(p.expandedPath)
 	if err != nil {
-		return "", ErrOpenRepo
+		return "", errOpenRepo
 	}
 
 	remotes, err := r.Remotes()

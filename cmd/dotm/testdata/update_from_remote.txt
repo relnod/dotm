@@ -7,6 +7,7 @@ dotm update myprofile --fromRemote --no-hooks
 cp $HOME/a $HOME/.config/dotm/profiles/myprofile/vim/.vimrc
 
 ! dotm update myprofile --fromRemote --no-hooks
-stderr 'Error: worktree is not clean'
+stderr 'Error: pull: worktree is not clean'
+stderr 'Help: run `git status` to see changed files'
 
 -- home/testuser/a --

@@ -21,9 +21,6 @@ type Hooks struct {
 // Hook represents one type of hook.
 type Hook []string
 
-// ErrExecHook indicates failure during hook exection.
-var ErrExecHook = errors.New("failed exec hook")
-
 // Exec executes a hook.
 func (h Hook) Exec(ctx context.Context) error {
 	for _, cmdRaw := range h {
@@ -33,7 +30,7 @@ func (h Hook) Exec(ctx context.Context) error {
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
 		if err != nil {
-			return fmt.Errorf("%v: '%s': %s", ErrExecHook, os.ExpandEnv(cmdRaw), err)
+			return fmt.Errorf("failed exec hook: '%s': %s", os.ExpandEnv(cmdRaw), err)
 		}
 	}
 	return nil
@@ -49,23 +46,17 @@ func mergeHooks(hooks ...*Hooks) *Hooks {
 	return merged
 }
 
-// ErrOpenHooksFile indicates a failure while opening a hooks file.
-var ErrOpenHooksFile = errors.New("failed open hooks file")
-
-// ErrDecodeHooksFile indicates that the hooks file has a syntax error.
-var ErrDecodeHooksFile = errors.New("failed decode hooks file")
-
 // LoadHooksFromFile reads a hook file from a given file path.
 func LoadHooksFromFile(path string) (*Hooks, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, ErrOpenHooksFile
+		return nil, fmt.Errorf("failed open hooks file: %v", err)
 	}
 
 	var h Hooks
 	_, err = toml.Decode(string(data), &h)
 	if err != nil {
-		return nil, ErrDecodeHooksFile
+		return nil, errors.New("failed decode hooks file")
 	}
 
 	return &h, nil
