@@ -3,6 +3,7 @@ package dotm
 import (
 	"context"
 	"os"
+	"sort"
 
 	"golang.org/x/xerrors"
 )
@@ -135,8 +136,15 @@ func UpdateWithContext(ctx context.Context, profile string, opts *UpdateOptions)
 
 	// When the profile name is empty update all profiles.
 	if profile == "" {
-		for _, p := range c.Profiles {
-			err = update(ctx, p, opts)
+		// The profiles are updated in ascending order sorted by the profile
+		// name.
+		profileNames := make([]string, 0, len(c.Profiles))
+		for name := range c.Profiles {
+			profileNames = append(profileNames, name)
+		}
+		sort.Strings(profileNames)
+		for _, name := range profileNames {
+			err = update(ctx, c.Profiles[name], opts)
 			if err != nil {
 				return err
 			}
