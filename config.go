@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
+	"golang.org/x/xerrors"
 )
 
 // configPath is the path to the configuration file
@@ -28,10 +29,6 @@ type Config struct {
 	Profiles map[string]*Profile `toml:"profiles" clic:"profile"`
 }
 
-// ErrProfileNotExists indicates, that the dotfile profile was not declared in
-// the config file.
-var ErrProfileNotExists = errors.New("profile does not exist")
-
 // Profile returns the profile with the corresponding name. The returned profile
 // has expanded vars.
 //
@@ -39,7 +36,7 @@ var ErrProfileNotExists = errors.New("profile does not exist")
 func (c *Config) Profile(name string) (*Profile, error) {
 	p, ok := c.Profiles[name]
 	if !ok {
-		return nil, ErrProfileNotExists
+		return nil, errors.New("profile does not exist")
 	}
 	err := p.expandEnv()
 	if err != nil {
@@ -48,11 +45,8 @@ func (c *Config) Profile(name string) (*Profile, error) {
 	return p, nil
 }
 
-// ErrProfilePathExists indicates, that the profile path already exists.
-var ErrProfilePathExists = errors.New("profile path already exists")
-
-// ErrProfileExists indicates, a profile with the same name already exists
-var ErrProfileExists = errors.New("profile already exists")
+// errProfileExists indicates, a profile with the same name already exists
+var errProfileExists = errors.New("profile already exists")
 
 // AddProfile adds a new profile. If a profile with the same name exists, it
 // returns an error.
@@ -68,10 +62,10 @@ func (c *Config) AddProfile(p *Profile) (*Profile, error) {
 	}
 
 	if _, err := os.Stat(p.expandedPath); err == nil {
-		return nil, ErrProfilePathExists
+		return nil, errors.New("profile path already exists")
 	}
 	if _, err := c.Profile(p.Name); err == nil {
-		return nil, ErrProfileExists
+		return nil, errProfileExists
 	}
 
 	c.Profiles[p.Name] = p
@@ -90,30 +84,27 @@ func (c *Config) AddProfileFromExistingPath(p *Profile) (*Profile, error) {
 	}
 
 	if _, err := c.Profile(p.Name); err == nil {
-		return nil, ErrProfileExists
+		return nil, errProfileExists
 	}
 
 	c.Profiles[p.Name] = p
 	return p, nil
 }
 
-// ErrOpenConfig indicates that the config file doesn't exist.
-var ErrOpenConfig = errors.New("failed to open config")
-
-// ErrDecodeConfig indicates that there is a syntax error in the config file.
-var ErrDecodeConfig = errors.New("failed to decode config")
+// errOpenConfig indicates that the config file doesn't exist.
+var errOpenConfig = errors.New("failed to open config")
 
 // loadConfigWithMetaData tries to load the config file at the given path. Also
 // returns the toml metadata.
 func loadConfigWithMetaData(path string) (*Config, toml.MetaData, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, toml.MetaData{}, ErrOpenConfig
+		return nil, toml.MetaData{}, xerrors.Errorf("%v: %w", errOpenConfig, err)
 	}
 	c := &Config{}
 	meta, err := toml.Decode(string(data), c)
 	if err != nil {
-		return nil, toml.MetaData{}, ErrDecodeConfig
+		return nil, toml.MetaData{}, errors.New("failed to decode config")
 	}
 	return c, meta, nil
 }
@@ -140,7 +131,8 @@ func LoadConfig() (*Config, error) {
 func LoadOrCreateConfig() (*Config, error) {
 	c, err := LoadConfig()
 	if err != nil {
-		if err == ErrOpenConfig {
+		var e *os.PathError
+		if xerrors.As(err, &e) {
 			return &Config{
 				IgnorePrefix: "_", // set default value for the ignored prefix.
 				Profiles:     make(map[string]*Profile),
@@ -151,31 +143,22 @@ func LoadOrCreateConfig() (*Config, error) {
 	return c, nil
 }
 
-// ErrCreateConfigDir indicates a failure during the creation of the config dir.
-var ErrCreateConfigDir = fmt.Errorf("failed to create config dir (%s)", filepath.Dir(configPath))
-
-// ErrCreateConfigFile indicates a failure during the creation file.
-var ErrCreateConfigFile = fmt.Errorf("failed to create config file (%s)", configPath)
-
-// ErrEncodeConfig indicates a failure during the encoding of the config file.
-var ErrEncodeConfig = errors.New("failed to encode config")
-
 // Write writes the config file.
 func (c *Config) Write() error {
 	err := os.MkdirAll(filepath.Dir(configPath), os.ModePerm)
 	if err != nil {
-		return ErrCreateConfigDir
+		return fmt.Errorf("failed to create config dir (%s): %v", filepath.Dir(configPath), err)
 	}
 
 	f, err := os.Create(configPath)
 	if err != nil {
-		return ErrCreateConfigFile
+		return fmt.Errorf("failed to create config file (%s): %v", configPath, err)
 	}
 
 	e := toml.NewEncoder(bufio.NewWriter(f))
 	err = e.Encode(c)
 	if err != nil {
-		return ErrEncodeConfig
+		return errors.New("failed to encode config")
 	}
 
 	return nil

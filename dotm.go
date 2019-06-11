@@ -3,6 +3,8 @@ package dotm
 import (
 	"context"
 	"os"
+
+	"golang.org/x/xerrors"
 )
 
 // New creates a new dotfile profile.
@@ -22,9 +24,7 @@ func New(p *Profile) error {
 		return err
 	}
 
-	c.Write()
-
-	return nil
+	return c.Write()
 }
 
 // InitOptions are the options used to initialize a dotfile profile.
@@ -230,7 +230,8 @@ func Fix() error {
 	c, meta, err := loadConfigWithMetaData(configPath)
 	if err != nil {
 		// When the config file does not exist, try to load the old config file.
-		if err == ErrOpenConfig {
+		var e *os.PathError
+		if xerrors.As(err, &e) {
 			c, meta, err = loadConfigWithMetaData(oldConfigPath)
 			if err != nil {
 				return err

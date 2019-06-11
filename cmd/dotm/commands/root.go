@@ -5,11 +5,26 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/xerrors"
+
+	"github.com/relnod/dotm"
 )
 
-// Execute executes the root command. Returns an error on failure.
+// Execute executes the root command.
+// Returns an error on failure. Prints an error message and possibly a help
+// message to stderr on failure.
 func Execute() error {
-	return rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+
+		// If the error is a help error, also print the help message.
+		var helpError *dotm.HelpError
+		if xerrors.As(err, &helpError) {
+			fmt.Fprintf(os.Stderr, "Help: %s\n", helpError.Help())
+		}
+	}
+	return err
 }
 
 const rootHelp = `dotm is a dotfile manager. It works by symlinking the dotfiles
@@ -112,12 +127,13 @@ complete -F _dcd_completions dcd
 `
 
 var rootCmd = &cobra.Command{
-	Use:          "dotm",
-	Short:        "Dotm is a dotfile manager",
-	Long:         rootHelp,
-	Version:      "v0.5.0",
-	SilenceUsage: true,
-	Args:         cobra.ExactArgs(0),
+	Use:           "dotm",
+	Short:         "Dotm is a dotfile manager",
+	Long:          rootHelp,
+	Version:       "v0.5.0",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	Args:          cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if genCompletions {
 			return cmd.GenBashCompletion(os.Stdout)
