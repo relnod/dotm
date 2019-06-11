@@ -36,6 +36,7 @@ dotm config profile.a.includes[0] "aa"
 dotm config profile.a.excludes[0] "cc"
 dotm config profile.a.pre_update[0] "ee"
 dotm config profile.a.post_update[0] "gg"
+dotm config profile.a.vars.foo "bar"
 
 cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
 
@@ -76,3 +77,5 @@ ignore_prefix = "|"
     excludes = ["cc", "d"]
     pre_update = ["ee", "f"]
     post_update = ["gg", "h"]
+    [profiles.a.vars]
+      foo = "bar"

@@ -18,3 +18,4 @@ ignore_prefix = "_"
     path = ""
     remote = ""
     hooks_enabled = true
+    [profiles.myprofile.vars]

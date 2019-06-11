@@ -1,0 +1,22 @@
+# Tests the template functionality
+
+dotm update myprofile
+exists $HOME/.config/dotm/profiles/myprofile/git/.gitconfig.tpl.out
+cmp $HOME/.gitconfig $HOME/.gitconfig.golden
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+[profiles.myprofile.vars]
+    GitUser = "foo"
+    GitEmail = "foo@bar.com"
+
+-- home/testuser/.config/dotm/profiles/myprofile/git/.gitconfig.tpl --
+[user]
+    name = {{ .GitUser }}
+    email = {{ .GitEmail }}
+-- home/testuser/.gitconfig.golden --
+[user]
+    name = foo
+    email = foo@bar.com

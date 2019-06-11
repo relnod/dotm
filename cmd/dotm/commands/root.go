@@ -57,6 +57,11 @@ post_update = [
     "echo 'post update'"
 ]
 
+# Map of variables used for template processing
+[profiles.default.vars]
+foo = "bar"
+bar = "foo"
+
 Dotfiles folder
 
 A Dotfile folder consists of multiple top level directories to group similar
@@ -69,7 +74,25 @@ tmux/.tmux.conf             -> $HOME/.tmux.conf
 bash/.bashrc                -> $HOME/.bashrc
 nvim/.config/nvim/init.vim  -> $HOME/.config/nvim/init.vim
 
+Template files
+
+Template files can be used to dynamically add user identifying information inside
+configuration files. All files with a .tpl file ending are treated as template
+files. Templates support the syntax from the go text/template package. Variables
+can be configured per profile. When a template gets processed, a temporary file
+with the same name plus a .out ending gets generated. This file will be
+symlinked to the destination file without the .tpl suffix. Make sure to add
+*.tpl.out to your .gitignore when using templates to prevent adding those to git.
+
+Example:
+
+# $HOME/.config/dotm/profiles/myprofile/git/.gitconfig.tpl
+[user]
+    name = {{ .GitUser }}
+    email = {{ .GitEmail }}
+
 Hooks
+
 Update hooks can be applied via global config, at profile root and per top level
 directory. For hooks at profile root and top level directory you can create a
 hooks.toml. Note: This file won't be symlinked.
