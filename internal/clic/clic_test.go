@@ -70,7 +70,7 @@ func TestRunWithPrimitives(t *testing.T) {
 			if test.err == "" && err != nil {
 				tt.Fatalf("clic.Run failed: %s", err.Error())
 			}
-			if test.err != "" && err.Error() != test.err {
+			if test.err != "" && err != nil && err.Error() != test.err {
 				tt.Fatalf("clic.Run should fail with: %s, got: %s", test.err, err)
 			}
 			if test.out != out {
@@ -129,11 +129,21 @@ func TestRunWithContainers(t *testing.T) {
 			Slice: []string{"b"},
 			Map:   map[string]string{"foo": "bar", "a": "b"},
 		}},
-		// {"Map.foo baar", "", "", containers{
-		// 	Array: [2]string{"a", "b"},
-		// 	Slice: []string{"a"},
-		// 	Map:   map[string]string{"foo": "baar", "a": "b"},
-		// }},
+		{"Slice[] b", "", "", containers{
+			Array: [2]string{"a", "b"},
+			Slice: []string{"a", "b"},
+			Map:   map[string]string{"foo": "bar", "a": "b"},
+		}},
+		{"Map.foo baar", "", "", containers{
+			Array: [2]string{"a", "b"},
+			Slice: []string{"a"},
+			Map:   map[string]string{"foo": "baar", "a": "b"},
+		}},
+		{"Map.bla foo", "", "", containers{
+			Array: [2]string{"a", "b"},
+			Slice: []string{"a"},
+			Map:   map[string]string{"foo": "bar", "a": "b", "bla": "foo"},
+		}},
 	} {
 		t.Run(test.args, func(tt *testing.T) {
 			c := test.c
@@ -141,7 +151,7 @@ func TestRunWithContainers(t *testing.T) {
 			if test.err == "" && err != nil {
 				tt.Fatalf("clic.Run failed: %s", err.Error())
 			}
-			if test.err != "" && err.Error() != test.err {
+			if test.err != "" && err != nil && err.Error() != test.err {
 				tt.Fatalf("clic.Run should fail with: %s, got: %s", test.err, err)
 			}
 			if test.out != out {
@@ -200,7 +210,7 @@ func TestRunWithStructs(t *testing.T) {
 			if test.err == "" && err != nil {
 				tt.Fatalf("clic.Run failed: %s", err.Error())
 			}
-			if test.err != "" && err.Error() != test.err {
+			if test.err != "" && err != nil && err.Error() != test.err {
 				tt.Fatalf("clic.Run should fail with: %s, got: %s", test.err, err)
 			}
 			if test.out != out {

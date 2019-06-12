@@ -8,6 +8,7 @@ package clic
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"sort"
 	"strconv"
@@ -19,7 +20,7 @@ const tagName = "clic"
 
 // Run parses the provided args into a set of accessors and an optional value.
 // The accessors are separated by a ".". Depending on wether a value was
-// provided, it either sets the value or retrives it. Args could look like the
+// provided it visitor either sets the value or retrives it. Args could look like the
 // following:
 //      a.b
 //      a.b "foo"
@@ -38,17 +39,17 @@ func Run(args string, v interface{}) (string, error) {
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
 		return "", fmt.Errorf("non-pointer")
 	}
-	val, err := findValue(rv.Elem(), parsedArgs.accessors)
-	if err != nil {
+	var visitor valueVisitor
+	if parsedArgs.value == "" {
+		visitor = &valueGetter{}
+	} else {
+		visitor = &valueSetter{value: parsedArgs.value}
+	}
+	err = iterateAccessors(rv.Elem(), parsedArgs.accessors, visitor)
+	if err != nil && err != io.EOF {
 		return "", err
 	}
-	if parsedArgs.value == "" {
-		return getValue(val), nil
-	}
-	if !val.CanAddr() {
-		return "", fmt.Errorf("not addressable: %v", val)
-	}
-	return "", setValue(val, parsedArgs.value)
+	return visitor.String(), nil
 }
 
 // Args returns all valid args, that can be used for the given
@@ -110,25 +111,31 @@ func findArgs(v reflect.Value, prefix string) []string {
 	return args
 }
 
-// findValue tries to find the reflect.Value, that match with the given
-// accessors.
-// It works by recursively trying to match the current accessor until all
-// accessors were matched.
-// It returns an error if an accessor cannot be matched.
-func findValue(v reflect.Value, accessors []accessor) (reflect.Value, error) {
-	if len(accessors) == 0 {
-		return v, nil
+type valueVisitor interface {
+	Value(v reflect.Value, accessors []accessor) error
+	String() string
+}
+
+func iterateAccessors(v reflect.Value, accessors []accessor, visitor valueVisitor) error {
+	err := visitor.Value(v, accessors)
+	if err != nil {
+		return err
 	}
+	if len(accessors) == 0 {
+		// Abort the recursion, when all accessorve been processed.
+		return nil
+	}
+
 	oldAccessors := accessors
 	accessor, accessors := accessors[0], accessors[1:]
 	switch v.Type().Kind() {
 	case reflect.Ptr:
-		return findValue(v.Elem(), oldAccessors)
+		return iterateAccessors(v.Elem(), oldAccessors, visitor)
 	case reflect.Interface:
-		return findValue(reflect.ValueOf(v), oldAccessors)
+		return iterateAccessors(reflect.ValueOf(v), oldAccessors, visitor)
 	case reflect.Struct:
 		if accessor.typ != accessorName {
-			return reflect.Value{}, fmt.Errorf("accessor %s: struct: expected named accessor", accessor.value)
+			return fmt.Errorf("accessor %s: struct: expected named accessor", accessor.value)
 		}
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Type().Field(i)
@@ -142,48 +149,132 @@ func findValue(v reflect.Value, accessors []accessor) (reflect.Value, error) {
 				continue
 			case "": // When the tag value is empty, try to match the field name.
 				if field.Name == accessor.value {
-					return findValue(v.Field(i), accessors)
+					return iterateAccessors(v.Field(i), accessors, visitor)
 				}
 			case accessor.value:
-				return findValue(v.Field(i), accessors)
+				return iterateAccessors(v.Field(i), accessors, visitor)
 			}
 
-			// When the field is an embedded field, check if it contains the
-			// accessor. If not proceed with the next field
+			// When the field is an embedded field, check if visitor contains the
+			// accessor. If not proceed with the next field.
 			if field.Anonymous {
-				vv, err := findValue(v.Field(i), oldAccessors)
+				// A recorder is used, to check if the embedded field
+				// matches the accessor. This prevents iterations leaking to the
+				// main valueVisitor, if visitor doesn't match.
+				r := &recorder{records: make([]record, 0), visitor: visitor}
+				err := iterateAccessors(v.Field(i), oldAccessors, r)
 				if err == nil {
-					return vv, nil
+					return r.Playback()
 				}
 			}
 		}
 
 		// No struct field has been found for the current accessor.
-		return reflect.Value{}, fmt.Errorf("accessor %s: struct: field not found", accessor.value)
+		return fmt.Errorf("accessor %s: struct: field not found", accessor.value)
 	case reflect.Array, reflect.Slice:
 		if accessor.typ != accessorIndex {
-			return reflect.Value{}, fmt.Errorf("accessor %s: array: expected index accessor", accessor.value)
+			return fmt.Errorf("accessor %s: array: expected index accessor", accessor.value)
 		}
 		i, err := strconv.Atoi(accessor.value)
 		if err != nil {
-			return reflect.Value{}, fmt.Errorf("accessor %s: array: index must be an integer", accessor.value)
+			return fmt.Errorf("accessor %s: array: index must be an integer", accessor.value)
 		}
 		if i >= v.Len() {
-			return reflect.Value{}, fmt.Errorf("accessor %s: array: index out of bounds", accessor.value)
+			return fmt.Errorf("accessor %s: array: index out of bounds", accessor.value)
 		}
-		return findValue(v.Index(i), accessors)
+		return iterateAccessors(v.Index(i), accessors, visitor)
 	case reflect.Map:
 		accessorValue := reflect.ValueOf(accessor.value)
 		for _, k := range v.MapKeys() {
 			if accessorValue.String() == k.String() {
-				return findValue(v.MapIndex(k), accessors)
+				return iterateAccessors(v.MapIndex(k), accessors, visitor)
 			}
 		}
-		return reflect.Value{}, fmt.Errorf("accessor %s: map: index not found", accessor.value)
+		return fmt.Errorf("accessor %s: map: index not found", accessor.value)
 	}
 
-	// We are at a value, that doesn't support further propagating the accessor.
-	return reflect.Value{}, fmt.Errorf("accessor %s: can't match with type %s", accessor.value, v.Type().Kind().String())
+	// We are at value, that doesn't support further propagating the accessor.
+	return fmt.Errorf("accessor %s: can't match with type %s", accessor.value, v.Type().Kind().String())
+}
+
+type valueSetter struct {
+	value string
+}
+
+func (visitor *valueSetter) Value(v reflect.Value, accessors []accessor) error {
+	switch len(accessors) {
+	case 0:
+		// If we are at the last reflect.Value, try to set the value.
+		if !v.CanAddr() {
+			return fmt.Errorf("not addressable: %s: %v", v.Type().Kind(), v)
+		}
+		return setValue(v, visitor.value)
+	case 1:
+		// If we are at the second last accessor, we might set the value
+		// already, for some special cased types.
+		switch v.Type().Kind() {
+		case reflect.Slice:
+			if accessors[0].typ == accessorIndex && accessors[0].value == "" {
+				val, err := newValue(v.Type().Elem().Kind(), visitor.value)
+				if err != nil {
+					return err
+				}
+				reflect.Append(v, val)
+				return io.EOF
+			}
+		case reflect.Map:
+			val, err := newValue(v.Type().Elem().Kind(), visitor.value)
+			if err != nil {
+				return err
+			}
+			v.SetMapIndex(reflect.ValueOf(accessors[0].value), val)
+			return io.EOF
+		}
+	}
+	return nil
+}
+
+func (visitor *valueSetter) String() string { return "" }
+
+type valueGetter struct {
+	value string
+}
+
+func (visitor *valueGetter) Value(v reflect.Value, accessors []accessor) error {
+	if len(accessors) == 0 {
+		visitor.value = getValue(v)
+		return io.EOF
+	}
+	return nil
+}
+
+func (visitor *valueGetter) String() string { return visitor.value }
+
+type record struct {
+	v         reflect.Value
+	accessors []accessor
+}
+
+type recorder struct {
+	records []record
+	visitor valueVisitor
+}
+
+func (visitor *recorder) Value(v reflect.Value, accessors []accessor) error {
+	visitor.records = append(visitor.records, record{v: v, accessors: accessors})
+	return nil
+}
+
+func (visitor *recorder) String() string { return "" }
+
+func (visitor *recorder) Playback() error {
+	for _, r := range visitor.records {
+		err := visitor.visitor.Value(r.v, r.accessors)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // getValue returns the value of v as a string.
@@ -289,6 +380,42 @@ func setValue(v reflect.Value, value string) error {
 		panic(fmt.Sprintf("setValue: type %s not implemented", v.Type().Kind().String()))
 	}
 	return nil
+}
+
+// newValue creates a new reflect.Value for the given string value.
+// Tries to convert the string value according to the given reflect.Kind.
+//
+// It panics for types, that are not implemented.
+func newValue(k reflect.Kind, value string) (reflect.Value, error) {
+	switch k {
+	case reflect.String:
+		return reflect.ValueOf(value), nil
+	case reflect.Bool:
+		b, err := strconv.ParseBool(value)
+		if err != nil {
+			return reflect.Value{}, fmt.Errorf("failed parse value: expected bool")
+		}
+		return reflect.ValueOf(b), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		i, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return reflect.Value{}, fmt.Errorf("failed parse value: expected int")
+		}
+		return reflect.ValueOf(i), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		i, err := strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			return reflect.Value{}, fmt.Errorf("failed parse value: expected uint")
+		}
+		return reflect.ValueOf(i), nil
+	case reflect.Float32, reflect.Float64:
+		f, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return reflect.Value{}, fmt.Errorf("failed parse value: expected float")
+		}
+		return reflect.ValueOf(f), nil
+	}
+	panic(fmt.Sprintf("newValue: type %s not implemented", k.String()))
 }
 
 type accessorType int
