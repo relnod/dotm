@@ -1,6 +1,7 @@
 # Tests that a pre/post update hook can be interrupted
 
-! dotminterrupt update myprofile
+! dotm update myprofile &
+stop
 
 ! islink $HOME/.bashrc
 ! exists $HOME/pre_update
