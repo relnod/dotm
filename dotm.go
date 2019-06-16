@@ -194,7 +194,8 @@ func update(ctx context.Context, p *Profile, opts *UpdateOptions) (err error) {
 
 // UninstallOptions are the options used to uninstall a dotfile profile.
 type UninstallOptions struct {
-	Dry bool
+	Dry   bool // Dry performes a dry run
+	Clean bool // Clean also removes the local dotfile path and the config entry
 }
 
 // Uninstall unlinks a dotfile profile. If any backup files exist, they get
@@ -214,7 +215,15 @@ func Uninstall(profile string, opts *UninstallOptions) error {
 		return err
 	}
 
-	return c.Write()
+	if opts.Clean {
+		if err := os.RemoveAll(p.expandedPath); err != nil {
+			return err
+		}
+		delete(c.Profiles, profile)
+		return c.Write()
+	}
+
+	return nil
 }
 
 var oldConfigPath = os.ExpandEnv("$HOME/.dotfiles/dotm.toml")

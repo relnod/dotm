@@ -1,0 +1,22 @@
+# Tests unistall command removes local path and profile from config when --clean
+# flag was provided
+
+dotm uninstall --clean myprofile
+
+cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
+! exists $HOME/.config/dotm/profiles/myprofile
+
+-- home/testuser/.config/dotm/config.toml --
+ignore_prefix = ""
+
+[profiles]
+  [profiles.myprofile]
+    path = "$HOME/.config/dotm/profiles/myprofile/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/myprofile/bash/.bashrc --
+
+-- home/testuser/.config/dotm/config.toml.golden --
+ignore_prefix = ""
+
+[profiles]
