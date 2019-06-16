@@ -5,26 +5,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/xerrors"
-
-	"github.com/relnod/dotm"
 )
 
 // Execute executes the root command.
-// Returns an error on failure. Prints an error message and possibly a help
-// message to stderr on failure.
+// It returns an error on failure.
 func Execute() error {
-	err := rootCmd.Execute()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-
-		// If the error is a help error, also print the help message.
-		var helpError *dotm.HelpError
-		if xerrors.As(err, &helpError) {
-			fmt.Fprintf(os.Stderr, "Help: %s\n", helpError.Help())
-		}
-	}
-	return err
+	return rootCmd.Execute()
 }
 
 const rootHelp = `dotm is a dotfile manager. It works by symlinking the dotfiles
