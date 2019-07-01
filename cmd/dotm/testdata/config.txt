@@ -32,10 +32,10 @@ dotm config ignore_prefix "|"
 dotm config profile.a.path "mypath2"
 dotm config profile.a.remote "myremote2"
 dotm config profile.a.hooks_enabled true
-dotm config profile.a.includes.0 "aa"
-dotm config profile.a.excludes.0 "cc"
-dotm config profile.a.pre_update.0 "ee"
-dotm config profile.a.post_update.0 "gg"
+dotm config profile.a.includes[0] "aa"
+dotm config profile.a.excludes[0] "cc"
+dotm config profile.a.pre_update[0] "ee"
+dotm config profile.a.post_update[0] "gg"
 
 cmp $HOME/.config/dotm/config.toml $HOME/.config/dotm/config.toml.golden
 

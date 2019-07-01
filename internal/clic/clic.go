@@ -88,13 +88,13 @@ func findArgs(v reflect.Value, prefix string) []string {
 			}
 			args = append(args, findArgs(v.Field(i), prefix+name)...)
 		}
-	case reflect.Array, reflect.Slice:
+	case reflect.Slice:
+		args = append(args, prefix+"[]")
+		fallthrough
+	case reflect.Array:
 		args = append(args, prefix)
-		if prefix != "" {
-			prefix += "."
-		}
 		for i := 0; i < v.Len(); i++ {
-			args = append(args, findArgs(v.Index(i), prefix+strconv.Itoa(i))...)
+			args = append(args, findArgs(v.Index(i), prefix+"["+strconv.Itoa(i)+"]")...)
 		}
 	case reflect.Map:
 		args = append(args, prefix)
@@ -115,7 +115,7 @@ func findArgs(v reflect.Value, prefix string) []string {
 // It works by recursively trying to match the current accessor until all
 // accessors were matched.
 // It returns an error if an accessor cannot be matched.
-func findValue(v reflect.Value, accessors []string) (reflect.Value, error) {
+func findValue(v reflect.Value, accessors []accessor) (reflect.Value, error) {
 	if len(accessors) == 0 {
 		return v, nil
 	}
@@ -127,6 +127,9 @@ func findValue(v reflect.Value, accessors []string) (reflect.Value, error) {
 	case reflect.Interface:
 		return findValue(reflect.ValueOf(v), oldAccessors)
 	case reflect.Struct:
+		if accessor.typ != accessorName {
+			return reflect.Value{}, fmt.Errorf("accessor %s: struct: expected named accessor", accessor.value)
+		}
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Type().Field(i)
 			// For exported fields the pkg path is empty.
@@ -138,10 +141,10 @@ func findValue(v reflect.Value, accessors []string) (reflect.Value, error) {
 			case "_": // Ignore fields, where the tag value is "_".
 				continue
 			case "": // When the tag value is empty, try to match the field name.
-				if field.Name == accessor {
+				if field.Name == accessor.value {
 					return findValue(v.Field(i), accessors)
 				}
-			case accessor:
+			case accessor.value:
 				return findValue(v.Field(i), accessors)
 			}
 
@@ -156,28 +159,31 @@ func findValue(v reflect.Value, accessors []string) (reflect.Value, error) {
 		}
 
 		// No struct field has been found for the current accessor.
-		return reflect.Value{}, fmt.Errorf("accessor %s: struct: field not found", accessor)
+		return reflect.Value{}, fmt.Errorf("accessor %s: struct: field not found", accessor.value)
 	case reflect.Array, reflect.Slice:
-		i, err := strconv.Atoi(accessor)
+		if accessor.typ != accessorIndex {
+			return reflect.Value{}, fmt.Errorf("accessor %s: array: expected index accessor", accessor.value)
+		}
+		i, err := strconv.Atoi(accessor.value)
 		if err != nil {
-			return reflect.Value{}, fmt.Errorf("accessor %s: array: index must be an integer", accessor)
+			return reflect.Value{}, fmt.Errorf("accessor %s: array: index must be an integer", accessor.value)
 		}
 		if i >= v.Len() {
-			return reflect.Value{}, fmt.Errorf("accessor %s: array: index out of bounds", accessor)
+			return reflect.Value{}, fmt.Errorf("accessor %s: array: index out of bounds", accessor.value)
 		}
 		return findValue(v.Index(i), accessors)
 	case reflect.Map:
-		accessorValue := reflect.ValueOf(accessor)
+		accessorValue := reflect.ValueOf(accessor.value)
 		for _, k := range v.MapKeys() {
 			if accessorValue.String() == k.String() {
 				return findValue(v.MapIndex(k), accessors)
 			}
 		}
-		return reflect.Value{}, fmt.Errorf("accessor %s: map: index not found", accessor)
+		return reflect.Value{}, fmt.Errorf("accessor %s: map: index not found", accessor.value)
 	}
 
-	// We are at value, that doesn't support further propagating the accessor.
-	return reflect.Value{}, fmt.Errorf("accessor %s: can't match with type %s", accessor, v.Type().Kind().String())
+	// We are at a value, that doesn't support further propagating the accessor.
+	return reflect.Value{}, fmt.Errorf("accessor %s: can't match with type %s", accessor.value, v.Type().Kind().String())
 }
 
 // getValue returns the value of v as a string.
@@ -285,44 +291,139 @@ func setValue(v reflect.Value, value string) error {
 	return nil
 }
 
-// parsedArgs args represents the arguments passed to the Run function.
-// The value is optional and is left empty when not set.
-// Examples:
-//  a.b
-//  a.b "b"
+type accessorType int
+
+const (
+	accessorName accessorType = iota
+	accessorIndex
+)
+
+type accessor struct {
+	value string
+	typ   accessorType
+}
+
+// parsedArgs represents the parsed arguemnts. It has a list of accessors and an
+// optional value.
 type parsedArgs struct {
-	accessors []string
+	accessors []accessor
 	value     string
 }
 
-// parseArgs parses string args into a set of accessors separated by a "." and
-// an optional value. The args have the following form:
-//   accessor(.accessor)* "value"
+// parseState defines the state of the argument parser. Additional states can be
+// created by combining existing states.
+type parseState int
+
+const (
+	parseName parseState = 1 << iota
+	parseIndex
+	parseValue
+	parseValueQuoted
+	parseEnd
+)
+
+// parseArgs parses the given string arguments into a parsedArgs struct.
+// The parsing works with a simple state machine with the current character as
+// input.
+// It returns an error, when the arguments are in an invalid format.
 func parseArgs(args string) (p parsedArgs, err error) {
 	if args == "" {
 		return parsedArgs{}, fmt.Errorf("empty args")
 	}
-	// The value is separated from the accessors by the first blank.
-	splitted := strings.Split(args, " ")
-	if strings.HasSuffix(splitted[0], ".") {
-		return parsedArgs{}, fmt.Errorf("unexpected trailing dot")
+
+	state := parseName | parseIndex // Set start state to parseName or parseIndex
+	tokenStart := 0                 // tokenStart tracks the beginning of a token.
+	addAccessor := func(typ accessorType, end int) {
+		value := ""
+		if tokenStart < end {
+			value = args[tokenStart:end]
+		}
+		p.accessors = append(p.accessors, accessor{
+			typ:   typ,
+			value: value,
+		})
 	}
-	p.accessors = strings.Split(splitted[0], ".")
 
-	// Check if a value was set.
-	if len(splitted) > 1 {
-		// The value can have blanks. So join all remaining splitted values.
-		p.value = strings.Join(splitted[1:], " ")
-
-		// The value might be surrounded by quotes. If they are remove them from
-		// the value.
-		if strings.HasPrefix(p.value, "\"") {
-			if !strings.HasSuffix(p.value, "\"") {
-				return parsedArgs{}, fmt.Errorf("missing closing quote")
+	for i := 0; i < len(args); i++ {
+		switch state {
+		case parseName | parseIndex | parseValue:
+			switch args[i] {
+			case ' ':
+				state = parseValue | parseValueQuoted
+				tokenStart = i + 1
+				continue
 			}
-			p.value = strings.Trim(p.value, "\"")
+			fallthrough
+		case parseName | parseIndex:
+			switch args[i] {
+			case '[':
+				state = parseIndex
+				tokenStart = i + 1
+			case '.':
+				if i == 0 {
+					return parsedArgs{}, fmt.Errorf("unexpected leading dot")
+				}
+				state = parseName
+				tokenStart = i + 1
+			default:
+				state = parseName
+				tokenStart = i
+			}
+		case parseName:
+			switch args[i] {
+			case '[':
+				addAccessor(accessorName, i)
+				state = parseIndex
+				tokenStart = i + 1
+			case '.':
+				if i == len(args)-1 {
+					return parsedArgs{}, fmt.Errorf("unexpected trailing dot")
+				}
+				addAccessor(accessorName, i)
+				state = parseName
+				tokenStart = i + 1
+			case ' ':
+				addAccessor(accessorName, i)
+				tokenStart = i + 1
+				state = parseValue | parseValueQuoted
+			}
+		case parseIndex:
+			switch args[i] {
+			case ']':
+				addAccessor(accessorIndex, i)
+				state = parseName | parseIndex | parseValue
+			}
+		case parseValue | parseValueQuoted:
+			switch args[i] {
+			case '"':
+				state = parseValueQuoted
+				tokenStart = i + 1
+			default:
+				state = parseValue
+			}
+		case parseValue: // Do nothing
+		case parseValueQuoted:
+			switch args[i] {
+			case '"':
+				if i == len(args)-1 {
+					p.value = args[tokenStart:i]
+					state = parseEnd
+				}
+			}
 		}
 	}
 
+	// After processing all inputs, check the state of the parser and either do
+	// nothing, return an error for unfinished tokens or add a new token.
+	switch state {
+	case parseName:
+		addAccessor(accessorName, len(args))
+	case parseIndex:
+		return parsedArgs{}, fmt.Errorf("missing closing ]")
+	case parseValue:
+		p.value = args[tokenStart:len(args)]
+	case parseValueQuoted:
+		return parsedArgs{}, fmt.Errorf("missing closing \"")
+	}
 	return p, nil
 }
