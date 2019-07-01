@@ -20,13 +20,17 @@ var uninstallCmd = &cobra.Command{
 	ValidArgs: []string{"$(dotm list)"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotm.Uninstall(args[0], &dotm.UninstallOptions{
-			Dry: dry,
+			Dry:   dry,
+			Clean: clean,
 		})
 	},
 }
 
+var clean bool
+
 func init() {
 	uninstallCmd.Flags().BoolVar(&dry, "dry", false, "perfomes a dry run")
+	uninstallCmd.Flags().BoolVar(&clean, "clean", false, "delete the local path and remove profile from config")
 
 	rootCmd.AddCommand(uninstallCmd)
 }
