@@ -316,7 +316,7 @@ func (p *Profile) pullRemote(ctx context.Context) error {
 		return err
 	}
 	if !status.IsClean() {
-		return &HelpError{errors.New("pull: worktree is not clean"), "run `git status` to see changed files"}
+		return errors.New("pull: worktree is not clean")
 	}
 
 	err = w.PullContext(ctx, &git.PullOptions{RemoteName: "origin"})

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -42,6 +43,7 @@ func TestScripts(t *testing.T) {
 func execdotm() int {
 	err := commands.Execute()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return 1
 	}
 	return 0
