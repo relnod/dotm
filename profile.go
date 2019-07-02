@@ -1,6 +1,7 @@
 package dotm
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	git "gopkg.in/src-d/go-git.v4"
 
@@ -17,12 +19,13 @@ import (
 
 // Profile defines the data of a dotfile profile.
 type Profile struct {
-	Name         string   `toml:"-" clic:"name"`
-	Path         string   `toml:"path" clic:"path"`
-	Remote       string   `toml:"remote" clic:"remote"`
-	HooksEnabled bool     `toml:"hooks_enabled" clic:"hooks_enabled"`
-	Includes     []string `toml:"includes" clic:"includes"`
-	Excludes     []string `toml:"excludes" clic:"excludes"`
+	Name         string            `toml:"-" clic:"name"`
+	Path         string            `toml:"path" clic:"path"`
+	Remote       string            `toml:"remote" clic:"remote"`
+	HooksEnabled bool              `toml:"hooks_enabled" clic:"hooks_enabled"`
+	Includes     []string          `toml:"includes" clic:"includes"`
+	Excludes     []string          `toml:"excludes" clic:"excludes"`
+	Vars         map[string]string `toml:"vars" clic:"vars"`
 	Hooks
 
 	// expandedPath contains the Path after it was expanded.
@@ -99,9 +102,10 @@ type LinkOptions struct {
 //      <profilepath>/nvim/.config/nvim/init.vim -> $HOME/.config/nvim/init.vim
 func (p *Profile) link(opts LinkOptions) error {
 	err := p.traverse(&linker{
-		dest:  os.Getenv("HOME"),
-		force: opts.Force,
-		dry:   opts.Dry,
+		dest:    os.Getenv("HOME"),
+		force:   opts.Force,
+		dry:     opts.Dry,
+		tplVars: p.Vars,
 	}, &opts.TraversalOptions)
 	if err != nil {
 		return fmt.Errorf("link: %s", err)
@@ -114,8 +118,9 @@ type linker struct {
 	// dest is the path where the files get linked to
 	dest string
 
-	force bool
-	dry   bool
+	force   bool
+	dry     bool
+	tplVars map[string]string
 }
 
 func (l *linker) Visit(path, relativePath string) error {
@@ -125,6 +130,21 @@ func (l *linker) Visit(path, relativePath string) error {
 	}
 
 	destFile := filepath.Join(l.dest, relativePath)
+
+	// Don't link already processed templates, since they should have been
+	// handled below.
+	if strings.HasSuffix(path, ".tpl.out") {
+		return nil
+	}
+	// Check if the file is a template
+	if strings.HasSuffix(path, ".tpl") {
+		path, err = processTemplate(path, l.tplVars)
+		if err != nil {
+			return err
+		}
+		// Remove the .tpl suffix of the destination file.
+		destFile = strings.TrimSuffix(destFile, ".tpl")
+	}
 
 	// Check if the file is a symlink. If so remove it, even if the force option
 	// is not set.
@@ -149,6 +169,32 @@ func (l *linker) Visit(path, relativePath string) error {
 	return file.Link(path, destFile, l.dry)
 }
 
+// processTemplate generates the processed template file from the given file
+// path. All vars are used for tempalte parsing.
+// It returns the path of the generated file.
+// It returns an error, when parsing fails or a filesystem problem occurs.
+func processTemplate(path string, vars map[string]string) (string, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("tpl: %v", err)
+	}
+	tmpl, err := template.New(path).Parse(string(data))
+	if err != nil {
+		return "", fmt.Errorf("tpl: %v", err)
+	}
+	b := bytes.NewBuffer([]byte{})
+	err = tmpl.Execute(b, vars)
+	if err != nil {
+		return "", fmt.Errorf("tpl: %v", err)
+	}
+	path = path + ".out"
+	err = ioutil.WriteFile(path, b.Bytes(), os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("tpl: %v", err)
+	}
+	return path, nil
+}
+
 // unlink removes all symlinks created by the profile.
 func (p *Profile) unlink(dry bool) error {
 	err := p.traverse(&unlinker{
@@ -170,6 +216,15 @@ type unlinker struct {
 
 func (u *unlinker) Visit(path, relativePath string) error {
 	filepath := filepath.Join(u.path, relativePath)
+
+	// Skip template files.
+	if strings.HasSuffix(filepath, ".tpl") {
+		return nil
+	}
+	// Remove suffix from processed template files.
+	if strings.HasSuffix(filepath, ".tpl.out") {
+		filepath = strings.TrimSuffix(filepath, ".tpl.out")
+	}
 
 	// Check if the file file exists.
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {

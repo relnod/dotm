@@ -106,6 +106,11 @@ func loadConfigWithMetaData(path string) (*Config, toml.MetaData, error) {
 	if err != nil {
 		return nil, toml.MetaData{}, errors.New("failed to decode config")
 	}
+	for _, p := range c.Profiles {
+		if p.Vars == nil {
+			p.Vars = make(map[string]string)
+		}
+	}
 	return c, meta, nil
 }
 
