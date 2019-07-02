@@ -107,23 +107,24 @@ func TestRunWithContainers(t *testing.T) {
 	}{
 		// GET
 		{"Array", "a\nb", "", container},
-		{"Array.1", "b", "", container},
-		{"Array.2", "", "accessor 2: array: index out of bounds", container},
-		{"Array.b", "", "accessor b: array: index must be an integer", container},
+		{"Array.a", "", "accessor a: array: expected index accessor", container},
+		{"Array[1]", "b", "", container},
+		{"Array[2]", "", "accessor 2: array: index out of bounds", container},
+		{"Array[b]", "", "accessor b: array: index must be an integer", container},
 		{"Slice", "a", "", container},
-		{"Slice.0", "a", "", container},
-		{"Slice.1", "", "accessor 1: array: index out of bounds", container},
+		{"Slice[0]", "a", "", container},
+		{"Slice[1]", "", "accessor 1: array: index out of bounds", container},
 		{"Map", "a.b\nfoo.bar", "", container},
 		{"Map.foo", "bar", "", container},
 		{"Map.blub", "", "accessor blub: map: index not found", container},
 
 		// SET
-		{"Array.0 c", "", "", containers{
+		{"Array[0] c", "", "", containers{
 			Array: [2]string{"c", "b"},
 			Slice: []string{"a"},
 			Map:   map[string]string{"foo": "bar", "a": "b"},
 		}},
-		{"Slice.0 b", "", "", containers{
+		{"Slice[0] b", "", "", containers{
 			Array: [2]string{"a", "b"},
 			Slice: []string{"b"},
 			Map:   map[string]string{"foo": "bar", "a": "b"},
@@ -179,6 +180,7 @@ func TestRunWithStructs(t *testing.T) {
 		c    structs
 	}{
 		// GET
+		{"Inner[a]", "", "accessor a: struct: expected named accessor", st},
 		{"Inner.a", "b", "", st},
 		{"A", "c", "", st},
 
@@ -241,9 +243,9 @@ func TestArgs(t *testing.T) {
 
 	want := []string{
 		"Array",
-		"Array.0",
-		"Array.1",
-		"Array.2",
+		"Array[0]",
+		"Array[1]",
+		"Array[2]",
 		"B",
 		"Map",
 		"Map.bar",
@@ -251,10 +253,11 @@ func TestArgs(t *testing.T) {
 		"MapPointer",
 		"MapPointer.si.A",
 		"Slice",
-		"Slice.0",
-		"Slice.1",
-		"Slice.2",
-		"Slice.3",
+		"Slice[0]",
+		"Slice[1]",
+		"Slice[2]",
+		"Slice[3]",
+		"Slice[]",
 		"Struct.A",
 		"a",
 	}
@@ -271,12 +274,20 @@ func TestParseArgs(t *testing.T) {
 		err    string
 	}{
 		{"", parsedArgs{}, "empty args"},
-		{"a", parsedArgs{accessors: []string{"a"}}, ""},
+		{"a", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}}}, ""},
+		{"abcdef", parsedArgs{accessors: []accessor{accessor{value: "abcdef", typ: accessorName}}}, ""},
 		{"a.", parsedArgs{}, "unexpected trailing dot"},
-		{"a.b", parsedArgs{accessors: []string{"a", "b"}}, ""},
-		{"a 123", parsedArgs{accessors: []string{"a"}, value: "123"}, ""},
-		{"a \"foo\"", parsedArgs{accessors: []string{"a"}, value: "foo"}, ""},
-		{"a \"foo", parsedArgs{}, "missing closing quote"},
+		{".a", parsedArgs{}, "unexpected leading dot"},
+		{"a.b", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}, accessor{value: "b", typ: accessorName}}}, ""},
+		{"a 123", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}}}, ""},
+		{"a \"foo\"", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}}, value: "foo"}, ""},
+		{"a \"bar\"", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}}, value: "bar"}, ""},
+		{"a \"foo", parsedArgs{}, "missing closing \""},
+		{"a[12]", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}, accessor{value: "12", typ: accessorIndex}}}, ""},
+		{"a[12].b", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}, accessor{value: "12", typ: accessorIndex}, accessor{value: "b", typ: accessorName}}}, ""},
+		{"a[]", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}, accessor{typ: accessorIndex}}}, ""},
+		{"a[12", parsedArgs{}, "missing closing ]"},
+		{"a[12] foo", parsedArgs{accessors: []accessor{accessor{value: "a", typ: accessorName}, accessor{value: "12", typ: accessorIndex}}, value: "foo"}, ""},
 	} {
 		t.Run(test.args, func(tt *testing.T) {
 			parsed, err := parseArgs(test.args)
@@ -286,8 +297,11 @@ func TestParseArgs(t *testing.T) {
 			if test.err != "" && (err == nil || err.Error() != test.err) {
 				tt.Fatalf("parseArgs should fail with: %s", test.err)
 			}
-			if !reflect.DeepEqual(test.parsed, parsed) {
-				tt.Fatalf("test.parsed != parsed: %v != %v", test.parsed, parsed)
+			if !reflect.DeepEqual(test.parsed.accessors, parsed.accessors) {
+				tt.Fatalf("test.parsed.accessors != parsed.accessors: %v != %v", test.parsed.accessors, parsed.accessors)
+			}
+			if test.parsed.value != test.parsed.value {
+				tt.Fatalf("test.parsed.value != parsed.value: %s != %s", test.parsed.value, parsed.value)
 			}
 		})
 	}
