@@ -12,6 +12,9 @@ stdout myremote
 dotm config profile.a.hooks_enabled
 stdout false
 
+dotm config profile.a.update_from_remote
+stdout false
+
 dotm config profile.a.includes
 stdout a
 stdout b
@@ -32,6 +35,7 @@ dotm config ignore_prefix "|"
 dotm config profile.a.path "mypath2"
 dotm config profile.a.remote "myremote2"
 dotm config profile.a.hooks_enabled true
+dotm config profile.a.update_from_remote true
 dotm config profile.a.includes[0] "aa"
 dotm config profile.a.excludes[0] "cc"
 dotm config profile.a.pre_update[0] "ee"
@@ -48,6 +52,7 @@ ignore_prefix = "_"
     path = "mypath"
     remote = "myremote"
     hooks_enabled = false
+    update_from_remote = false
     includes = [
         "a",
         "b"
@@ -73,6 +78,7 @@ ignore_prefix = "|"
     path = "mypath2"
     remote = "myremote2"
     hooks_enabled = true
+    update_from_remote = true
     includes = ["aa", "b"]
     excludes = ["cc", "d"]
     pre_update = ["ee", "f"]

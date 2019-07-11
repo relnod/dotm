@@ -19,13 +19,14 @@ import (
 
 // Profile defines the data of a dotfile profile.
 type Profile struct {
-	Name         string            `toml:"-" clic:"name"`
-	Path         string            `toml:"path" clic:"path"`
-	Remote       string            `toml:"remote" clic:"remote"`
-	HooksEnabled bool              `toml:"hooks_enabled" clic:"hooks_enabled"`
-	Includes     []string          `toml:"includes" clic:"includes"`
-	Excludes     []string          `toml:"excludes" clic:"excludes"`
-	Vars         map[string]string `toml:"vars" clic:"vars"`
+	Name             string            `toml:"-" clic:"name"`
+	Path             string            `toml:"path" clic:"path"`
+	Remote           string            `toml:"remote" clic:"remote"`
+	HooksEnabled     bool              `toml:"hooks_enabled" clic:"hooks_enabled"`
+	UpdateFromRemote bool              `toml:"update_from_remote" clic:"update_from_remote"`
+	Includes         []string          `toml:"includes" clic:"includes"`
+	Excludes         []string          `toml:"excludes" clic:"excludes"`
+	Vars             map[string]string `toml:"vars" clic:"vars"`
 	Hooks
 
 	// expandedPath contains the Path after it was expanded.
