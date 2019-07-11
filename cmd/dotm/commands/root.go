@@ -139,7 +139,7 @@ var rootCmd = &cobra.Command{
 	Use:           "dotm",
 	Short:         "Dotm is a dotfile manager",
 	Long:          rootHelp,
-	Version:       "v0.5.0",
+	Version:       "v0.6.0",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	Args:          cobra.ExactArgs(0),
