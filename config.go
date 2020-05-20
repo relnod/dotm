@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"golang.org/x/xerrors"
 )
 
 // configPath is the path to the configuration file
@@ -99,7 +98,7 @@ var errOpenConfig = errors.New("failed to open config")
 func loadConfigWithMetaData(path string) (*Config, toml.MetaData, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, toml.MetaData{}, xerrors.Errorf("%v: %w", errOpenConfig, err)
+		return nil, toml.MetaData{}, fmt.Errorf("%v: %w", errOpenConfig, err)
 	}
 	c := &Config{}
 	meta, err := toml.Decode(string(data), c)
@@ -137,7 +136,7 @@ func LoadOrCreateConfig() (*Config, error) {
 	c, err := LoadConfig()
 	if err != nil {
 		var e *os.PathError
-		if xerrors.As(err, &e) {
+		if errors.As(err, &e) {
 			return &Config{
 				IgnorePrefix: "_", // set default value for the ignored prefix.
 				Profiles:     make(map[string]*Profile),

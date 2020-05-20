@@ -2,10 +2,9 @@ package dotm
 
 import (
 	"context"
+	"errors"
 	"os"
 	"sort"
-
-	"golang.org/x/xerrors"
 )
 
 // New creates a new dotfile profile.
@@ -248,7 +247,7 @@ func Fix() error {
 	if err != nil {
 		// When the config file does not exist, try to load the old config file.
 		var e *os.PathError
-		if xerrors.As(err, &e) {
+		if errors.As(err, &e) {
 			c, meta, err = loadConfigWithMetaData(oldConfigPath)
 			if err != nil {
 				return err
