@@ -26,11 +26,13 @@ func TestScripts(t *testing.T) {
 				panic(err)
 			}
 
+			path := os.Getenv("PATH")
+
 			e.Vars = []string{
 				// Set $HOME to the temporary home.
 				"HOME=" + e.WorkDir + "/home/testuser",
 				// $PATH is needed from host for the git and touch binary.
-				"PATH=/usr/bin/",
+				"PATH=" + path,
 				// OLDWD is needed to execute the dotm binary.
 				"OLDWD=" + wd,
 			}
