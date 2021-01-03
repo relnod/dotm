@@ -1,0 +1,15 @@
+# Doens't link hooks.toml files
+
+dotm update
+
+islink $HOME/.bashrc
+! islink $HOME/hooks.toml
+
+-- home/testuser/.config/dotm/config.toml --
+[profiles]
+  [profiles.profile1]
+    path = "$HOME/.config/dotm/profiles/profile1/"
+    remote = ""
+
+-- home/testuser/.config/dotm/profiles/profile1/bash/.bashrc --
+-- home/testuser/.config/dotm/profiles/profile1/bash/hooks.toml --
