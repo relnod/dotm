@@ -177,7 +177,7 @@ func update(ctx context.Context, p *Profile, opts *UpdateOptions) (err error) {
 		}
 	}
 
-	if opts.FromRemote {
+	if p.UpdateFromRemote || opts.FromRemote {
 		err = p.pullRemote(ctx)
 		if err != nil {
 			return err

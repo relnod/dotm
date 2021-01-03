@@ -18,4 +18,5 @@ ignore_prefix = "_"
     path = ""
     remote = ""
     hooks_enabled = true
+    update_from_remote = false
     [profiles.myprofile.vars]

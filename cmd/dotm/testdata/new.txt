@@ -13,3 +13,4 @@ ignore_prefix = "_"
     path = "$HOME/.config/dotm/profiles/myprofile/"
     remote = ""
     hooks_enabled = true
+    update_from_remote = false
