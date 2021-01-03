@@ -1,7 +1,7 @@
 # dotm - Dotfile Manager
 
-[![Build Status](https://travis-ci.org/relnod/dotm.svg?branch=master)](https://travis-ci.org/relnod/dotm)
-[![Godoc](https://godoc.org/github.com/relnod/dotm?status.svg)](https://godoc.org/github.com/relnod/dotm)
+[![Go Reference](https://pkg.go.dev/badge/github.com/relnod/dotm.svg)](https://pkg.go.dev/github.com/relnod/dotm)
+![Test](https://github.com/relnod/dotm/workflows/Test/badge.svg)
 
 dotm is a dotfile manager. It works by symlinking the dotfiles from multiple
 profiles to the `$HOME` directory. It expects the dotfile profile to be under
