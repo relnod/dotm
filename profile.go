@@ -124,6 +124,11 @@ type linker struct {
 }
 
 func (l *linker) Visit(path, relativePath string) error {
+	// Don't link hooks.toml
+	if relativePath == "hooks.toml" {
+		return nil
+	}
+
 	err := os.MkdirAll(filepath.Join(l.dest, filepath.Dir(relativePath)), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to created destination dir: %v", err)
